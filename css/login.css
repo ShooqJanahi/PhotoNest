@@ -1,0 +1,148 @@
+
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.left-section, .right-section {
+    flex: 1;
+    padding: 20px;
+}
+
+.left-section {
+    background-color: #4A3E74;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.left-section img {
+    max-width: 100%;
+    height: auto;
+}
+
+.left-section h2 {
+    font-weight: 700;
+    line-height: 38px;
+    margin: 20px 0;
+}
+
+.right-section {
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo {
+    max-width: 150px;
+    margin-bottom: 20px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    width: 80%;
+}
+
+label {
+    margin: 10px 0 5px;
+}
+
+input {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 25px; /* Rounded corners */
+}
+
+button {
+    padding: 10px;
+    background-color: #4A3E74;
+    color: white;
+    border: none;
+    border-radius: 25px; /* Rounded corners */
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+button:hover {
+    background-color: #6B4DE6;
+}
+
+a {
+    color: #6B4DE6;
+    text-decoration: none;
+    margin-top: 10px;
+    text-align: center;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.new-here-container {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.new-here-label {
+    display: block;
+    margin: 10px 0 5px; /* Same style as labels */
+    text-align: center; /* Center the label */
+    margin-top: 50px;
+}
+
+/* Media Queries for Responsiveness */
+@media (min-width: 768px) {
+    .container {
+        flex-direction: row;
+    }
+
+    .left-section, .right-section {
+        flex: 1;
+        padding: 40px;
+    }
+
+    form {
+        width: 60%;
+    }
+}
+
+@media (min-width: 1024px) {
+    .left-section img {
+        max-width: 80%;
+    }
+
+    form {
+        width: 50%;
+    }
+}
+
+@media (max-width: 767px) {
+    .left-section h2 {
+        font-size: 24px;
+        line-height: 32px;
+    }
+
+    .right-section {
+        padding: 20px;
+    }
+
+    form {
+        width: 90%;
+    }
+}
