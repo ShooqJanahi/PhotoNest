@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="/css/signup.css">
 
     <!-- ICONSCOUT -->
-    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/line.css">
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/solid.css">
 </head>
 <body>
     <div class="container">
@@ -15,49 +15,57 @@
             <div class="logo">PhotoNest</div>
             <h2>Features include</h2>
             <ul>
-                <li>Effortless Photo Organization</li>
-                <li>Connect with Friends</li>
-                <li>Seamless Sharing Options</li>
-                <li>Advanced Search Filters</li>
+                <li><i class="uis uis-check-circle"></i> Effortless Photo Organization</li>
+                <li><i class="uis uis-check-circle"></i> Connect with Friends</li>
+                <li><i class="uis uis-check-circle"></i> Seamless Sharing Options</li>
+                <li><i class="uis uis-check-circle"></i> Advanced Search Filters</li>
             </ul>
         </div>
         <div class="main-content">
-            <form class="signup-form">
+            <div class="top-bar">
+                <span>New to PhotoNest?</span>
+                <a href="#" class="login-link">Log in</a>
+            </div>
+            <form class="signup-form" method="post">
                 <h2>Sign Up</h2>
                 <div class="input-group">
                     <label for="first-name">First Name</label>
                     <input type="text" id="first-name" name="first-name" placeholder="First Name" required>
-                    <i class="uil uil-check-circle"></i>
                 </div>
                 <div class="input-group">
                     <label for="last-name">Last Name</label>
                     <input type="text" id="last-name" name="last-name" placeholder="Last Name" required>
-                    <i class="uil uil-check-circle"></i>
                 </div>
                 <div class="input-group">
                     <label for="username">Username</label>
                     <input type="text" id="username" name="username" placeholder="Username" required>
-                    <i class="uil uil-check-circle"></i>
                 </div>
                 <div class="input-group">
                     <label for="email">Email</label>
                     <input type="email" id="email" name="email" placeholder="Enter your email" required>
-                    <i class="uil uil-check-circle"></i>
+                </div>
+                <div class="input-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="phone" id="phone" name="phone" placeholder="Enter your phone number" required>
                 </div>
                 <div class="input-group">
                     <label for="password">Password</label>
                     <input type="password" id="password" name="password" placeholder="Password" required>
-                    <i class="uil uil-check-circle"></i>
                 </div>
                 <div class="input-group">
                     <label for="repeat-password">Repeat Password</label>
                     <input type="password" id="repeat-password" name="repeat-password" placeholder="Repeat password" required>
-                    <i class="uil uil-check-circle"></i>
+                </div>
+                <div class="input-group terms">
+                    <input type="checkbox" id="terms" name="terms" required>
+                    <label for="terms">I agree to the <a href="#">Terms and Privacy Policy</a></label>
                 </div>
                 <button type="submit" class="signup-btn">Sign Up</button>
                 <p class="recaptcha">Protected by reCAPTCHA and the Google Privacy Policy.</p>
             </form>
         </div>
     </div>
+    <!-- Link the new Signup.js -->
+    <script src="js/Signup.js"></script>
 </body>
 </html>

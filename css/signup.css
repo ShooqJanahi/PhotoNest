@@ -2,17 +2,18 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
+    height: 100vh;
+    overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    background: #f0f0f0;
+    background: linear-gradient(to right, #6a11cb, #2575fc);
 }
 
 .container {
     display: flex;
-    width: 80%;
-    max-width: 1200px;
+    width: 100%;
+    height: 100%;
     background: white;
     border-radius: 10px;
     overflow: hidden;
@@ -21,9 +22,12 @@ body {
 
 .sidebar {
     width: 30%;
-    background: #4b0082;
+    background: #241E38;
     color: white;
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .sidebar .logo {
@@ -43,59 +47,191 @@ body {
 
 .sidebar li {
     margin: 10px 0;
+    display: flex;
+    align-items: center;
+}
+
+.sidebar li i {
+    margin-right: 10px;
+    color: white;
 }
 
 .main-content {
     width: 70%;
     padding: 40px;
     background: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+}
+
+.top-bar {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.top-bar span {
+    color: black;
+}
+
+.login-link {
+    color: #241E38;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.login-link:hover {
+    color: #6B4DE6;
 }
 
 .signup-form {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 10px;
 }
 
 .signup-form h2 {
     margin-top: 0;
+    color: black;
+    margin-top: 6%;
 }
 
 .input-group {
     position: relative;
+    width: 60%;
+    margin: 1px auto;
 }
 
+.input-group.terms label {
+    width: auto; /* Adjust width for terms label */
+    margin: 0; /* Remove margin for terms label */
+    white-space: nowrap; /* Prevent the label from breaking into multiple lines */
+}
+.input-group.terms {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* Align at the beginning */
+    width: 25%; /* Match the width of other input groups */
+    margin: 5px auto; /* Center the group */
+}
+
+.input-group.terms input[type="checkbox"] {
+    margin-right: 5px; /* Reduce space between checkbox and label */
+    align-items: center;
+}
 .input-group label {
     font-weight: bold;
+    color: black;
+    margin: 5px 0;
+    display: block;
+    text-align: left;
 }
 
 .input-group input {
     padding: 10px;
     border: 1px solid #ccc;
-    border-radius: 5px;
-    width: calc(100% - 30px);
-}
-
-.input-group i {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: green;
+    border-radius: 25px;
+    width: 100%;
+    margin: 5px 0;
+    display: block;
 }
 
 .signup-btn {
-    background: #4b0082;
+    background: #241E38;
     color: white;
     border: none;
-    padding: 15px;
+    padding: 15px 50px;
     cursor: pointer;
-    border-radius: 5px;
+    border-radius: 25px;
     font-weight: bold;
+    margin: 20px auto 0;
+    display: block;
+    width: fit-content;
+}
+
+.signup-btn:hover {
+    background: #6B4DE6;
 }
 
 .recaptcha {
     font-size: 12px;
     text-align: center;
     color: #555;
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        padding: 10px;
+    }
+
+    .main-content {
+        width: 100%;
+        padding: 20px;
+    }
+
+    .top-bar {
+        position: static;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .signup-form h2 {
+        margin-top: 20px;
+    }
+
+    .input-group {
+        width: 100%;
+    }
+
+    .signup-btn {
+        width: 100%;
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar .logo {
+        font-size: 20px;
+    }
+
+    .sidebar h2 {
+        font-size: 18px;
+    }
+
+    .sidebar ul {
+        font-size: 14px;
+    }
+
+    .main-content {
+        padding: 10px;
+    }
+
+    .signup-form h2 {
+        font-size: 24px;
+    }
+
+    .input-group label {
+        font-size: 14px;
+    }
+
+    .input-group input {
+        padding: 8px;
+    }
+
+    .signup-btn {
+        padding: 10px;
+    }
 }
