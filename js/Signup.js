@@ -1,3 +1,8 @@
+// Import Firebase services from firebaseConfig.js
+import { auth, db } from './firebaseConfig.js';
+import { createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+import { collection, doc, setDoc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+
 document.querySelector('.signup-form').addEventListener('submit', async function (e) {
     e.preventDefault();
 
@@ -16,31 +21,26 @@ document.querySelector('.signup-form').addEventListener('submit', async function
     }
 
     try {
-        const response = await fetch('http://localhost:3000/signup', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                firstName,
-                lastName,
-                username,
-                email,
-                phone,
-                password,
-            }),
+        // Create user with email and password
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        console.log('User created:', user.uid); // Debug log
+
+        // Save additional user information in Firestore
+        await setDoc(doc(db, 'users', user.uid), {
+            firstName: firstName,
+            lastName: lastName,
+            username: username,
+            email: email,
+            phone: phone,
+            createdAt: new Date(),
         });
+        console.log('Data saved to Firestore'); // Debug log
 
-        const data = await response.json();
-
-        if (response.ok) {
-            alert('User signed up successfully!');
-            document.querySelector('.signup-form').reset();  // Reset form
-        } else {
-            alert(`Error: ${data.error}`);
-        }
+        alert('User signed up successfully!');
+        document.querySelector('.signup-form').reset();  // Reset form
     } catch (error) {
         console.error('Error:', error);
-        alert('An error occurred. Please try again later.');
+        alert(`An error occurred: ${error.message}`);
     }
 });

@@ -8,6 +8,17 @@
 
     <!-- ICONSCOUT -->
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/solid.css">
+
+<!-- Firebase App (the core Firebase SDK) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<!-- Firebase Authentication -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<!-- Firebase Firestore -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<!-- Firebase Storage -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+
 </head>
 <body>
     <div class="container">
@@ -26,7 +37,7 @@
                 <span>New to PhotoNest?</span>
                 <a href="#" class="login-link">Log in</a>
             </div>
-            <form class="signup-form" method="post">
+            <form class="signup-form">
                 <h2>Sign Up</h2>
                 <div class="input-group">
                     <label for="first-name">First Name</label>
@@ -66,6 +77,8 @@
         </div>
     </div>
     <!-- Link the new Signup.js -->
-    <script src="js/Signup.js"></script>
+    <script type="module" src="js/Signup.js"></script>
+    <script type="module" src="/js/firebaseConfig.js"></script>
+
 </body>
 </html>
