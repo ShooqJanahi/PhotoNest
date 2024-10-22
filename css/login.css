@@ -40,7 +40,7 @@ body {
 }
 
 .right-section {
-    background-color: #F0EEF6;
+    background-color: white;
     display: flex;
     flex-direction: column;
     justify-content: center;
