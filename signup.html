@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up Page</title>
+    <link rel="stylesheet" href="/css/signup.css">
+
+    <!-- ICONSCOUT -->
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/solid.css">
+
+<!-- Firebase App (the core Firebase SDK) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<!-- Firebase Authentication -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<!-- Firebase Firestore -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<!-- Firebase Storage -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">PhotoNest</div>
+            <h2>Features include</h2>
+            <ul>
+                <li><i class="uis uis-check-circle"></i> Effortless Photo Organization</li>
+                <li><i class="uis uis-check-circle"></i> Connect with Friends</li>
+                <li><i class="uis uis-check-circle"></i> Seamless Sharing Options</li>
+                <li><i class="uis uis-check-circle"></i> Advanced Search Filters</li>
+            </ul>
+        </div>
+        <div class="main-content">
+            <div class="top-bar">
+                <span>New to PhotoNest?</span>
+                <a href="#" class="login-link">Log in</a>
+            </div>
+            <form class="signup-form">
+                <h2>Sign Up</h2>
+                <div class="input-group">
+                    <label for="first-name">First Name</label>
+                    <input type="text" id="first-name" name="first-name" placeholder="First Name" required>
+                </div>
+                <div class="input-group">
+                    <label for="last-name">Last Name</label>
+                    <input type="text" id="last-name" name="last-name" placeholder="Last Name" required>
+                </div>
+                <div class="input-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Username" required>
+                </div>
+                <div class="input-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                </div>
+                <div class="input-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="phone" id="phone" name="phone" placeholder="Enter your phone number" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Password" required>
+                </div>
+                <div class="input-group">
+                    <label for="repeat-password">Repeat Password</label>
+                    <input type="password" id="repeat-password" name="repeat-password" placeholder="Repeat password" required>
+                </div>
+                <div class="input-group terms">
+                    <input type="checkbox" id="terms" name="terms" required>
+                    <label for="terms">I agree to the <a href="#">Terms and Privacy Policy</a></label>
+                </div>
+                <button type="submit" class="signup-btn">Sign Up</button>
+                <p class="recaptcha">Protected by reCAPTCHA and the Google Privacy Policy.</p>
+            </form>
+        </div>
+    </div>
+    <!-- Link the new Signup.js -->
+    <script type="module" src="js/Signup.js"></script>
+    <script type="module" src="/js/firebaseConfig.js"></script>
+
+</body>
+</html>
