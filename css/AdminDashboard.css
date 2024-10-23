@@ -1,0 +1,217 @@
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f7;
+    color: #333;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: #fff;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar h2 {
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.sidebar a {
+    display: block;
+    color: #333;
+    text-decoration: none;
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+.main-content {
+    flex: 1;
+    padding: 20px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fff;
+    padding: 10px 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.header .logo {
+    font-size: 24px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+}
+
+.header .logo i {
+    margin-right: 10px;
+    color: #6a0dad;
+}
+
+.header .actions {
+    display: flex;
+    align-items: center;
+}
+
+.header .actions button {
+    background-color: #6a0dad;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    margin-left: 10px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.header .actions .notification {
+    background-color: transparent;
+    font-size: 18px;
+    color: #333;
+    margin-left: 20px;
+}
+
+.header .actions .hamburger-menu {
+    background-color: transparent;
+    font-size: 18px;
+    color: #333;
+    margin-left: 20px;
+    cursor: pointer;
+    display: none;
+}
+
+.content-section {
+    margin-top: 20px;
+}
+
+.content-section h3 {
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+.card {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.card h4 {
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.card img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.view-all {
+    background-color: #6a0dad;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+/* Mobile menu styles */
+.mobile-menu {
+    display: none;
+    flex-direction: column;
+    background-color: #333;
+    color: #fff;
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    width: 200px;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.mobile-menu a,
+.mobile-menu button {
+    color: #fff;
+    text-decoration: none;
+    padding: 10px;
+    border: none;
+    background: none;
+    text-align: left;
+    width: 100%;
+    cursor: pointer;
+}
+
+.mobile-menu.show {
+    display: flex;
+}
+
+/* Media queries for mobile and tablet view */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        box-shadow: none;
+    }
+
+    .main-content {
+        padding: 10px;
+    }
+
+    .header .actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end; /* Aligns hamburger and notification to the right */
+    }
+
+    .header .actions button:not(.hamburger-menu):not(.notification),
+    .sidebar {
+        display: none;
+    }
+
+    .header .actions .hamburger-menu,
+    .header .actions .notification {
+        display: block; /* Show on mobile devices */
+    }
+}
+
+/* Hide hamburger menu on desktop view */
+@media (min-width: 769px) {
+    .header .actions .hamburger-menu {
+        display: none;
+    }
+
+    .container {
+        flex-direction: row;
+    }
+
+    .sidebar {
+        width: 250px;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .main-content {
+        padding: 20px;
+    }
+}
