@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="../css/AdminDashboard.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <h2>PhotoNest</h2>
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Dashboard</a></li>
+                <li><a href="#">User Management</a></li>
+                <li><a href="#">Reports</a></li>
+            </ul>
+        </nav>
+        <main class="main-content">
+            <header>
+                <button id="settings">Settings</button>
+                <button id="logout">Logout</button>
+            </header>
+            <section class="quick-access">
+                <h3>Quick Access</h3>
+                <a href="#">Currently Logged-in Users</a>
+                <a href="#">Spam Reports</a>
+            </section>
+            <section class="user-management">
+                <h3>User Management</h3>
+                <div class="user-list">
+                    <p>User 1</p>
+                    <p>User 2</p>
+                    <p>User 3</p>
+                    <a href="#">View All</a>
+                </div>
+            </section>
+            <section class="reports">
+                <h3>Reports</h3>
+                <div class="report" id="spam-reports">Spam Reports</div>
+                <div class="report" id="activity-log">Activity Log</div>
+            </section>
+        </main>
+    </div>
+    <script src="../js/AdminDashboard.js"></script>
+</body>
+</html>
