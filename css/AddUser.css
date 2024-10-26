@@ -1,0 +1,150 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100vh; /* Full height of the viewport */
+    overflow: hidden; /* Prevent body overflow */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(to right, #6a11cb, #df25fc);
+}
+
+.container {
+    display: flex;
+    width: 100%; /* Full width */
+    height: auto; /* Height based on content */
+    max-width: 500px; /* Limit maximum width for larger screens */
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.main-content {
+    width: 100%; /* Full width */
+    height: 100%; /* Full height of container */
+    max-height: 90vh; /* Set a maximum height for scrolling */
+    overflow-y: auto; /* Enable vertical scrolling */
+    padding: 20px; /* Padding inside the main content */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center; /* Center align items */
+    position: relative;
+}
+
+.signup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%; /* Full width for form */
+    align-items: center; /* Center align form items */
+}
+
+.signup-form h2 {
+    margin-top: 6%;
+    color: black;
+}
+
+.input-group {
+    width: 100%; /* Full width */
+    margin: 1px auto;
+}
+
+.input-group label {
+    font-weight: bold;
+    color: black;
+    margin: 5px 0;
+}
+
+.input-group input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    width: 100%; /* Full width */
+    margin: 5px 0;
+}
+
+.logo {
+    width: 100px; /* Adjust width as necessary */
+    height: auto; /* Maintain aspect ratio */
+    display: block; /* Ensure it's on its own line */
+    margin: 0 auto 20px; /* Center the logo and add space below */
+}
+
+.signup-btn {
+    background: #241E38;
+    color: white;
+    border: none;
+    padding: 15px 50px; /* Consistent padding */
+    cursor: pointer;
+    border-radius: 25px;
+    font-weight: bold;
+    margin: 20px 0 0; /* Margin at the top */
+    display: block;
+    width: 100%; /* Make button take full width */
+}
+
+.signup-btn:hover {
+    background: #6B4DE6;
+}
+
+.cancel-btn {
+    margin-top: 10px; /* Space between buttons */
+    background: #f44336; /* Background color for cancel button */
+    color: white; /* Text color for contrast */
+    border: none; /* Remove border */
+    padding: 15px 50px; /* Consistent padding */
+    border-radius: 25px; /* Match button styles */
+    cursor: pointer; /* Change cursor on hover */
+    width: 100%; /* Make button take full width */
+}
+
+.cancel-btn:hover {
+    background: #d32f2f; /* Darker shade on hover */
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px; /* Consistent padding for smaller screens */
+    }
+
+    .signup-form h2 {
+        margin-top: 20px; /* Space above heading */
+    }
+
+    .input-group {
+        width: 100%; /* Full width for input group */
+    }
+
+    .signup-btn,
+    .cancel-btn {
+        width: 100%; /* Full width for buttons on smaller screens */
+        padding: 15px; /* Consistent padding */
+    }
+}
+
+@media (max-width: 480px) {
+    .main-content {
+        padding: 10px; /* Padding adjustments for smaller screens */
+    }
+
+    .signup-form h2 {
+        font-size: 24px; /* Smaller heading font size */
+    }
+
+    .input-group label {
+        font-size: 14px; /* Smaller label font size */
+    }
+
+    .input-group input {
+        padding: 8px; /* Adjust padding */
+    }
+
+    .signup-btn,
+    .cancel-btn {
+        padding: 10px; /* Adjust button padding */
+    }
+}

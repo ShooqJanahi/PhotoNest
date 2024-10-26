@@ -6,6 +6,20 @@
     <title>PhotoNest User Management</title>
     <link rel="stylesheet" href="../css/UserManagement.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Firebase App (the core Firebase SDK) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<!-- Firebase Authentication -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<!-- Firebase Firestore -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<!-- Firebase Storage -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+
+
+
+
 </head>
 <body>
     <div class="container">
@@ -46,7 +60,8 @@
                         <button class="enter-button">Enter</button>
                     </div>
                 </div>
-                <button class="add-user-button">Add User</button>
+                <button class="add-user-button" onclick="window.location.href='AddUser.html';">Add User</button>
+
             </div>
             
             
@@ -77,5 +92,7 @@
             <p>PhotoNest © All Rights Reserved</p>
         </footer>
     </div>
+    <script type="module" src="/js/firebaseConfig.js"></script>
+    <script type="module" src="../js/UserManagement.js"></script>
 </body>
 </html>
