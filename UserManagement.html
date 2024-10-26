@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhotoNest User Management</title>
+    <link rel="stylesheet" href="../css/UserManagement.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>PhotoNest</h1>
+            <div class="header-buttons">
+                <i class="fas fa-bell notification-icon"></i> <!-- Notification Icon -->
+                <button class="header-button">Settings</button>
+                <button class="header-button">Logout</button>
+            </div>
+        </header>
+
+        <aside class="sidebar">
+            <h2>Navigation</h2>
+            <nav>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Dashboard</a></li>
+                    <li><a href="#">User Management</a></li>
+                    <li><a href="#">Reports</a></li>
+                </ul>
+                <h3>Quick Access</h3>
+                <ul>
+                    <li><a href="#">Currently Logged-in Users</a></li>
+                    <li><a href="#">Spam Reports</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main>
+            <div class="controls">
+                <input type="text" placeholder="Search users">
+                <button class="primary-button">Sort</button>
+                <button class="primary-button">Enter</button>
+                <button class="add-user-button">Add User</button>
+            </div>
+
+            <section class="user-cards">
+                <div class="user-card">
+                    <img src="avatar1.png" alt="User avatar" class="user-avatar">
+                    <h3>Sarah Connor</h3>
+                    <p>@Sarah.Connor</p>
+                    <p>Role: Administrator</p>
+                    <p>Status: Active</p>
+                    <p>Last Active: Oct 5, 2023, 14:30</p>
+                    <p>Account Created: Jan 10, 2022</p>
+                    <div class="card-buttons">
+                        <button class="delete-button">Delete</button>
+                        <button class="ban-button">Ban</button>
+                        <button class="edit-button">Edit</button>
+                    </div>
+                    <label for="ban-duration">Ban Duration (days):</label>
+                    <input type="range" id="ban-duration" name="ban-duration" min="1" max="30">
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>PhotoNest © All Rights Reserved</p>
+        </footer>
+    </div>
+</body>
+</html>

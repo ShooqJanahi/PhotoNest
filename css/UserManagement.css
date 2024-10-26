@@ -1,0 +1,165 @@
+/* Global reset and box model */
+* {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Full height setup for page */
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+/* Main container setup */
+.container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Header styling */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1em;
+    background-color: #f0f0ff;
+}
+
+.header-buttons {
+    display: flex;
+    gap: 0.5em;
+    align-items: center;
+}
+
+.notification-icon {
+    font-size: 1.2em;
+    color: #6b4dff;
+    cursor: pointer;
+}
+
+.header-button {
+    padding: 0.5em 1em;
+    background-color: #6b4dff;
+    color: white;
+    border: none;
+    border-radius: 20px; /* Rounded edges */
+    cursor: pointer;
+}
+
+/* Sidebar styling */
+.sidebar {
+    width: 200px;
+    padding: 2em;
+    background-color: #eae8ff;
+    height: 100vh;
+    position: fixed;
+}
+
+.sidebar h2, .sidebar h3 {
+    font-size: 1.2em;
+    color: #6b4dff;
+}
+
+.sidebar nav ul {
+    list-style-type: none;
+    margin-top: 1em;
+}
+
+.sidebar nav ul li a {
+    text-decoration: none;
+    color: black;
+    display: block;
+    padding: 0.5em 0;
+}
+
+/* Main content styling */
+main {
+    margin-left: 220px; /* Offset for fixed sidebar */
+    flex: 1; /* Fills available space */
+    padding: 2em;
+    background-color: #faf8ff;
+}
+
+/* Controls section styling */
+.controls {
+    display: flex;
+    gap: 0.5em;
+    margin-bottom: 1em;
+}
+
+.controls input[type="text"] {
+    flex: 1;
+    padding: 0.5em;
+    border-radius: 20px; /* Rounded edges */
+    border: 1px solid #ccc;
+}
+
+.primary-button, .add-user-button {
+    padding: 0.5em 1em;
+    background-color: #6b4dff;
+    color: white;
+    border: none;
+    border-radius: 20px; /* Rounded edges */
+    cursor: pointer;
+}
+
+/* User cards styling */
+.user-cards {
+    display: flex;
+    gap: 1em;
+    flex-wrap: wrap;
+}
+
+.user-card {
+    background-color: white;
+    padding: 1.5em;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    width: 220px;
+    text-align: center;
+}
+
+.user-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin-bottom: 1em;
+}
+
+.user-card h3 {
+    font-size: 1.1em;
+    color: #6b4dff;
+}
+
+.card-buttons {
+    display: flex;
+    gap: 0.5em;
+    justify-content: center;
+    margin-top: 1em;
+}
+
+.delete-button, .ban-button, .edit-button {
+    padding: 0.5em 1em;
+    border: none;
+    color: white;
+    border-radius: 20px; /* Rounded edges */
+    cursor: pointer;
+}
+
+.delete-button { background-color: #ff5e5e; }
+.ban-button { background-color: #ff914d; }
+.edit-button { background-color: #6b4dff; }
+
+/* Footer styling */
+footer {
+    text-align: center;
+    padding: 1em;
+    background-color: #f0f0ff;
+    margin-top: auto; /* Pushes footer to the bottom */
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
