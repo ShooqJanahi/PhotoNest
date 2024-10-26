@@ -25,9 +25,14 @@ header {
     justify-content: space-between;
     align-items: center;
     padding: 1em;
-    background-color: #f0f0ff;
+    background-color: #fff;
+    position: fixed; /* Fixed positioning */
+    top: 0; /* Snap to the top */
+    width: 100%; /* Full width */
+    z-index: 1000; /* Ensure it stays above other content */
 }
 
+/* Header button styles */
 .header-buttons {
     display: flex;
     gap: 0.5em;
@@ -51,16 +56,20 @@ header {
 
 /* Sidebar styling */
 .sidebar {
-    width: 200px;
-    padding: 2em;
-    background-color: #eae8ff;
-    height: 100vh;
-    position: fixed;
+    width: 250px; /* Fixed width for the sidebar */
+    background-color: #fff;
+    padding: 20px; /* Inner padding for content spacing */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Shadow for depth */
+    height: calc(100vh - 60px); /* Full height minus header height */
+    position: fixed; /* Fix to the left side */
+    top: 60px; /* Position it below the header */
+    left: 0; /* Align to the left */
+    overflow-y: auto; /* Allow scrolling if content exceeds viewport height */
 }
 
 .sidebar h2, .sidebar h3 {
-    font-size: 1.2em;
-    color: #6b4dff;
+    font-size: 18px;
+    margin-bottom: 20px;
 }
 
 .sidebar nav ul {
@@ -69,57 +78,101 @@ header {
 }
 
 .sidebar nav ul li a {
-    text-decoration: none;
-    color: black;
     display: block;
-    padding: 0.5em 0;
+    color: #333;
+    text-decoration: none;
+    margin-bottom: 10px; /* Space between links */
+    font-size: 16px;
 }
 
 /* Main content styling */
 main {
     margin-left: 220px; /* Offset for fixed sidebar */
-    flex: 1; /* Fills available space */
-    padding: 2em;
+    padding: 4em 2em 2em; /* Padding for content below fixed header */
     background-color: #faf8ff;
+    flex: 1; /* Fills available space */
 }
+
+/* Adjustments to the main content */
+.main-content {
+    margin-left: 250px; /* Ensure it does not overlap with the sidebar */
+    padding: 20px; /* Maintain existing padding */
+}
+
 
 /* Controls section styling */
 .controls {
     display: flex;
-    gap: 0.5em;
+    justify-content: space-between; /* Keeps elements spaced out */
+    align-items: center; /* Centers vertically */
     margin-bottom: 1em;
+    margin-top: 1.5em; /* Distance from the header */
 }
 
+/* Centering the search bar */
+.search-container {
+    flex-grow: 1; /* Allows it to take available space */
+    display: flex; /* Enable flexbox for centering */
+    justify-content: center; /* Center content */
+    margin: 0 0.5em; /* Spacing on sides */
+}
+
+/* Sort and Enter button container */
+.sort-container {
+    display: flex;
+    gap: 0.5em; /* Space between sort and enter buttons */
+    margin-left: 0.5em; /* Add a small space between search bar and buttons */
+}
+
+/* Input field styling */
 .controls input[type="text"] {
-    flex: 1;
+    width: 200px; /* Set a specific width */
     padding: 0.5em;
     border-radius: 20px; /* Rounded edges */
     border: 1px solid #ccc;
 }
 
-.primary-button, .add-user-button {
+/* Button styling */
+.header-button, .sort-button, .enter-button, .add-user-button {
     padding: 0.5em 1em;
-    background-color: #6b4dff;
+    background-color: #6b4dff; /* Primary color */
     color: white;
     border: none;
     border-radius: 20px; /* Rounded edges */
     cursor: pointer;
 }
 
+/* Custom colors for specific buttons */
+.add-user-button {
+    background-color: #28a745; /* Different color for Add User */
+}
+
+
+
 /* User cards styling */
 .user-cards {
     display: flex;
-    gap: 1em;
+    gap: 2em; /* Increased gap between cards */
     flex-wrap: wrap;
+    margin-left: 20px; /* Added distance from the sidebar */
 }
 
 .user-card {
     background-color: white;
-    padding: 1.5em;
+    padding: 3em; /* Increased padding for larger card */
     border-radius: 10px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    width: 220px;
+    width: 300px; /* Increased width for user cards */
     text-align: center;
+}
+
+/* Ensuring text stays in one line */
+.user-card h3 {
+    font-size: 1.1em;
+    color: #6b4dff;
+    white-space: nowrap; /* Prevent text from wrapping */
+    overflow: hidden; /* Hide overflow */
+    text-overflow: ellipsis; /* Add ellipsis for overflowed text */
 }
 
 .user-avatar {
@@ -127,11 +180,6 @@ main {
     height: 100px;
     border-radius: 50%;
     margin-bottom: 1em;
-}
-
-.user-card h3 {
-    font-size: 1.1em;
-    color: #6b4dff;
 }
 
 .card-buttons {
@@ -157,7 +205,7 @@ main {
 footer {
     text-align: center;
     padding: 1em;
-    background-color: #f0f0ff;
+    background-color: #fff;
     margin-top: auto; /* Pushes footer to the bottom */
     position: relative;
     bottom: 0;

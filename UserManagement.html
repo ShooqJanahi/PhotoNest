@@ -10,7 +10,9 @@
 <body>
     <div class="container">
         <header>
-            <h1>PhotoNest</h1>
+            <div class="logo">
+                <i class="fas fa-camera-retro"></i> PhotoNest
+            </div>
             <div class="header-buttons">
                 <i class="fas fa-bell notification-icon"></i> <!-- Notification Icon -->
                 <button class="header-button">Settings</button>
@@ -23,7 +25,7 @@
             <nav>
                 <ul>
                     <li><a href="#">Home</a></li>
-                    <li><a href="#">Dashboard</a></li>
+                    <li><a href="AdminDashboard.html">Dashboard</a></li>
                     <li><a href="#">User Management</a></li>
                     <li><a href="#">Reports</a></li>
                 </ul>
@@ -37,11 +39,19 @@
 
         <main>
             <div class="controls">
-                <input type="text" placeholder="Search users">
-                <button class="primary-button">Sort</button>
-                <button class="primary-button">Enter</button>
+                <div class="search-container">
+                    <input type="text" placeholder="Search..." />
+                    <div class="sort-container">
+                        <button class="sort-button">Sort</button>
+                        <button class="enter-button">Enter</button>
+                    </div>
+                </div>
                 <button class="add-user-button">Add User</button>
             </div>
+            
+            
+            
+            
 
             <section class="user-cards">
                 <div class="user-card">
