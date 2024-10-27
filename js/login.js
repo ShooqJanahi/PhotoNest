@@ -36,6 +36,15 @@ document.querySelector('.login-form').addEventListener('submit', async function 
             } else if (userStatus === 'banned') {
                 alert('Your account has been banned. Contact support for more information.');
             } else if (userStatus === 'active') {
+                // Store user information in session storage
+                sessionStorage.setItem("userInfo", JSON.stringify({
+                    userId: user.uid,
+                    username: userData.username,
+                    role: userRole,
+                    status: userStatus,
+                    email: userData.email // Optionally store email if needed
+                }));
+
                 // Check user role and redirect accordingly
                 if (userRole === 'admin') {
                     window.location.href = '../AdminDashboard.html';
@@ -59,5 +68,23 @@ document.querySelector('.login-form').addEventListener('submit', async function 
                 console.error('Error during login:', error);
                 alert(`An error occurred: ${error.message}`);
         }
+    }
+});
+
+// Function to retrieve user info from session storage
+function getUserInfo() {
+    const userInfo = sessionStorage.getItem("userInfo");
+    return userInfo ? JSON.parse(userInfo) : null;
+}
+
+// Example of checking user information on page load
+window.addEventListener("load", () => {
+    const userInfo = getUserInfo();
+    if (userInfo) {
+        console.log("Logged in user:", userInfo);
+        // Use user info to customize the page, enforce permissions, etc.
+    } else {
+        // Redirect to login or handle unauthenticated state
+        window.location.href = '../Login.html'; // Example redirect to login page
     }
 });
