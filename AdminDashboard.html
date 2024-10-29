@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
     <link rel="stylesheet" href="../css/AdminDashboard.css"> <!-- Link to external CSS file -->
+    <script type="module" src="./js/AdminDashboard.js"></script>
+
 </head>
 <body>
     <div class="header">
@@ -16,10 +18,23 @@
         <div class="actions">
             <button class="notification"><i class="fas fa-bell"></i></button>
             <button class="hamburger-menu"><i class="fas fa-bars"></i></button>
-            <button>Settings</button>
-            <button>Logout</button>
+            <button id="settings">Settings</button>
+
+            <form id="logoutForm" onsubmit="event.preventDefault(); logout();">
+               
+<button id="logoutButton">Logout</button>
+
+            </form>
+            
+
         </div>
     </div>
+
+    <script type="module">
+        import { setupButtons } from '../js/AdminDashboard.js'; // Correct function name
+        window.onload = setupButtons; // Call the correct function on window load
+    </script>
+    
 
     <div class="mobile-menu">
         <a href="#">Home</a>
@@ -28,8 +43,12 @@
         <a href="#">Reports</a>
         <a href="#">Currently Logged-in Users</a>
         <a href="#">Spam Reports</a>
-        <button>Settings</button>
-        <button>Logout</button>
+        <button id="settings">Settings</button>
+
+        <form id="logoutForm" onsubmit="event.preventDefault(); logout();">
+            <button type="submit">Logout</button>
+        </form>
+        
     </div>
 
     <div class="container">
@@ -46,18 +65,20 @@
         <div class="main-content">
             <div class="content-section">
                 <h3>User Management</h3>
-                <div class="card">
-                    <div class="card-header">
-                        <h4>Currently Logged-in Users</h4>
-                        <button class="view-all">View All</button>
+                <!-- Currently Logged-in Users Section in AdminDashboard.html -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Currently Logged-in Users</h4>
+                            <!-- Update the button to include a URL parameter for online users -->
+                            <a href="UserManagement.html?status=online">View All</a>
+
+                        </div>
+                        <ul id="onlineUsersList">
+                            <!-- Online users will be populated here dynamically -->
+                        </ul>
                     </div>
-                    <ul>
-                        <li>User 1</li>
-                        <li>User 2</li>
-                        <li>User 3</li>
-                    </ul>
-                    
-                </div>
+
+                
             </div>
             <div class="content-section">
                 <h3>Reports</h3>

@@ -1,16 +1,16 @@
-import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js";
-import { getFirestore, doc, setDoc, query, where, getDocs, collection } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js";
-import { app } from "./firebaseConfig.js";
-import { sendEmail } from './sendEmail.js'; // Import the sendEmail function
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, query, where, getDocs, collection } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getStorage } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 
-const auth = getAuth(app);
-const db = getFirestore(app);
+import { auth, db } from "./firebaseConfig.js"; // Make sure the path is correct
+
 const signupForm = document.querySelector(".signup-form");
 
 // Function to check if username, email, or phone is unique
 async function isUniqueUser(username, email, phone) {
     const usersRef = collection(db, "users");
-
+    
     const usernameQuery = query(usersRef, where("username", "==", username));
     const emailQuery = query(usersRef, where("email", "==", email));
     const phoneQuery = query(usersRef, where("phone", "==", phone));
@@ -21,7 +21,20 @@ async function isUniqueUser(username, email, phone) {
         getDocs(phoneQuery),
     ]);
 
-    return usernameSnapshot.empty && emailSnapshot.empty && phoneSnapshot.empty;
+    const isUsernameUnique = usernameSnapshot.empty;
+    const isEmailUnique = emailSnapshot.empty;
+
+    return {
+        isUsernameUnique,
+        isEmailUnique,
+        isPhoneUnique: phoneSnapshot.empty,
+    };
+}
+
+// Email validation function
+function isValidEmail(email) {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email);
 }
 
 // Password strength check
@@ -30,56 +43,50 @@ function isStrongPassword(password) {
     return passwordRegex.test(password);
 }
 
-// Function to generate a random password
-function generateRandomPassword(length = 10) {
-    const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@$!%*?&";
-    let password = "";
-    for (let i = 0; i < length; i++) {
-        password += charset.charAt(Math.floor(Math.random() * charset.length));
-    }
-    return password;
-}
-
 signupForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
+    event.preventDefault(); // Prevent default form submission
 
-    const firstName = document.getElementById("first-name").value;
-    const lastName = document.getElementById("last-name").value;
-    const email = document.getElementById("email").value;
-    const username = document.getElementById("username").value;
-    const phone = document.getElementById("phone").value;
-    const isAdmin = /* Logic to determine if the user is an admin */; // Define how to determine if the current user is an admin
-    let password;
-    let repeatPassword;
-
-    // If the user is an admin, generate a random password
-    if (isAdmin) {
-        password = generateRandomPassword();
-        repeatPassword = password; // Set repeat password to the same generated password
-    } else {
-        password = document.getElementById("password").value;
-        repeatPassword = document.getElementById("repeat-password").value;
-    }
-
-    const role = isAdmin ? "admin" : "user"; // Set the role based on whether the user is an admin
-    const status = "Unverified"; // Default status for self-registering users
+    const firstName = document.getElementById("first-name").value.trim();
+    const lastName = document.getElementById("last-name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const username = document.getElementById("username").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const repeatPassword = document.getElementById("repeat-password").value.trim();
 
     // Check if passwords match
-    if (!isAdmin && password !== repeatPassword) {
+    if (password !== repeatPassword) {
         alert("Passwords do not match.");
         return;
     }
 
-    // Validate password strength if the user is not an admin
-    if (!isAdmin && !isStrongPassword(password)) {
+    // Validate password strength for user signup
+    if (!isStrongPassword(password)) {
         alert("Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character.");
         return;
     }
 
+    // Validate email format
+    if (!isValidEmail(email)) {
+        alert("Please enter a valid email address.");
+        return;
+    }
+
     try {
-        const isUnique = await isUniqueUser(username, email, phone);
-        if (!isUnique) {
-            alert("Username, email, or phone number already exists.");
+        const { isUsernameUnique, isEmailUnique, isPhoneUnique } = await isUniqueUser(username, email, phone);
+        
+        if (!isUsernameUnique) {
+            alert("This username is already taken. Please choose another.");
+            return;
+        }
+
+        if (!isEmailUnique) {
+            alert("This email is already registered. Please use another email.");
+            return;
+        }
+
+        if (!isPhoneUnique) {
+            alert("This phone number is already associated with an account.");
             return;
         }
 
@@ -87,27 +94,28 @@ signupForm.addEventListener("submit", async (event) => {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const userId = userCredential.user.uid;
 
-        // Save user data with Unverified status
+        // Save user data with Unverified status and default following
         await setDoc(doc(db, "users", userId), {
             firstName,
             lastName,
             username,
             email,
             phone,
-            role,
-            status,
+            role: "user", // Default role for regular users
+            status: "Unverified",
+            createdAt: new Date(), // Current timestamp
+            lastActive: new Date(), // Set lastActive to now
+            followersCount: 0, // Initial followers count
+            followingCount: 1, // They follow "PhotoNest"
+            postsCount: 0, // Initial posts count
+            profilePic: "https://example.com/default-profile-pic.jpg", // Default profile picture
+            following: ["PhotoNest"], // Automatically follow "PhotoNest"
         });
 
-        // Send verification email
+        // Send Firebase verification email
         await sendEmailVerification(userCredential.user);
 
-        // Prepare the email content for EmailJS
-        const verificationMessage = `Hello ${firstName},\n\nPlease verify your email by clicking the link: [Your Verification Link].\n\nThank you!`;
-
-        // Send verification email using EmailJS
-        await sendEmail(email, "Email Verification", verificationMessage);
-
-        // Optionally redirect to the verification page if needed
+        // Redirect to VerifyEmail.html after successful signup
         window.location.href = "VerifyEmail.html";
 
         // Reset the form after successful signup
@@ -118,18 +126,15 @@ signupForm.addEventListener("submit", async (event) => {
     }
 });
 
-// Show/hide password toggle
-const passwordInput = document.getElementById("password");
-const repeatPasswordInput = document.getElementById("repeat-password");
-const togglePasswordVisibility = (input) => {
-    input.type = input.type === "password" ? "text" : "password";
-};
+// Password toggle functionality
+const togglePasswordButtons = document.querySelectorAll('.toggle-password');
 
-document.getElementById("toggle-password").addEventListener("click", () => togglePasswordVisibility(passwordInput));
-document.getElementById("toggle-repeat-password").addEventListener("click", () => togglePasswordVisibility(repeatPasswordInput));
-
-// Disable password fields for admins
-if (isAdmin) {
-    passwordInput.disabled = true;
-    repeatPasswordInput.disabled = true;
-}
+togglePasswordButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        const input = button.previousElementSibling; // The input element
+        const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+        input.setAttribute('type', type);
+        button.classList.toggle('fa-eye'); // Change the icon to show/hide
+        button.classList.toggle('fa-eye-slash');
+    });
+});

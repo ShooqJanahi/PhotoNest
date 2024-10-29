@@ -107,6 +107,24 @@ body {
     margin: 1px auto;
 }
 
+.password-container {
+    display: flex;
+    align-items: center;
+}
+
+input[type="password"] {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.toggle-password {
+    cursor: pointer;
+    margin-left: -30px; /* Adjust based on your design */
+    color: #aaa;
+}
+
 .input-group.terms label {
     width: auto; /* Adjust width for terms label */
     margin: 0; /* Remove margin for terms label */

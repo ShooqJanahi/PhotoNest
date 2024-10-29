@@ -1,25 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up Page</title>
-    <link rel="stylesheet" href="/css/signup.css">
-
-    <!-- ICONSCOUT -->
-    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/solid.css">
-
-<!-- Firebase App (the core Firebase SDK) -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<!-- Firebase Authentication -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<!-- Firebase Firestore -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<!-- Firebase Storage -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
-
-
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Sign Up Page</title>
+        <link rel="stylesheet" href="/css/signup.css">
+        <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/solid.css">
+    
+        <!-- Firebase App (the core Firebase SDK) -->
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js" type="module"></script>
+        <!-- Firebase Authentication -->
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js" type="module"></script>
+        <!-- Firebase Firestore -->
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js" type="module"></script>
+        <!-- Firebase Storage -->
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js" type="module"></script>
+    </head>
 <body>
     <div class="container">
         <div class="sidebar">
@@ -45,7 +41,7 @@
                 </div>
                 <div class="input-group">
                     <label for="last-name">Last Name</label>
-                    <input type="text" id="last-name" name="last-name" placeholder="Last Name" required>
+                    <input type="text" id="last-name" name="last-name" placeholder="Last Name">
                 </div>
                 <div class="input-group">
                     <label for="username">Username</label>
@@ -57,19 +53,22 @@
                 </div>
                 <div class="input-group">
                     <label for="phone">Phone Number</label>
-                    <input type="phone" id="phone" name="phone" placeholder="Enter your phone number" required>
+                    <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required>
                 </div>
                 <div class="input-group">
                     <label for="password">Password</label>
-                    <input type="password" id="password" name="password" placeholder="Password" required>
-                    <button type="button" id="toggle-password">Show</button>
+                    <div class="password-container">
+                        <input type="password" id="password" name="password" placeholder="Password" required>
+                        <i class="toggle-password fas fa-eye" id="toggle-password"></i>
+                    </div>
                 </div>
                 <div class="input-group">
                     <label for="repeat-password">Repeat Password</label>
-                    <input type="password" id="repeat-password" name="repeat-password" placeholder="Repeat password" required>
-                    <button type="button" id="toggle-repeat-password">Show</button>
+                    <div class="password-container">
+                        <input type="password" id="repeat-password" name="repeat-password" placeholder="Repeat password" required>
+                        <i class="toggle-password fas fa-eye" id="toggle-repeat-password"></i>
+                    </div>
                 </div>
-                
                 <div class="input-group terms">
                     <input type="checkbox" id="terms" name="terms" required>
                     <label for="terms">I agree to the <a href="#">Terms and Privacy Policy</a></label>
@@ -80,8 +79,6 @@
         </div>
     </div>
     <!-- Link the new Signup.js -->
-    <script type="module" src="js/Signup.js"></script>
-    <script type="module" src="/js/firebaseConfig.js"></script>
-
+    <script type="module" src="../js/Signup.js"></script>
 </body>
 </html>
