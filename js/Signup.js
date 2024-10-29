@@ -48,8 +48,9 @@ signupForm.addEventListener("submit", async (event) => {
 
     const firstName = document.getElementById("first-name").value.trim();
     const lastName = document.getElementById("last-name").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const username = document.getElementById("username").value.trim();
+    const email = document.getElementById("email").value.trim().toLowerCase(); // Convert email to lowercase
+
+    const username = document.getElementById("username").value.trim().toLowerCase();
     const phone = document.getElementById("phone").value.trim();
     const password = document.getElementById("password").value.trim();
     const repeatPassword = document.getElementById("repeat-password").value.trim();
@@ -94,15 +95,15 @@ signupForm.addEventListener("submit", async (event) => {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const userId = userCredential.user.uid;
 
-        // Save user data with Unverified status and default following
+        // Save user data with active status and default following
         await setDoc(doc(db, "users", userId), {
             firstName,
             lastName,
-            username,
-            email,
+            username: username.toLowerCase(),
+            email: email.toLowerCase(),
             phone,
             role: "user", // Default role for regular users
-            status: "Unverified",
+            status: "active",
             createdAt: new Date(), // Current timestamp
             lastActive: new Date(), // Set lastActive to now
             followersCount: 0, // Initial followers count

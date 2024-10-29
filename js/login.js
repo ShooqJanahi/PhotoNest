@@ -14,12 +14,12 @@ const passwordInput = document.getElementById('password');
 loginForm.addEventListener('submit', function (event) {
     event.preventDefault();  // Prevent the default form submission behavior
 
-    const username = usernameInput.value.trim();
+    const username = usernameInput.value.trim().toLowerCase(); // Convert username to lowercase to ensure case-insensitivity
     const password = passwordInput.value;
 
     console.log("Attempting to log in with username:", username);  // Debugging output
 
-    // Query Firestore for user with the given username
+    // Query Firestore for user with the given username in lowercase
     const usersRef = collection(db, "users");
     const q = query(usersRef, where("username", "==", username));
 
@@ -37,7 +37,7 @@ loginForm.addEventListener('submit', function (event) {
             const userDocRef = doc(db, "users", userDoc.id); // Reference to user document
 
             // Check user's status before allowing login
-            if (userStatus === "unverified") {
+            if (userStatus.toLowerCase() === "unverified") {
                 window.location.href = 'VerifyEmail.html';
                 return;
             }
@@ -45,7 +45,7 @@ loginForm.addEventListener('submit', function (event) {
             // Use the email to sign in with Firebase Auth
             signInWithEmailAndPassword(auth, userEmail, password)
                 .then(async (userCredential) => {
-                    if (userStatus !== "active") {
+                    if (userStatus.toLowerCase() !== "active") {
                         alert("Your account is not active. Please contact support.");
                         return;
                     }
@@ -135,5 +135,3 @@ export async function logout() {
         console.error("Error signing out: ", error);
     }
 }
-
-

@@ -1,0 +1,134 @@
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f8fc;
+    color: #333;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    width: 98%;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    height: auto; /* Make sure the height accommodates all content */
+}
+
+
+
+.header a {
+    color: #6a0dad;
+    text-decoration: none;
+    font-size: 16px;
+    margin-right: auto;
+}
+
+.header h1 {
+    font-size: 18px;
+    color: #6a0dad;
+    margin: 0;
+}
+
+.content {
+    width: calc(100% - 40px); /* Subtract total horizontal padding from 100% width */
+    max-width: 900px; /* Maintain a max-width for larger screens */
+    margin: 100px auto 20px; /* Top margin to push content below the header, centered horizontally */
+    padding: 20px; /* Padding for spacing inside the box */
+    background-color: #fff; /* Background color */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Shadow for 3D effect */
+    box-sizing: border-box; /* Include padding in the width calculation */
+}
+
+
+
+.content h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.content p {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.content ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.content ul li {
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.footer {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 20px;
+    background-color: #fff; /* Changed to white */
+    color: #666;
+    font-size: 14px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Added box shadow */
+}
+
+.footer div {
+    text-align: center;
+}
+
+.footer a {
+    color: #6a0dad;
+    text-decoration: none;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.footer i {
+    margin: 0 5px;
+}
+@media only screen and (max-width: 1024px) {
+    .header, .content {
+        padding: 15px; /* Adjust padding for tablet screens */
+    }
+
+    .content {
+        margin-top: 80px; /* Adjust top margin */
+    }
+
+    .content h2, .content p, .content ul li {
+        font-size: 18px; /* Adjust text sizes for readability on smaller screens */
+    }
+}
+
+@media only screen and (max-width: 768px) {
+    .content {
+        width: calc(100% - 20px); /* Reduce the subtracted width for smaller devices */
+        margin: 80px auto 20px; /* Slightly reduce the top margin on smaller tablets */
+        padding: 10px; /* Reduce padding to allow more space for content */
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    .header, .content {
+        padding: 5px;
+    }
+    .content {
+        margin-top: 60px; /* Adjust top margin to not overlap with header */
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    .content {
+        width: calc(100% - 10px); /* Further reduce for mobile screens */
+        margin: 60px auto 20px; /* Further reduce the top margin on mobile devices */
+        padding: 5px; /* Minimal padding on very small screens */
+    }
+}
