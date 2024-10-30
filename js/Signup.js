@@ -109,7 +109,7 @@ signupForm.addEventListener("submit", async (event) => {
             followersCount: 0, // Initial followers count
             followingCount: 1, // They follow "PhotoNest"
             postsCount: 0, // Initial posts count
-            profilePic: "https://example.com/default-profile-pic.jpg", // Default profile picture
+            profilePic: "../assets/Default_profile_icon.png", // Default profile picture
             following: ["PhotoNest"], // Automatically follow "PhotoNest"
         });
 
