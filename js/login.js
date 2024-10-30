@@ -37,8 +37,8 @@ loginForm.addEventListener('submit', function (event) {
             const userDocRef = doc(db, "users", userDoc.id); // Reference to user document
 
             // Check user's status before allowing login
-            if (userStatus.toLowerCase() === "unverified") {
-                window.location.href = 'VerifyEmail.html';
+            if (userStatus.toLowerCase() === "banned") {
+                window.location.href = 'BannedMessage.html';
                 return;
             }
 
