@@ -1,13 +1,22 @@
+/* Global Styles */
+html, body {
+    height: 100%; /* Make sure the html and body take the full height of the viewport */
+}
+
+
 body {
     font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    margin: 0;
     background-color: #f0f0ff;
     color: #333;
+    
 }
 
+/* Header */
 .header {
     display: flex;
     justify-content: space-between;
@@ -15,7 +24,15 @@ body {
     padding: 20px;
     background-color: #fff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    flex-wrap: wrap; /* Allow header items to wrap on smaller screens */
+}
+.header img {
+    height: 40px;
+    margin-right: 10px;
+}
+.header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
 }
 .logo {
     font-size: 24px;
@@ -28,6 +45,24 @@ body {
     margin-right: 10px;
     color: #6a0dad;
 }
+
+.logo-section {
+    display: flex;
+    align-items: center; /* Ensures logo and title are vertically centered */
+}
+
+.logo-section img {
+    height: 40px;
+    margin-right: 10px; /* Space between logo and title */
+}
+
+.logo-section h1 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0; /* Remove any default margin on the title */
+}
+
+
 .search-bar {
     display: flex;
     align-items: center;
@@ -35,11 +70,10 @@ body {
     border-radius: 20px;
     padding: 5px 10px;
     flex: 1;
-    max-width: 500px; /* Set a max-width for larger screens */
-    width: 50%; /* Take full width available in its container */
+    max-width: 500px;
+    width: 50%;
     margin-bottom: 10px;
 }
-
 .search-bar input {
     border: none;
     background: transparent;
@@ -47,9 +81,8 @@ body {
     padding: 10px;
     font-size: 16px;
     flex: 1;
-    min-width: 0; /* Allow the input to shrink if needed */
+    min-width: 0;
 }
-
 .search-bar button, .icons button {
     background-color: #6a0dad;
     color: #fff;
@@ -71,15 +104,96 @@ body {
     cursor: pointer;
 }
 
+.header-icons {
+    display: flex;
+    align-items: center;
+}
+
+.header-icons i,
+.header-icons img {
+    margin-left: 20px;
+    cursor: pointer;
+}
+
+.header-icons img {
+    border-radius: 50%; /* Makes the profile image circular */
+    height: 40px; /* Adjust size as needed */
+}
+/* Main Content */
 .main-content {
+    flex: 1;
     padding: 20px;
+    padding-bottom: 40px; /* Add some space at the bottom to keep albums away from the footer */
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
     justify-content: center;
+    align-items: flex-start; /* Align items at the top to avoid stretching */
 }
+
+.container {
+    display: flex;
+    justify-content: center;
+    padding: 40px;
+}
+.image-container {
+    border: none; /* Remove any border */
+    border-radius: 8px;
+    overflow: hidden;
+    margin-right: 20px;
+}
+.image-container img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+.details-container {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+}
+.details-container h2 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+.details-container p {
+    margin: 10px 0;
+    font-size: 16px;
+}
+.details-container .caption {
+    background-color: #f0f0ff;
+    padding: 5px;
+    border-radius: 4px;
+}
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px; /* Adds space between each button */
+    margin-top: 20px;
+}
+.button-group button, .search-bar button, .icons button {
+    background-color: #6a0dad;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.button-group button:hover, .search-bar button:hover, .icons button:hover {
+    background-color: #6c6cff;
+}
+
+/* Album Card */
 .album-card {
-    position: relative;
     background-color: #fff;
     border-radius: 10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -118,18 +232,72 @@ body {
     margin: 0;
     color: #666;
 }
-.footer {
-    background-color: #fff;
+
+/* Gallery */
+.gallery {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     padding: 20px;
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+.card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    width: 280px;
+    margin: 10px;
+}
+.card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+.card-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 10px 15px;
+}
+.card-footer span {
+    font-weight: 500;
+}
+.card-footer i {
+    color: #6c63ff;
+    cursor: pointer;
+}
+
+/* Footer */
+.footer {
+    background-color: #fff;
+    padding: 20px;
     box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-    flex-wrap: wrap; /* Allow footer items to wrap on smaller screens */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+    margin-top: auto; /* Pushes footer to the bottom */
+}
+.footer nav {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+.footer nav a {
+    margin: 0 15px;
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
 }
 .footer .links {
     display: flex;
-    gap: 40px;
+    gap: 20px;
     flex-wrap: wrap;
     justify-content: center;
 }
@@ -146,211 +314,21 @@ body {
 }
 .footer .social {
     display: flex;
+    align-items: center;
     gap: 20px;
-    justify-content: center;
-    margin-top: 10px;
 }
 .footer .social i {
-    font-size: 24px;
-    color: #333;
-}
-.footer .copyright {
-    font-size: 14px;
-    color: #666;
-    text-align: center;
-    width: 100%;
-    margin-top: 10px;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .search-bar, .icons {
-        flex: 1 1 100%; /* Full width for smaller screens */
-        margin-bottom: 10px;
-        justify-content: center;
-    }
-
-    .album-card {
-        max-width: 100%; /* Full width on smaller screens */
-    }
-
-    .footer .links {
-        gap: 20px; /* Reduce gap between footer links */
-    }
-}
-
-@media (max-width: 480px) {
-    .search-bar button, .icons button {
-        padding: 8px 16px; /* Smaller padding for very small screens */
-        font-size: 14px;
-    }
-
-    .album-card .info h3 {
-        font-size: 16px; /* Slightly smaller title font */
-    }
-
-    .footer {
-        padding: 10px;
-        flex-direction: column;
-        align-items: center;
-    }
-}
-
-body {
-    font-family: 'Inter', sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f5f5fa;
-    color: #333;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh; /* Ensures the body takes the full height of the viewport */
-}
-
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    flex-wrap: wrap; /* Allow header items to wrap on smaller screens */
-}
-
-.logo {
-    font-size: 24px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.logo i {
-    margin-right: 10px;
-    color: #6a0dad;
-}
-
-.search-bar {
-    display: flex;
-    align-items: center;
-    background-color: #e0e0f8;
-    border-radius: 20px;
-    padding: 5px 10px;
-    flex: 1;
-    max-width: 500px; /* Set a max-width for larger screens */
-    width: 50%; /* Take full width available in its container */
-    margin-bottom: 10px;
-}
-
-.search-bar input {
-    border: none;
-    background: transparent;
-    outline: none;
-    padding: 10px;
-    font-size: 16px;
-    flex: 1;
-    min-width: 0; /* Allow the input to shrink if needed */
-}
-
-.search-bar button, .icons button {
-    background-color: #6a0dad;
-    color: #fff;
-    border: none;
-    border-radius: 20px;
-    padding: 10px 20px;
-    margin-left: 10px;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: 500;
-}
-
-.icons {
-    display: flex;
-    align-items: center;
-}
-
-.icons i {
     font-size: 20px;
-    margin-left: 20px;
-    cursor: pointer;
+    margin: 0 10px;
+    color: #333;
 }
-
-.gallery {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    padding: 20px;
-    gap: 20px;
-    max-width: 1200px; /* Set a max width to avoid excessive stretching */
-    margin: 0 auto; /* Center the gallery container */
-}
-
-.card {
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    width: 280px; /* Set a fixed width for the cards */
-    margin: 10px;
-}
-
-
-.card img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-}
-
-.card-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 15px;
-}
-
-.card-footer span {
-    font-weight: 500;
-}
-
-.card-footer i {
-    color: #6c63ff;
-    cursor: pointer;
-}
-
-.footer {
-    background-color: #fff;
-    padding: 20px;
-    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.footer .links {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-    justify-content: flex-start; /* Align links to the left */
-    flex: 1; /* Allows it to take space on the left */
-}
-
-.footer .social {
-    display: flex;
-    gap: 20px;
-    justify-content: center; /* Center align social icons */
-    flex: 1; /* Center it between links and copyright */
-}
-
 .footer .copyright {
     font-size: 14px;
     color: #666;
     text-align: right;
-    flex: 1; /* Pushes to the right */
+    width: 100%;
+    margin-top: 10px;
 }
-
 
 /* Responsive Adjustments */
 @media (max-width: 1024px) {
