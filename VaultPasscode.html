@@ -15,17 +15,22 @@
             <h1>Passcode</h1>
             <p>Enter passcode to access vault</p>
             <div class="form-group">
-                <input type="password" placeholder="Enter your passcode">
+                <input type="password" id="passcodeInput" placeholder="Enter your passcode">
                 <i class="fas fa-key"></i>
             </div>
-            <a href="#">Forgot passcode?</a>
-            <a href="unlock.html" class="button-link">
-                <button>Unlock</button>
-            </a>
+            <a href="forgotPasscode.html">Forgot passcode?</a>
+
+            <a href="Vault.html" class="button-link">
+            <button id="unlockButton">Unlock</button>
+        </a>
             <a href="./UserDashboard.html" class="button-link">
                 <button>Back to Home</button>
             </a>
+
         </div>
     </div>
+
+    <!-- Import JavaScript file -->
+    <script type="module" src="./login.js"></script> <!-- Update path to login.js if necessary -->
 </body>
 </html>

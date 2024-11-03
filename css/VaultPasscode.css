@@ -3,7 +3,7 @@ body {
     font-family: 'Inter', sans-serif;
     display: flex;
     height: 100vh;
-    background-color: #f0f0f5;
+    background-color: #f4f3f8;
 }
 
 .container {
@@ -140,4 +140,32 @@ body {
         padding: 8px;
         font-size: 0.9rem;
     }
+}
+
+.input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-container input {
+    width: 100%;
+    padding: 10px 15px 10px 15px;
+    border-radius: 25px;
+    border: 1px solid #ddd;
+    font-size: 1rem;
+}
+
+.input-container i.toggle-visibility {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.input-container i.toggle-visibility:hover {
+    color: #5753c9;
 }

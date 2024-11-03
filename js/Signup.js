@@ -1,3 +1,4 @@
+// Import Firebase components using the modular syntax
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import { getFirestore, doc, setDoc, query, where, getDocs, collection } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
@@ -95,7 +96,7 @@ signupForm.addEventListener("submit", async (event) => {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const userId = userCredential.user.uid;
 
-        // Save user data with active status and default following
+        // Save user data with active status, default following, and null passcode
         await setDoc(doc(db, "users", userId), {
             firstName,
             lastName,
@@ -111,6 +112,7 @@ signupForm.addEventListener("submit", async (event) => {
             postsCount: 0, // Initial posts count
             profilePic: "../assets/Default_profile_icon.png", // Default profile picture
             following: ["PhotoNest"], // Automatically follow "PhotoNest"
+            passcode: null // Set initial passcode to null
         });
 
         // Send Firebase verification email

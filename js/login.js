@@ -1,110 +1,233 @@
 // Import Firebase components using the modular syntax
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
-import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
-import { getFirestore, collection, query, where, getDocs, updateDoc, doc, setDoc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+import { getAuth, signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+import { getFirestore, collection, query, where, getDocs, updateDoc, doc, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
 
-// Import Firebase services from your local configuration file
-import { auth, db } from './firebaseConfig.js';
+// Initialize Firebase
+const app = initializeApp({
+    // Your Firebase configuration here
+});
+
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 // Setup the login form event listener
 const loginForm = document.querySelector('.login-form');
-const usernameInput = document.getElementById('username');
-const passwordInput = document.getElementById('password');
+if (loginForm) {
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
 
-loginForm.addEventListener('submit', function (event) {
-    event.preventDefault();  // Prevent the default form submission behavior
+    loginForm.addEventListener('submit', function (event) {
+        event.preventDefault();
 
-    const username = usernameInput.value.trim().toLowerCase(); // Convert username to lowercase to ensure case-insensitivity
-    const password = passwordInput.value;
+        const username = usernameInput.value.trim().toLowerCase();
+        const password = passwordInput.value;
 
-    console.log("Attempting to log in with username:", username);  // Debugging output
+        console.log("Attempting to log in with username:", username);
 
-    // Query Firestore for user with the given username in lowercase
-    const usersRef = collection(db, "users");
-    const q = query(usersRef, where("username", "==", username));
+        const usersRef = collection(db, "users");
+        const q = query(usersRef, where("username", "==", username));
 
-    getDocs(q)
-        .then(async querySnapshot => {
-            if (querySnapshot.empty) {
-                alert("No user found with that username.");
+        getDocs(q)
+            .then(async querySnapshot => {
+                if (querySnapshot.empty) {
+                    alert("No user found with that username.");
+                    return;
+                }
+
+                const userDoc = querySnapshot.docs[0];
+                const userData = userDoc.data();
+                const userEmail = userData.email;
+                const userStatus = userData.status;
+                const userRole = userData.role;
+                const userDocRef = doc(db, "users", userDoc.id);
+
+                if (userStatus.toLowerCase() === "banned") {
+                    window.location.href = 'BannedMessage.html';
+                    return;
+                }
+
+                signInWithEmailAndPassword(auth, userEmail, password)
+                    .then(async (userCredential) => {
+                        if (userStatus.toLowerCase() !== "active") {
+                            alert("Your account is not active. Please contact support.");
+                            return;
+                        }
+
+                        const currentTimestamp = new Date().toISOString();
+                        try {
+                            await updateDoc(userDocRef, {
+                                lastActive: currentTimestamp
+                            });
+                            console.log("Last active timestamp updated:", currentTimestamp);
+                        } catch (error) {
+                            console.error("Error updating lastActive field:", error);
+                        }
+
+                        const userId = userCredential.user.uid;
+                        const sessionRef = doc(db, "sessions", userId);
+
+                        try {
+                            // Save all user data to session storage
+                            for (const [key, value] of Object.entries(userData)) {
+                                sessionStorage.setItem(key, value);
+                            }
+                            sessionStorage.setItem("userId", userId);
+                            sessionStorage.setItem("loginTime", currentTimestamp);
+
+                            // Save the user data to Firestore sessions
+                            await setDoc(sessionRef, {
+                                ...userData,
+                                userId: userId,
+                                loginTime: currentTimestamp,
+                                logoutTime: null,
+                                status: "online"
+                            }, { merge: true });
+                            console.log("Session updated: User is online with full user data");
+                        } catch (error) {
+                            console.error("Error tracking session: ", error);
+                        }
+
+                        switch (userRole) {
+                            case 'admin':
+                                window.location.href = '../AdminDashboard.html';
+                                break;
+                            case 'user':
+                                window.location.href = '../UserDashboard.html';
+                                break;
+                            default:
+                                alert("Unauthorized access. Please contact support.");
+                                break;
+                        }
+                    })
+                    .catch((error) => {
+                        alert('Login failed: ' + error.message);
+                    });
+            })
+            .catch(error => {
+                console.error("Error fetching user data:", error);
+                alert('An error occurred while fetching user data.');
+            });
+    });
+}
+
+// Function to hash a passcode using SHA-256
+async function hashPasscode(passcode) {
+    const msgUint8 = new TextEncoder().encode(passcode);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", msgUint8);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Function to set a passcode for the user
+export async function setPasscode(userId, passcode) {
+    const hashedPasscode = await hashPasscode(passcode);
+    const userDocRef = doc(db, "users", userId);
+
+    try {
+        await updateDoc(userDocRef, { passcode: hashedPasscode });
+        console.log("Passcode set successfully for user:", userId);
+    } catch (error) {
+        console.error("Error setting passcode:", error);
+    }
+}
+
+// Function to verify the passcode for accessing the vault
+export async function verifyPasscode(userId, inputPasscode) {
+    const userDocRef = doc(db, "users", userId);
+    const userDoc = await getDoc(userDocRef);
+
+    if (!userDoc.exists()) {
+        alert("User data not found.");
+        return false;
+    }
+
+    const storedHashedPasscode = userDoc.data().passcode;
+
+    if (storedHashedPasscode === null) {
+        window.location.href = "createPasscode.html"; // Redirect to create passcode page
+        return;
+    }
+
+    const hashedInputPasscode = await hashPasscode(inputPasscode);
+
+    if (storedHashedPasscode === hashedInputPasscode) {
+        console.log("Access granted to vault.");
+        return true;
+    } else {
+        alert("Incorrect passcode.");
+        return false;
+    }
+}
+
+// Event listener for the vault passcode page
+document.addEventListener('DOMContentLoaded', () => {
+    const unlockButton = document.getElementById('unlockButton');
+    if (unlockButton) {
+        unlockButton.addEventListener("click", async () => {
+            const auth = getAuth();
+            const userId = auth.currentUser ? auth.currentUser.uid : null;
+            const passcode = document.getElementById("passcodeInput").value;
+
+            if (!userId) {
+                alert("Please log in first.");
+                window.location.href = '../index.html'; // Redirect to login if not authenticated
                 return;
             }
 
-            const userDoc = querySnapshot.docs[0];
-            const userEmail = userDoc.data().email;
-            const userStatus = userDoc.data().status;
-            const userRole = userDoc.data().role;  // Get user role from Firestore
-            const userDocRef = doc(db, "users", userDoc.id); // Reference to user document
-
-            // Check user's status before allowing login
-            if (userStatus.toLowerCase() === "banned") {
-                window.location.href = 'BannedMessage.html';
+            if (passcode === "") {
+                alert("Please enter your passcode.");
                 return;
             }
 
-            // Use the email to sign in with Firebase Auth
-            signInWithEmailAndPassword(auth, userEmail, password)
-                .then(async (userCredential) => {
-                    if (userStatus.toLowerCase() !== "active") {
-                        alert("Your account is not active. Please contact support.");
-                        return;
-                    }
+            try {
+                const accessGranted = await verifyPasscode(userId, passcode);
 
-                    // Update the lastActive field in Firestore for the user
-                    const currentTimestamp = new Date().toISOString();
-                    try {
-                        await updateDoc(userDocRef, {
-                            lastActive: currentTimestamp
-                        });
-                        console.log("Last active timestamp updated:", currentTimestamp);
-                    } catch (error) {
-                        console.error("Error updating lastActive field:", error);
-                    }
-
-                    // Track or update the session in Firestore
-                    const userId = userCredential.user.uid;  // Get the Firebase user ID
-                    const sessionRef = doc(db, "sessions", userId);  // Reference to the session document
-                    try {
-                        // Update session document with the new loginTime (or create if doesn't exist)
-                        await setDoc(sessionRef, {
-                            userId: userId,
-                            username: username,
-                            role: userRole,  // Store the user role in the session
-                            loginTime: currentTimestamp,  // Update login time
-                            logoutTime: null,  // Set logoutTime to null until the user logs out
-                            status: "online"  // Mark as online
-                        }, { merge: true });  // Merge with existing data if session already exists
-                        console.log("Session updated: User is online with new loginTime");
-                    } catch (error) {
-                        console.error("Error tracking session: ", error);
-                    }
-
-                    // Store user info in session storage after successful login
-                    sessionStorage.setItem("username", username);
-                    sessionStorage.setItem("role", userRole);  // Store role in sessionStorage
-
-                    // Redirect based on role
-                    switch (userRole) {
-                        case 'admin':
-                            window.location.href = '../AdminDashboard.html';
-                            break;
-                        case 'user':
-                            window.location.href = '../UserDashboard.html';
-                            break;
-                        default:
-                            alert("Unauthorized access. Please contact support.");
-                            break;
-                    }
-                })
-                .catch((error) => {
-                    alert('Login failed: ' + error.message);
-                });
-        })
-        .catch(error => {
-            console.error("Error fetching user data:", error);
-            alert('An error occurred while fetching user data.');
+                if (accessGranted) {
+                    window.location.href = "vault.html"; // Redirect to the actual vault page
+                } else {
+                    alert("Incorrect passcode.");
+                }
+            } catch (error) {
+                console.error("Error verifying passcode:", error);
+                alert("An error occurred while verifying the passcode.");
+            }
         });
+    }
 });
+
+// Function to change the passcode
+export async function changePasscode(userId, oldPasscode, newPasscode, confirmNewPasscode) {
+    if (newPasscode !== confirmNewPasscode) {
+        alert("New passcodes do not match.");
+        return;
+    }
+
+    const userDocRef = doc(db, "users", userId);
+    const userDoc = await getDoc(userDocRef);
+
+    if (!userDoc.exists()) {
+        alert("User data not found.");
+        return;
+    }
+
+    const storedHashedPasscode = userDoc.data().passcode;
+    const hashedOldPasscode = await hashPasscode(oldPasscode);
+
+    if (storedHashedPasscode !== hashedOldPasscode) {
+        alert("Incorrect old passcode.");
+        return;
+    }
+
+    const hashedNewPasscode = await hashPasscode(newPasscode);
+    try {
+        await updateDoc(userDocRef, { passcode: hashedNewPasscode });
+        alert("Passcode changed successfully.");
+        console.log("Passcode updated for user:", userId);
+    } catch (error) {
+        console.error("Error changing passcode:", error);
+    }
+}
 
 // Function to log out the user and update Firestore
 export async function logout() {
@@ -115,21 +238,16 @@ export async function logout() {
         const sessionRef = doc(db, "sessions", userId);
         const logoutTimestamp = new Date().toISOString();
 
-        // Mark user as offline and update logoutTime in Firestore
         await updateDoc(sessionRef, {
             status: "offline",
-            logoutTime: logoutTimestamp  // Update with the current timestamp when logging out
+            logoutTime: logoutTimestamp
         });
 
-        // Firebase Auth sign-out
-        await auth.signOut();
+        await signOut(auth);
         console.log("User signed out successfully");
 
-        // Clear session storage
-        sessionStorage.removeItem("username");
-        sessionStorage.removeItem("role");
+        sessionStorage.clear(); // Clear all session storage
 
-        // Redirect to login page
         window.location.href = '../index.html';
     } catch (error) {
         console.error("Error signing out: ", error);

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Details</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+    <link rel="stylesheet" href="../css/UploadPhoto.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Add your photo details</h1>
+        <p>Start by selecting an image</p>
+        <label for="caption">Caption</label>
+        <input type="text" id="caption" placeholder="Caption">
+        <label for="location">Location</label>
+        <input type="text" id="location" placeholder="Location">
+        <div class="checkbox-container">
+            <input type="checkbox" id="private">
+            <label for="private">Make image private?</label>
+        </div>
+        <div class="upload-section">
+            <i class="fas fa-upload"></i>
+            <span>Upload image</span>
+        </div>
+        <button class="upload-btn">Upload</button>
+        <button class="cancel-btn">Cancel</button>
+    </div>
+</body>
+</html>
