@@ -41,7 +41,7 @@ async function verifyEmail() {
 
             alert('Email verified successfully! Your status is now active.');
             // Redirect to a specific page (e.g., login or home page)
-            window.location.href = '../index.html';  // Change this to your desired route
+            window.location.href = '../html/index.html';  // Change this to your desired route
         } else {
             alert('Email verification failed. Please try again.');
         }
