@@ -43,7 +43,7 @@ if (loginForm) {
                 const userDocRef = doc(db, "users", userDoc.id);
 
                 if (userStatus.toLowerCase() === "banned") {
-                    window.location.href = 'BannedMessage.html';
+                    window.location.href = '../html/BannedMessage.html';
                     return;
                 }
 
@@ -90,10 +90,10 @@ if (loginForm) {
 
                         switch (userRole) {
                             case 'admin':
-                                window.location.href = '../AdminDashboard.html';
+                                window.location.href = '../html/AdminDashboard.html';
                                 break;
                             case 'user':
-                                window.location.href = '../UserDashboard.html';
+                                window.location.href = '../html/UserDashboard.html';
                                 break;
                             default:
                                 alert("Unauthorized access. Please contact support.");
@@ -145,7 +145,7 @@ export async function verifyPasscode(userId, inputPasscode) {
     const storedHashedPasscode = userDoc.data().passcode;
 
     if (storedHashedPasscode === null) {
-        window.location.href = "createPasscode.html"; // Redirect to create passcode page
+        window.location.href = "../html/createPasscode.html"; // Redirect to create passcode page
         return;
     }
 
@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!userId) {
                 alert("Please log in first.");
-                window.location.href = '../index.html'; // Redirect to login if not authenticated
+                window.location.href = '../html/index.html'; // Redirect to login if not authenticated
                 return;
             }
 
@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const accessGranted = await verifyPasscode(userId, passcode);
 
                 if (accessGranted) {
-                    window.location.href = "vault.html"; // Redirect to the actual vault page
+                    window.location.href = "../html/vault.html"; // Redirect to the actual vault page
                 } else {
                     alert("Incorrect passcode.");
                 }
@@ -248,7 +248,7 @@ export async function logout() {
 
         sessionStorage.clear(); // Clear all session storage
 
-        window.location.href = '../index.html';
+        window.location.href = '../html/index.html';
     } catch (error) {
         console.error("Error signing out: ", error);
     }

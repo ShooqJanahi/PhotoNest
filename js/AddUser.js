@@ -9,13 +9,13 @@ function checkAdminAccess() {
 
     // Redirect to login if no username is found in session storage
     if (!username) {
-        window.location.href = '../index.html';
+        window.location.href = '../html/index.html';
         return;
     }
 
     // Ensure the user has the correct role (admin)
     if (role !== 'admin') {
-        window.location.href = '../Error.html'; // Redirect if not admin
+        window.location.href = '../html/Error.html'; // Redirect if not admin
         return;
     }
 }
@@ -66,7 +66,7 @@ document.querySelector('.add-user-form').addEventListener('submit', async (e) =>
 
         alert('User added successfully! A verification email has been sent.');
         // Redirect to user management page
-        window.location.href = '../UserManagement.html';
+        window.location.href = '../html/UserManagement.html';
 
     } catch (error) {
         console.error('Error adding user:', error);
@@ -99,6 +99,6 @@ async function logUserActivity(username, action) {
 }
 
 document.querySelector('.cancel-btn').addEventListener('click', () => {
-    window.location.href = '../UserManagement.html';
+    window.location.href = '../html/UserManagement.html';
 });
 

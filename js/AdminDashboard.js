@@ -9,13 +9,13 @@ export function checkLoginStatus() {
 
     // Redirect to login if no username is found in session storage
     if (!username) {
-        window.location.href = '../index.html'; 
+        window.location.href = '../html/index.html'; 
         return;
     }
 
     // Ensure the user has the correct role (admin)
     if (role !== 'admin') {
-        window.location.href = '../Error.html'; // Redirect if not admin
+        window.location.href = '../html/Error.html'; // Redirect if not admin
         return;
     }
 }
@@ -44,7 +44,7 @@ export async function logout() {
         sessionStorage.removeItem("role");
 
         // Redirect to login page
-        window.location.href = '../index.html';
+        window.location.href = '../html/index.html';
     } catch (error) {
         console.error("Error signing out: ", error);
     }

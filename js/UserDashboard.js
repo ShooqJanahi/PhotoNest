@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!username || userRole !== "user") {
         // If not logged in or the role is not "user", redirect to the login page
         alert('Unauthorized access. Redirecting to login page.');
-        window.location.href = 'index.html';  // Redirect to login page
+        window.location.href = '../html/index.html';  // Redirect to login page
     }
 });
 
@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Check if the user is logged in and has the role of "user"
     if (!username || userRole !== "user") {
         alert('Unauthorized access. Redirecting to login page.');
-        window.location.href = 'index.html';  // Redirect to login page
+        window.location.href = '../html/index.html';  // Redirect to login page
         return;
     }
 

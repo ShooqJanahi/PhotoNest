@@ -40,7 +40,7 @@
             <a href="#" class="button-link">
                 <button id="actionButton" class="styled-button">Create</button>
             </a>
-            <a href="./UserDashboard.html" class="button-link">
+            <a href="UserDashboard.html" class="button-link">
                 <button class="styled-button">Cancel</button>
             </a>
         </div>
@@ -55,7 +55,7 @@
         if (!userId || userRole !== "user") {
             // Redirect to login page if not authenticated or if role is not "user"
             alert("Access denied. Please log in as a user to access the vault.");
-            window.location.href = '../index.html';
+            window.location.href = '../html/index.html';
         }
 
         // Set up UI elements and toggle visibility
