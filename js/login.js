@@ -1,15 +1,7 @@
 // Import Firebase components using the modular syntax
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
-import { getAuth, signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
-import { getFirestore, collection, query, where, getDocs, updateDoc, doc, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
-
-// Initialize Firebase
-const app = initializeApp({
-    // Your Firebase configuration here
-});
-
-const auth = getAuth(app);
-const db = getFirestore(app);
+import { signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+import { collection, query, where, getDocs, updateDoc, doc, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+import { auth, db } from './firebaseConfig.js';
 
 // Setup the login form event listener
 const loginForm = document.querySelector('.login-form');
@@ -110,6 +102,7 @@ if (loginForm) {
             });
     });
 }
+
 
 // Function to hash a passcode using SHA-256
 async function hashPasscode(passcode) {
