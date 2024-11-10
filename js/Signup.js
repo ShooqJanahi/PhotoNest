@@ -96,7 +96,7 @@ signupForm.addEventListener("submit", async (event) => {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const userId = userCredential.user.uid;
 
-        // Save user data with active status, default following, and null passcode
+        // Save user data with unverfied status, default following, and null passcode
         await setDoc(doc(db, "users", userId), {
             firstName,
             lastName,
@@ -104,7 +104,7 @@ signupForm.addEventListener("submit", async (event) => {
             email: email.toLowerCase(),
             phone,
             role: "user", // Default role for regular users
-            status: "active",
+            status: "unverfied",
             createdAt: new Date(), // Current timestamp
             lastActive: new Date(), // Set lastActive to now
             followersCount: 0, // Initial followers count
@@ -119,7 +119,7 @@ signupForm.addEventListener("submit", async (event) => {
         await sendEmailVerification(userCredential.user);
 
         // Redirect to VerifyEmail.html after successful signup
-        window.location.href = "VerifyEmail.html";
+        window.location.href = "../html/VerifyEmail.html";
 
         // Reset the form after successful signup
         signupForm.reset();
