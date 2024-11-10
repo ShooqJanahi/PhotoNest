@@ -1,0 +1,256 @@
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f2f0f7;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* Navbar styling */
+.navbar {
+    width: 100vw; /* Full viewport width */
+    background-color: white;
+    padding: 10px 20px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    box-sizing: border-box; /* Ensure padding is included in total width */
+}
+
+/* Logo styling */
+.navbar .logo {
+    font-size: 24px;
+    font-weight: 700;
+    color: #000000;
+    display: flex;
+    align-items: center;
+}
+
+.navbar .logo i {
+    margin-right: 8px;
+}
+
+/* Login container styling */
+.login-container {
+    background-color: white;
+    padding: 40px 60px 40px 40px; /* Extra right padding added */
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 300px;
+    margin-top: 100px; /* Adjust to account for navbar */
+}
+
+.login-container h2 {
+    margin-bottom: 20px;
+    font-weight: 600;
+    color: #333;
+}
+
+/* Form styling */
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.form-group label {
+    font-weight: 500;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 25px;
+    font-size: 14px;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #6c4cff;
+}
+
+.form-group .input-icon {
+    position: relative;
+}
+
+.form-group .input-icon i {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c4cff;
+}
+
+.form-group input[type="text"],
+.form-group input[type="password"] {
+    padding-left: 30px;
+}
+
+.btn {
+    background-color: #6c4cff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+}
+
+.btn:hover {
+    background-color: #5a3bdb;
+}
+
+/* Footer styling */
+.footer {
+    width: 100vw; /* Full viewport width */
+    background-color: #fff;
+    padding: 20px;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    box-sizing: border-box; /* Ensure padding is included in total width */
+    text-align: center;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+}
+
+.footer nav {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.footer nav a {
+    margin: 0 15px;
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.footer .links {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.footer .links div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: center;
+}
+
+.footer .links a {
+    text-decoration: none;
+    color: #333;
+    font-size: 14px;
+}
+
+.footer .social {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.footer .social i {
+    font-size: 20px;
+    margin: 0 10px;
+    color: #333;
+}
+
+.footer .copyright {
+    font-size: 14px;
+    color: #666;
+    text-align: right;
+    width: 100%;
+    margin-top: 10px;
+}  
+
+
+/* Responsive styling for tablets */
+@media (max-width: 768px) {
+    .login-container {
+        width: 85%; /* Slightly smaller width for tablets */
+        padding: 25px 15px; /* Adjust padding */
+        margin-top: 80px;
+    }
+
+    .navbar .logo {
+        font-size: 20px;
+    }
+
+    .form-group input {
+        width: 90%;
+    }
+
+    .btn {
+        font-size: 14px;
+    }
+
+    .footer {
+        padding: 15px;
+    }
+
+    
+  
+
+    .footer .links a,
+    .footer .social i {
+        font-size: 13px;
+    }
+
+    .footer .copyright {
+        font-size: 12px;
+    }
+}
+
+/* Responsive styling for mobile screens */
+@media (max-width: 480px) {
+    .login-container {
+        width: 90%; /* Full width for smaller screens */
+        padding: 20px 10px; /* Smaller padding for mobile */
+        margin-top: 60px;
+    }
+
+    .navbar .logo {
+        font-size: 18px;
+    }
+
+
+    
+    .form-group input {
+        width: 87%;
+    }
+
+    .footer {
+        padding: 10px;
+        text-align: center;
+    }
+
+    
+  
+
+    .footer .links a,
+    .footer .social i {
+        font-size: 12px;
+    }
+
+    .footer .copyright {
+        font-size: 12px;
+    }
+}
