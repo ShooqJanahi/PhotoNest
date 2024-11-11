@@ -3,48 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PhotoNest Dashboard</title>
+    <title>Admin Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
     <link rel="stylesheet" href="../css/AdminDashboard.css"> <!-- Link to external CSS file -->
-    <script type="module" src="./js/AdminDashboard.js"></script>
+    <script type="module" src="../js/AdminDashboard.js"></script>
+
+    <!--Google Chart-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+
     <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png">
 
 </head>
 <body>
     <div class="header">
         <div class="logo">
-            <i class="fas fa-camera-retro"></i> PhotoNest
+            <img src="../assets/PhotoNest_Transparent.png" alt="PhotoNest Logo"> PhotoNest
         </div>
+        
         <div class="actions">
             <button class="notification"><i class="fas fa-bell"></i></button>
-            <button class="hamburger-menu"><i class="fas fa-bars"></i></button>
-            <button id="settings">Settings</button>
+            <button id="hamburgerMenu" class="hamburger-menu"><i class="fas fa-bars"></i></button>
 
-            <form id="logoutForm" onsubmit="event.preventDefault(); logout();">
-               
-<button id="logoutButton">Logout</button>
-
-            </form>
+            <button class="settings" onclick="window.location.href='Settings.html'">
+                <i class="fa fa-cog" aria-hidden="true"></i>
+            </button>
             
-
+        
+            <form id="logoutForm" onsubmit="event.preventDefault(); logout();">
+                <button id="logoutButton">Logout</button>
+            </form>
         </div>
+        
     </div>
 
-    <script type="module">
-        import { setupButtons } from '../js/AdminDashboard.js'; // Correct function name
-        window.onload = setupButtons; // Call the correct function on window load
-    </script>
     
-
+    
+  
     <div class="mobile-menu">
-        <a href="#">Home</a>
-        <a href="#">Dashboard</a>
+        
+        <a href="AdminDashboard.html">Dashboard</a>
         <a href="UserManagement.html">User Management</a>
         <a href="#">Reports</a>
-        <a href="#">Currently Logged-in Users</a>
+        <a href="AdminDashboard.html#user-status-section">Currently Logged-in Users</a>
+
         <a href="#">Spam Reports</a>
-        <button id="settings">Settings</button>
+        <a href="Settings.html">Settings</a>
 
         <form id="logoutForm" onsubmit="event.preventDefault(); logout();">
             <button type="submit">Logout</button>
@@ -55,43 +60,56 @@
     <div class="container">
         <div class="sidebar">
             <h2>Navigation</h2>
-            <a href="#">Home</a>
-            <a href="#">Dashboard</a>
+            
+            <a href="AdminDashboard.html">Dashboard</a>
             <a href="UserManagement.html">User Management</a>
             <a href="#">Reports</a>
             <h2>Quick Access</h2>
-            <a href="#">Currently Logged-in Users</a>
+            <a href="AdminDashboard.html#user-status-section">Currently Logged-in Users</a>
+
             <a href="#">Spam Reports</a>
         </div>
         <div class="main-content">
             <div class="content-section">
                 <h3>User Management</h3>
                 <!-- Currently Logged-in Users Section in AdminDashboard.html -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h4>Currently Logged-in Users</h4>
-                            <!-- Update the button to include a URL parameter for online users -->
-                            <a href="UserManagement.html?status=online">View All</a>
+                    <!-- Currently Logged-in Users Section in AdminDashboard.html -->
+<section id="user-status-section"  class="user-status-section">
+    <div class="card">
+        <div class="card-header">
+            <h4>Currently Logged-in Users</h4>
+            <!-- Button with a URL parameter for online users -->
+            <a href="UserManagement.html?status=online">View All</a>
+        </div>
+        <ul id="onlineUsersList">
+            <!-- Online users will be populated here dynamically -->
+        </ul>
+    </div>
+</section>
 
-                        </div>
-                        <ul id="onlineUsersList">
-                            <!-- Online users will be populated here dynamically -->
-                        </ul>
-                    </div>
 
                 
             </div>
             <div class="content-section">
                 <h3>Reports</h3>
-                <div class="card">
-                    <h4>Spam Reports</h4>
-                    <img src="https://placehold.co/300x150?text=Spam+Reports+Graph" alt="Graph showing spam reports">
-                </div>
-                <div class="card">
-                    <h4>Activity Log</h4>
-                    <img src="https://placehold.co/300x150?text=Activity+Log+Graph" alt="Graph showing activity log">
-                </div>
+            
+                <!-- Spam Reports Section -->
+                <section class="report-section">
+                    <div class="card" style="width: 100%; max-width: 100%;">
+                        <h4>Spam Reports</h4>
+                        <div id="spam_reports_chart" aria-label="Bar chart showing weekly spam reports recorded each Saturday"></div>
+                    </div>
+                </section>
+                
+                <section class="report-section">
+                    <div class="card" style="width: 100%; max-width: 100%;">
+                        <h4>Activity Log</h4>
+                        <div id="curve_chart" aria-label="Line chart showing activity log"></div>
+                    </div>
+                </section>
+                
             </div>
+            
         </div>
     </div>
 </body>
