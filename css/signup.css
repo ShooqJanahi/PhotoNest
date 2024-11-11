@@ -1,25 +1,22 @@
+/* General Styling for the Body */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    height: 100vh;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: linear-gradient(to right, #6a11cb, #2575fc);
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+    overflow-y: auto; /* Allow vertical scrolling if needed */
 }
 
+/* Fullscreen Container */
 .container {
     display: flex;
-    width: 100%;
-    height: 100%;
+    width: 100vw; /* Full viewport width */
+    height: 100vh; /* Full viewport height */
     background: white;
-    border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Sidebar Styling */
 .sidebar {
     width: 30%;
     background: #4A3E74;
@@ -28,12 +25,14 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center; /* Center content in the sidebar */
+    text-align: center;
 }
 
-.sidebar .logo {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 20px;
+.sidebar .logo img {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 20px; /* Add space below the image */
 }
 
 .sidebar h2 {
@@ -185,46 +184,34 @@ input[type="password"] {
 /* Media Queries for Responsiveness */
 @media (max-width: 768px) {
     .container {
-        flex-direction: column;
-        height: auto;
+        flex-direction: column; /* Stack sidebar and main content vertically */
+        height: auto; /* Allow container to expand based on content */
+        padding: 10px; /* Add a small gap around the container */
     }
 
     .sidebar {
         width: 100%;
-        height: auto;
         padding: 10px;
+        align-items: center; /* Center align the content */
+    }
+
+    .sidebar .logo img {
+        max-width: 200px; /* Adjust logo size for smaller screens */
+        margin-bottom: 20px; /* Space below the logo */
     }
 
     .main-content {
         width: 100%;
-        padding: 20px;
-    }
-
-    .top-bar {
-        position: static;
-        justify-content: center;
-        margin-bottom: 20px;
-    }
-
-    .signup-form h2 {
-        margin-top: 20px;
-    }
-
-    .input-group {
-        width: 100%;
+        padding: 20px; /* Add padding to main content for gap around edges */
     }
 
     .signup-btn {
-        width: 100%;
+        width: 100%; /* Full-width on small screens */
         padding: 15px;
     }
 }
 
 @media (max-width: 480px) {
-    .sidebar .logo {
-        font-size: 20px;
-    }
-
     .sidebar h2 {
         font-size: 18px;
     }
@@ -234,7 +221,7 @@ input[type="password"] {
     }
 
     .main-content {
-        padding: 10px;
+        padding: 15px; /* Reduce padding slightly for very small screens */
     }
 
     .signup-form h2 {
