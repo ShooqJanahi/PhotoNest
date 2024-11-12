@@ -1,0 +1,261 @@
+/* Main body styling */
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f7;
+    color: #333;
+    overflow-x: hidden;
+}
+
+/* Container for main layout */
+.container {
+    display: flex;
+    flex-direction: row;
+    max-width: 100vw;
+    overflow-x: hidden;
+}
+
+/* Sidebar styling */
+.sidebar {
+    width: 250px;
+    background-color: #fff;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    margin-top: 60px;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+    position: fixed;
+}
+
+.sidebar h2 {
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.sidebar a {
+    display: block;
+    color: #333;
+    text-decoration: none;
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+/* Header styling */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fff;
+    padding: 10px 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    box-sizing: border-box;
+}
+
+.header .logo {
+    display: flex;
+    align-items: center;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.header .logo img {
+    width: 40px;
+    height: auto;
+    margin-right: 10px;
+}
+
+/* Action buttons in header */
+.header .actions {
+    display: flex;
+    align-items: center;
+}
+
+.header .actions button {
+    background-color: #6a0dad;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    margin-left: 10px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.header .actions .notification,
+.header .actions .settings {
+    background-color: transparent;
+    font-size: 18px;
+    color: #333;
+    margin-left: 20px;
+}
+
+.header .actions .hamburger-menu {
+    background-color: transparent;
+    font-size: 24px;
+    color: #333;
+    margin-left: 20px;
+    cursor: pointer;
+    display: none;
+}
+
+/* Hide mobile menu by default */
+.mobile-menu {
+    display: none;
+    position: fixed;
+    top: 60px;
+    right: 20px;
+    background-color: #fff;
+    width: 200px;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1001;
+}
+
+/* Mobile menu links styling */
+.mobile-menu a {
+    display: block;
+    color: #333;
+    text-decoration: none;
+    padding: 10px 0;
+    font-size: 16px;
+    border-bottom: 1px solid #ddd;
+}
+
+.mobile-menu a:last-child {
+    border-bottom: none;
+}
+
+/* Show mobile menu when `.show` class is added */
+.mobile-menu.show {
+    display: block;
+}
+
+/* Hide the hamburger menu by default */
+.hamburger-menu {
+    display: none;
+}
+
+/* Reports section styling with card effect */
+.reports {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin: 20px;
+    margin-top: 80px;
+    margin-left: 310px;
+    flex-grow: 1;
+}
+
+/* Card styling for the table container */
+.report-card {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: auto;
+}
+
+/* Adjust search bar styling for consistent card look */
+.search-bar {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.search-bar input {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 20px 0 0 20px;
+    font-size: 16px;
+}
+
+.search-bar button {
+    background-color: #6c63ff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 0 20px 20px 0;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+}
+
+.search-bar button i {
+    margin-right: 5px;
+}
+
+/* Table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #000000;
+}
+
+th {
+    font-weight: 600;
+    color: #666;
+    background-color: #f2f2f2;
+}
+
+td a {
+    color: #6c63ff;
+    text-decoration: none;
+    margin-right: 10px;
+}
+
+/* Responsive styles */
+@media (max-width: 1024px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .reports {
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+}
+
+/* Hide logout and settings buttons in responsive mode */
+@media (max-width: 768px) {
+    .hamburger-menu {
+        display: block;
+    }
+
+    /* Hide sidebar on smaller screens */
+    .sidebar {
+        display: none;
+    }
+
+    /* Adjust report section for mobile */
+    .reports {
+        margin-left: 20px;
+        margin-right: 20px;
+        margin-top: 80px;
+    }
+
+    /* Hide logout and settings buttons on mobile */
+    .header .actions #logoutButton,
+    .header .actions .settings {
+        display: none;
+    }
+
+    .settings,
+    #logoutButton {
+        display: none;
+    }
+}
