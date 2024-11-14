@@ -1,7 +1,10 @@
+//login.js
+
 // Import Firebase components using the modular syntax
 import { signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
 import { collection, query, where, getDocs, updateDoc, doc, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
 import { auth, db } from './firebaseConfig.js';
+
 
 // Setup the login form event listener
 const loginForm = document.querySelector('.login-form');
@@ -80,6 +83,7 @@ if (loginForm) {
                             console.error("Error tracking session: ", error);
                         }
 
+                        // Redirect based on user role
                         switch (userRole) {
                             case 'admin':
                                 window.location.href = '../html/AdminDashboard.html';
@@ -102,6 +106,7 @@ if (loginForm) {
             });
     });
 }
+
 
 
 // Function to hash a passcode using SHA-256

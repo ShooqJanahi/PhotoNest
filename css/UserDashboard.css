@@ -55,6 +55,18 @@ body {
   margin: 0 auto;
 }
 
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo-image {
+  width: 40px; /* Adjust the size as needed */
+  height: auto;
+  margin-right: 10px; /* Space between the image and the text */
+}
+
+
 .profile-photo {
   width: 2.7rem;
   aspect-ratio: 1/1;
