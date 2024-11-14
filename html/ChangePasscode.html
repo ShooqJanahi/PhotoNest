@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Passcode Vault</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+    <link rel="stylesheet" href="../css/VaultPasscode.css">
+    <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png">
+</head>
+<body>
+    <div class="container">
+        <div class="image-section"></div>
+        <div class="form-section">
+            <h1 id="formTitle">Create Passcode</h1>
+            <p id="formSubtitle">Enter passcode to access vault</p>
+            
+            <div class="form-group">
+                <!-- Current passcode input (only shown in change mode) -->
+                <div class="input-container">
+                    <input type="password" id="oldPasscodeInput" placeholder="Enter current passcode" style="display: none;">
+                    <i class="fas fa-key toggle-visibility" id="toggleOldPasscode" style="display: none;"></i>
+                </div>
+
+                <!-- New passcode input -->
+                <div class="input-container">
+                    <input type="password" id="newPasscodeInput" placeholder="Enter new passcode">
+                    <i class="fas fa-key toggle-visibility" id="toggleNewPasscode"></i>
+                </div>
+
+                <!-- Confirm new passcode input -->
+                <div class="input-container">
+                    <input type="password" id="confirmPasscodeInput" placeholder="Confirm new passcode">
+                    <i class="fas fa-key toggle-visibility" id="toggleConfirmPasscode"></i>
+                </div>
+            </div>
+            
+            <a href="forgotPasscode.html">Forgot passcode?</a>
+
+            <a href="#" class="button-link">
+                <button id="actionButton" class="styled-button">Create</button>
+            </a>
+            <a href="UserDashboard.html" class="button-link">
+                <button class="styled-button">Cancel</button>
+            </a>
+        </div>
+    </div>
+
+    <!-- JavaScript code to handle session storage and page actions -->
+    <script type="module">
+        // Check session storage to see if the user is logged in and has the correct role
+        const userId = sessionStorage.getItem("userId");
+        const userRole = sessionStorage.getItem("role");
+
+        if (!userId || userRole !== "user") {
+            // Redirect to login page if not authenticated or if role is not "user"
+            alert("Access denied. Please log in as a user to access the vault.");
+            window.location.href = '../html/index.html';
+        }
+
+        // Set up UI elements and toggle visibility
+        const urlParams = new URLSearchParams(window.location.search);
+        const mode = urlParams.get('mode'); // 'create' or 'change'
+
+        const formTitle = document.getElementById("formTitle");
+        const formSubtitle = document.getElementById("formSubtitle");
+        const actionButton = document.getElementById("actionButton");
+        const oldPasscodeInput = document.getElementById("oldPasscodeInput");
+        const newPasscodeInput = document.getElementById("newPasscodeInput");
+        const confirmPasscodeInput = document.getElementById("confirmPasscodeInput");
+        const toggleOldPasscode = document.getElementById("toggleOldPasscode");
+        const toggleNewPasscode = document.getElementById("toggleNewPasscode");
+        const toggleConfirmPasscode = document.getElementById("toggleConfirmPasscode");
+
+        if (mode === 'change') {
+            formTitle.textContent = "Change Passcode";
+            formSubtitle.textContent = "Enter your current and new passcode";
+            actionButton.textContent = "Change";
+            
+            // Show the "current passcode" input and key icon
+            oldPasscodeInput.style.display = "block";
+            toggleOldPasscode.style.display = "inline";
+        } else {
+            formTitle.textContent = "Create Passcode";
+            formSubtitle.textContent = "Enter passcode to access vault";
+            actionButton.textContent = "Create";
+        }
+
+        // Toggle password visibility
+        function toggleVisibility(inputField, icon) {
+            if (inputField.type === "password") {
+                inputField.type = "text";
+                icon.classList.remove("fa-key");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                inputField.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-key");
+            }
+        }
+
+        toggleOldPasscode.addEventListener("click", () => toggleVisibility(oldPasscodeInput, toggleOldPasscode));
+        toggleNewPasscode.addEventListener("click", () => toggleVisibility(newPasscodeInput, toggleNewPasscode));
+        toggleConfirmPasscode.addEventListener("click", () => toggleVisibility(confirmPasscodeInput, toggleConfirmPasscode));
+
+        actionButton.addEventListener("click", async () => {
+            const oldPasscode = oldPasscodeInput.value;
+            const newPasscode = newPasscodeInput.value;
+            const confirmPasscode = confirmPasscodeInput.value;
+
+            if (mode === 'change') {
+                if (!oldPasscode) {
+                    alert("Please enter your current passcode.");
+                    return;
+                }
+            }
+
+            if (newPasscode !== confirmPasscode) {
+                alert("New passcodes do not match.");
+                return;
+            }
+
+            try {
+                if (mode === 'change') {
+                    // Replace with the changePasscode function that uses sessionStorage data
+                    await changePasscode(userId, oldPasscode, newPasscode, confirmPasscode);
+                } else {
+                    // Replace with the setPasscode function that uses sessionStorage data
+                    await setPasscode(userId, newPasscode);
+                }
+                window.location.href = "Vault.html";
+            } catch (error) {
+                console.error("Error updating passcode:", error);
+                alert("Failed to update passcode. Please try again.");
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+    <script type="module" src="../js/Report.js"></script>
+
+    <link rel="stylesheet" href="../css/Report.css"> <!-- Link to external CSS file -->
+    <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png">
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <img src="../assets/PhotoNest_Transparent.png" alt="PhotoNest Logo"> PhotoNest
+        </div>
+        <div class="actions">
+            <button class="notification"><i class="fas fa-bell"></i></button>
+            <button id="hamburgerMenu" class="hamburger-menu"><i class="fas fa-bars"></i></button>
+    
+            <button class="settings" onclick="window.location.href='Settings.html'">
+                <i class="fa fa-cog" aria-hidden="true"></i>
+            </button>
+            <form id="logoutForm" onsubmit="event.preventDefault(); logout();">
+                <button id="logoutButton" type="button">Logout</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="mobile-menu">
+        <a href="AdminDashboard.html">Dashboard</a>
+        <a href="UserManagement.html">User Management</a>
+        <a href="Report.html">Reports</a>
+        <a href="AdminDashboard.html#user-status-section">Currently Logged-in Users</a>
+        <a href="AdminDashboard.html#Spam-Report">Spam Reports</a>
+        <a href="Settings.html">Settings</a>
+        <button id="logoutButton" type="button">Logout</button>
+    </div>
+    
+    
+
+    <div class="container">
+        <div class="sidebar">
+            <h2>Navigation</h2>
+            <a href="AdminDashboard.html">Dashboard</a>
+            <a href="UserManagement.html">User Management</a>
+            <a href="Report.html">Reports</a>
+            <h2>Quick Access</h2>
+            <a href="AdminDashboard.html#user-status-section">Currently Logged-in Users</a>
+            <a href="AdminDashboard.html#Spam-Report">Spam Reports</a>
+        </div>
+
+        <div class="reports">
+            <h2>Reports</h2>
+            <div class="search-bar">
+                <input type="text" placeholder="Search Reports">
+                <button><i class="fas fa-filter"></i> Enter</button>
+            </div>
+            <div class="report-card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Reporter UserName</th>
+                            <th>Reported UserName</th>
+                            <th>Report Date and Time</th>
+                            <th>Status</th>
+                            <th>Reviewed By</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Alice Johnson</td>
+                            <td><a href="mailto:alice.johnson@example.com">alice.johnson@example.com</a></td>
+                            <td>2024-11-11 14:00</td>
+                            <td>Active</td>
+                            <td></td>
+                            <td><a href="#">View</a> <a href="#">Close</a></td>
+                        </tr>
+                        <tr>
+                            <td>Bob Smith</td>
+                            <td><a href="mailto:bob.smith@example.com">bob.smith@example.com</a></td>
+                            <td>2024-11-10 10:30</td>
+                            <td>Inactive</td>
+                            <td></td>
+                            <td><a href="#">View</a> <a href="#">Close</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!--UploadPhoto.html-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+     <!--JQuray for the map-->
+     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+   
+ 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Details</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+    <link rel="stylesheet" href="../css/UploadPhoto.css">
+    <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png">
+
+   
+
+
+<!-- Firebase SDKs -->
+<script type="module" src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+<script type="module" src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
+<script type="module" src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
+<script type="module" src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js"></script>
+
+<!-- Local JavaScript files as modules -->
+<script type="module" src="../js/PhotoManagement.js"></script>
+<script type="module" src="../js/login.js"></script>
+
+
+</head>
+<body>
+    <div class="container">
+        <h1>Upload your photo</h1>
+        <p>Start by selecting an image</p>
+        
+        <label for="caption">Caption</label>
+        <textarea id="caption" placeholder="Type your caption here..."></textarea>
+        <div id="hashtag-suggestions" class="hashtag-suggestions" style="display: none;"></div>
+
+
+        <label for="location">Location</label>
+        <input type="text" id="location" placeholder="Start typing city or country..." autocomplete="off">
+        <div id="location-suggestions" class="suggestions"></div>
+        
+
+
+        <div class="checkbox-container">
+
+            <input type="checkbox" id="private">
+
+            <label for="private">Make image private?</label>
+        </div>
+        <div class="upload-section">
+            <input type="file" id="fileInput" accept="image/*" style="display: none;">
+            <label for="fileInput" class="upload-label">
+                <i class="fas fa-upload"></i>
+                <span>Upload image</span>
+            </label>
+        </div>
+        <button class="upload-btn">Upload</button>
+        <button class="cancel-btn">Cancel</button>
+    </div>
+    
+    
+
+</body>
+</html>

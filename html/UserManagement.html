@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhotoNest User Management</title>
+    <link rel="stylesheet" href="../css/UserManagement.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png">
+    
+    <!-- Firebase App (the core Firebase SDK) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<!-- Firebase Authentication -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<!-- Firebase Firestore -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<!-- Firebase Storage -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+
+
+
+
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <img src="../assets/PhotoNest_Transparent.png" alt="PhotoNest Logo"> PhotoNest
+        </div>
+        
+        <div class="actions">
+            <button class="notification"><i class="fas fa-bell"></i></button>
+            <button class="hamburger-menu"><i class="fas fa-bars"></i></button>
+            <button class="settings"><i class="fa fa-cog" aria-hidden="true"></i></button>
+        
+            <form id="logoutForm" onsubmit="event.preventDefault(); logout();">
+                <button id="logoutButton">Logout</button>
+            </form>
+        </div>
+        
+    </div>
+
+        <aside class="sidebar">
+            <h2>Navigation</h2>
+            <nav>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="AdminDashboard.html">Dashboard</a></li>
+                    <li><a href="#">User Management</a></li>
+                    <li><a href="#">Reports</a></li>
+                </ul>
+                <h3>Quick Access</h3>
+                <ul>
+                    <li><a href="#">Currently Logged-in Users</a></li>
+                    <li><a href="#">Spam Reports</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main>
+            <div class="controls">
+                <div class="search-container">
+                    <input type="text" placeholder="Search..." />
+                    <div class="sort-container">
+                        <button class="sort-button">Sort</button>
+                        <button class="enter-button">Enter</button>
+                    </div>
+                </div>
+                <button class="add-user-button" onclick="window.location.href='AddUser.html';">Add User</button>
+
+            </div>
+            
+            
+            
+            
+
+            <section class="user-cards">
+                <div class="user-card">
+                    <img src="avatar1.png" alt="User avatar" class="user-avatar">
+                    <h3>Sarah Connor</h3>
+                    <p>@Sarah.Connor</p>
+                    <p>Role: Administrator</p>
+                    <p>Status: Active</p>
+                    <p>Last Active: Oct 5, 2023, 14:30</p>
+                    <p>Account Created: Jan 10, 2022</p>
+                    <div class="card-buttons">
+                        <button class="delete-button">Delete</button>
+                        <button class="ban-button">Ban</button>
+                        <button class="edit-button">Edit</button>
+                    </div>
+                    <label for="ban-duration">Ban Duration (days):</label>
+                    <input type="range" id="ban-duration" name="ban-duration" min="1" max="30">
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>PhotoNest © All Rights Reserved</p>
+        </footer>
+    </div>
+    <script type="module" src="../js/firebaseConfig.js"></script>
+    <script type="module" src="../js/UserManagement.js"></script>
+</body>
+</html>

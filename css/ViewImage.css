@@ -1,0 +1,250 @@
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f3f0ff;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header .logo {
+    display: flex;
+    align-items: center;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.header .logo i {
+    margin-right: 10px;
+    color: #6a1b9a;
+}
+
+.header .icons {
+    display: flex;
+    align-items: center;
+}
+
+.header .icons i {
+    margin-left: 20px;
+    font-size: 20px;
+    color: #333;
+}
+
+.container {
+    display: flex;
+    justify-content: space-between;
+    padding: 40px;
+    padding-top: 20px;
+    flex: 1;
+    max-width: 1200px; /* Constrain content width */
+    width: 100%;
+    margin: 0 auto; /* Center the container on larger screens */
+    box-sizing: border-box;
+}
+
+.back-button-container {
+    margin-bottom: 20px;
+}
+
+.back-button {
+    background-color: #6a1b9a;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: 500;
+    display: inline-block;
+    text-align: center;
+    cursor: pointer;
+    border: none;
+}
+
+.image-section img {
+    width: 100%;
+    max-width: 600px;
+    border-radius: 20px;
+    box-sizing: border-box;
+}
+
+.details-options {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    color: #666;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.details-section {
+    position: relative; /* Needed for positioning the ellipsis icon */
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    margin-left: 20px;
+    box-sizing: border-box;
+}
+
+
+.details-section p {
+    margin: 10px 0;
+}
+
+.details-section .likes {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.details-section .likes i {
+    margin-right: 10px;
+    color: #6a1b9a;
+}
+
+.details-section .buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.details-section .buttons button {
+    background-color: #6a1b9a;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.comments-section {
+    margin-top: 20px;
+}
+
+.comments-section .comment {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f9f9f9;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.comments-section .comment i {
+    color: #6a1b9a;
+}
+
+.comments-section .add-comment {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.comments-section .add-comment input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    margin-right: 10px;
+}
+
+.comments-section .add-comment button {
+    background-color: #6a1b9a;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    position: bottom;
+    bottom: 0;
+    box-sizing: border-box;
+}
+
+.footer .links {
+    display: flex;
+    justify-content: space-between;
+    width: 50%;
+    max-width: 600px;
+}
+
+.footer .links a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+}
+
+.footer .social {
+    display: flex;
+    align-items: center;
+}
+
+.footer .links div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.footer .social span {
+    font-weight: 500;
+    margin-right: 10px;
+}
+
+.footer .social i {
+    font-size: 24px;
+    margin-right: 10px;
+    color: #333;
+}
+
+.footer .copyright {
+    font-size: 14px;
+    color: #aaa;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        padding: 20px;
+    }
+
+    .details-section {
+        max-width: 100%;
+        margin-left: 0;
+        margin-top: 20px;
+    }
+
+    .footer .links {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .footer .social {
+        margin-top: 10px;
+    }
+}

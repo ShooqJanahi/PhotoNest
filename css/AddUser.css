@@ -1,0 +1,69 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100vh; /* Full height of the viewport */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(to right, #6a11cb, #df25fc);
+}
+
+.card {
+    background: white; /* White background for the card */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow effect */
+    padding: 20px; /* Padding inside the card */
+    width: 100%; /* Full width */
+    max-width: 500px; /* Limit maximum width for larger screens */
+    box-sizing: border-box; /* Include padding and border in element's total width and height */
+}
+
+.add-user-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Space between form elements */
+}
+
+.input-group {
+    width: 100%; /* Full width */
+}
+
+.input-group label {
+    font-weight: bold;
+    color: black;
+    margin: 5px 0;
+}
+
+.input-group input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    width: 100%; /* Full width */
+    margin: 5px 0;
+}
+
+.signup-btn, .cancel-btn {
+    background: #241E38;
+    color: white;
+    border: none;
+    padding: 15px 50px; /* Consistent padding */
+    cursor: pointer;
+    border-radius: 25px;
+    font-weight: bold;
+    margin: 20px 0 0; /* Margin at the top */
+    display: block;
+    width: 100%; /* Make button take full width */
+}
+
+.signup-btn:hover {
+    background: #6B4DE6;
+}
+
+.cancel-btn {
+    background: #f44336; /* Background color for cancel button */
+}
+
+.cancel-btn:hover {
+    background: #d32f2f; /* Darker shade on hover */
+}

@@ -313,21 +313,22 @@ faqs.forEach(faq => {
 
 
 
-
-
 // =================================== THEME
-const themeToggler = document.querySelector('.nav__theme-btn')
-themeToggler.addEventListener('click', () => {
-    document.body.classList.toggle('dark-theme-variables');
-    if(document.body.className == '') {
-        themeToggler.innerHTML = `<i class="uil uil-moon"></i>`
-        window.localStorage.setItem('portfolio-theme', '')
-    } else {
-        themeToggler.innerHTML = `<i class="uil uil-sun"></i>`
-        window.localStorage.setItem('portfolio-theme','dark-theme-variables' )
-    }
-})
+const themeToggler = document.querySelector('.nav__theme-btn');
+
+if (themeToggler) { // Check if themeToggler exists
+    themeToggler.addEventListener('click', () => {
+        document.body.classList.toggle('dark-theme-variables');
+        if (document.body.className == '') {
+            themeToggler.innerHTML = `<i class="uil uil-moon"></i>`;
+            window.localStorage.setItem('portfolio-theme', '');
+        } else {
+            themeToggler.innerHTML = `<i class="uil uil-sun"></i>`;
+            window.localStorage.setItem('portfolio-theme', 'dark-theme-variables');
+        }
+    });
+}
 
 // use theme from local storage on page load
-    const bodyClass = window.localStorage.getItem('portfolio-theme')
-    document.body.className = bodyClass
+const bodyClass = window.localStorage.getItem('portfolio-theme');
+document.body.className = bodyClass;

@@ -1,16 +1,22 @@
+/* Main body styling */
 body {
     font-family: 'Inter', sans-serif;
     margin: 0;
     padding: 0;
     background-color: #f5f5f7;
     color: #333;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
+/* Container for main layout */
 .container {
     display: flex;
     flex-direction: column;
+    max-width: 100vw;
+    overflow-x: hidden;
 }
 
+/* Sidebar styling */
 .sidebar {
     width: 250px;
     background-color: #fff;
@@ -31,11 +37,16 @@ body {
     font-size: 16px;
 }
 
+/* Main content styling */
 .main-content {
     flex: 1;
     padding: 20px;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin-left: 300px; /* Adds 50px space between sidebar and main content */
 }
 
+/* Header styling */
 .header {
     display: flex;
     justify-content: space-between;
@@ -43,20 +54,26 @@ body {
     background-color: #fff;
     padding: 10px 20px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    box-sizing: border-box;
+    z-index: 1000;
 }
 
+/* Logo in header */
 .header .logo {
-    font-size: 24px;
-    font-weight: 700;
     display: flex;
     align-items: center;
+    font-size: 24px;
+    font-weight: bold;
 }
 
-.header .logo i {
+.header .logo img {
+    width: 40px;
+    height: auto;
     margin-right: 10px;
-    color: #6a0dad;
 }
 
+/* Action buttons in header */
 .header .actions {
     display: flex;
     align-items: center;
@@ -73,7 +90,8 @@ body {
     font-size: 14px;
 }
 
-.header .actions .notification {
+.header .actions .notification,
+.header .actions .settings {
     background-color: transparent;
     font-size: 18px;
     color: #333;
@@ -89,6 +107,7 @@ body {
     display: none;
 }
 
+/* Content section styling */
 .content-section {
     margin-top: 20px;
 }
@@ -98,12 +117,17 @@ body {
     margin-bottom: 20px;
 }
 
+/* Card styling */
 .card {
     background-color: #fff;
     border-radius: 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     padding: 20px;
     margin-bottom: 20px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden; /* Ensures no content spills outside the card */
 }
 
 .card h4 {
@@ -117,21 +141,12 @@ body {
     border-radius: 10px;
 }
 
+/* Card header styling */
 .card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 10px;
-}
-
-.view-all {
-    background-color: #6a0dad;
-    color: #fff;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 12px;
 }
 
 /* Mobile menu styles */
@@ -164,6 +179,14 @@ body {
     display: flex;
 }
 
+/* Default chart size */
+#spam_reports_chart, #curve_chart {
+    width: 100%;
+    height: 400px; /* Default height for larger screens */
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
 /* Media queries for mobile and tablet view */
 @media (max-width: 768px) {
     .container {
@@ -173,16 +196,31 @@ body {
     .sidebar {
         width: 100%;
         box-shadow: none;
+        position: relative;
     }
 
     .main-content {
         padding: 10px;
+        margin-left: 0;
+    }
+
+    /* Adjust chart size for mobile view */
+    #spam_reports_chart, #curve_chart {
+        width: 90%; /* Reduced width for better visibility in responsive mode */
+        height: 250px; /* Increased height for better visibility on smaller screens */
+        max-width: 90%; /* Limit max width to ensure it doesn't overflow */
+        margin: 0 auto; /* Center align chart within the card */
+    }
+
+    /* Adjust card padding for more space on mobile */
+    .card {
+        padding: 15px; /* Increased padding for mobile view */
     }
 
     .header .actions {
         display: flex;
         align-items: center;
-        justify-content: flex-end; /* Aligns hamburger and notification to the right */
+        justify-content: flex-end;
     }
 
     .header .actions button:not(.hamburger-menu):not(.notification),
@@ -192,26 +230,38 @@ body {
 
     .header .actions .hamburger-menu,
     .header .actions .notification {
-        display: block; /* Show on mobile devices */
+        display: block;
     }
 }
 
-/* Hide hamburger menu on desktop view */
+/* Fixed header and sidebar on desktop view */
 @media (min-width: 769px) {
-    .header .actions .hamburger-menu {
-        display: none;
-    }
-
-    .container {
-        flex-direction: row;
+    .header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
     }
 
     .sidebar {
+        position: fixed;
+        top: 60px;
+        left: 0;
+        height: calc(100vh - 60px);
         width: 250px;
         box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+    }
+
+    #spam_reports_chart, #curve_chart {
+        width: 100%;
+        height: 250px; /* Standard height for desktop view */
     }
 
     .main-content {
         padding: 20px;
+        margin-left: 300px; /* Adds 50px space between sidebar and main content */
+        margin-top: 60px;
     }
 }

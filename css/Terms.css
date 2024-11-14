@@ -1,0 +1,203 @@
+/* General styling */
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f8fc;
+    color: #333;
+    overflow-x: hidden; /* Prevent horizontal scrolling on the body */
+    max-width: 100%; /* Ensure body width does not exceed viewport */
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    width: 100%; /* Adjust to fit within the viewport */
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    height: auto;
+    box-sizing: border-box; /* Ensure padding does not cause overflow */
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+.header a {
+    color: #6a0dad;
+    text-decoration: none;
+    font-size: 16px;
+    margin-right: auto;
+}
+
+.header h1 {
+    font-size: 18px;
+    color: #6a0dad;
+    margin: 0;
+}
+
+.content {
+    width: calc(100% - 40px);
+    max-width: 900px;
+    margin: 100px auto 20px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    overflow-x: hidden; /* Prevent horizontal overflow */
+}
+
+/* Footer styling */
+.footer {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 20px;
+    background-color: #fff;
+    color: #666;
+    font-size: 14px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    flex-wrap: wrap;
+    box-sizing: border-box; /* Include padding in the width calculation */
+    overflow-x: hidden; /* Prevent horizontal overflow */
+}
+
+.footer div {
+    text-align: center;
+}
+
+.footer .social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.footer a {
+    color: #6a0dad;
+    text-decoration: none;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.footer i {
+    margin: 0 5px;
+    font-size: 20px;
+    color: #6a0dad;
+}
+
+/* Responsive styling for footer */
+@media only screen and (max-width: 1024px) {
+    .header, .content {
+        padding: 15px;
+        overflow-x: hidden; /* Prevent horizontal scrolling on tablets */
+    }
+
+    .content {
+        margin-top: 80px;
+    }
+
+    .content h2, .content p, .content ul li {
+        font-size: 18px;
+    }
+
+    /* Stack footer items vertically on tablet screens */
+    .footer {
+        flex-direction: column;
+        text-align: center;
+        padding: 15px;
+    }
+
+    .footer div {
+        margin: 5px 0;
+    }
+
+    /* Move social icons to the end */
+    .footer .social-icons {
+        order: 3;
+        margin-top: 10px;
+    }
+}
+
+@media only screen and (max-width: 768px) {
+    .header, .content {
+        padding: 10px;
+        overflow-x: hidden; /* Prevent horizontal scrolling on smaller tablets */
+    }
+
+    .content {
+        width: calc(100% - 20px);
+        margin: 80px auto 20px;
+        padding: 10px;
+    }
+
+    .footer {
+        flex-direction: column;
+        text-align: center;
+        padding: 10px;
+        overflow-x: hidden; /* Prevent horizontal overflow on tablets */
+    }
+
+    .footer div {
+        margin: 5px 0;
+    }
+
+    .footer .social-icons {
+        order: 3;
+        gap: 8px;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    .header, .content {
+        padding: 5px;
+        overflow-x: hidden; /* Prevent horizontal scrolling on phones */
+    }
+
+    .content {
+        margin-top: 60px;
+    }
+
+    .footer {
+        flex-direction: column;
+        padding: 10px;
+        overflow-x: hidden; /* Prevent horizontal overflow on phones */
+    }
+
+    .footer div {
+        margin: 5px 0;
+    }
+
+    .footer .social-icons {
+        order: 3;
+        gap: 8px;
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    .content {
+        width: calc(100% - 10px);
+        margin: 60px auto 20px;
+        padding: 5px;
+        overflow-x: hidden; /* Prevent horizontal scrolling on smaller screens */
+    }
+
+    /* Stack footer elements for mobile view */
+    .footer {
+        flex-direction: column;
+        padding: 10px;
+        overflow-x: hidden; /* Prevent horizontal overflow on smaller screens */
+    }
+
+    .footer div {
+        margin: 5px 0;
+    }
+
+    .footer .social-icons {
+        order: 3;
+        gap: 6px;
+    }
+}
