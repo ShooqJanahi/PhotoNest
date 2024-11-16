@@ -1,255 +1,420 @@
-// Import Firebase services from the configured firebaseConfig.js file
-import { db, storage, auth } from './firebaseConfig.js';
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
-import { getFirestore, collection, addDoc, query, where, getDocs, updateDoc, doc, increment } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js';
+// Import Firebase services
+import { db, storage } from './firebaseConfig.js'; // Ensure `storage` is imported
+import { collection, addDoc, query, where, getDocs, doc, updateDoc, increment } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+import { ref, uploadBytesResumable, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
-import { getDoc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
 
 
-// Check if user is logged in and has the correct role which is "user"
+// Firebase Authentication
+const auth = getAuth();
+
+// Allowed image formats
+const allowedImageFormats = ['image/jpeg', 'image/png', 'image/gif'];
+const maxFileSizeMB = 20; // Maximum file size in MB 
+
+
+// Initialize when DOM content is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    checkUserAuthentication();
+    checkUserAuthentication(); // Ensure user authentication
+    setupHashtags(); // Initialize hashtag functionality
+
+     // Change upload label text and check file format immediately after file selection
+     document.getElementById('fileInput').addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            if (allowedImageFormats.includes(file.type) && file.size <= maxFileSizeMB * 1024 * 1024) {
+                document.querySelector('.upload-label span').textContent = file.name; // Update label with file name
+            } else if (file.size > maxFileSizeMB * 1024 * 1024) {
+                alert(`File size exceeds ${maxFileSizeMB}MB. Please select a smaller file.`);
+                event.target.value = ''; // Clear the file input
+                document.querySelector('.upload-label span').textContent = 'Upload image'; // Reset label text
+            } else {
+                alert('Invalid file format. Please select a valid image file (JPEG, PNG, GIF).');
+                event.target.value = ''; // Clear the file input
+                document.querySelector('.upload-label span').textContent = 'Upload image'; // Reset label text
+            }
+        } else {
+            document.querySelector('.upload-label span').textContent = 'Upload image'; // Reset if no file selected
+        }
+    });
+
 });
 
 function checkUserAuthentication() {
-    const auth = getAuth();
     onAuthStateChanged(auth, user => {
         if (!user) {
-            // No user is logged in, redirect to the login page
-            console.warn("Access denied. No user logged in.");
-            window.location.href = '../html/Login.html';
+            redirectToLogin();
         } else {
-            // User is logged in, check if they have the correct role
-            console.log("User logged in:", user.uid);
-            checkUserRole(user.uid);
+            console.log("User authenticated with UID:", user.uid);
         }
     });
 }
 
-async function checkUserRole(userId) {
-    const userRef = doc(db, "users", userId);
-    let userDoc;  // Declare outside to increase scope visibility
-    try {
-        userDoc = await getDoc(userRef);
-    } catch (error) {
-        console.error("Error fetching user document:", error);
-        return;  // Ensure function exits if there's an error
-    }
-
-    if (!userDoc.exists()) {
-        console.warn("User data not found.");
-        window.location.href = '../html/Login.html';
-    } else {
-        const userData = userDoc.data();
-        if (userData.role !== "user" || userData.status !== "active") {
-            console.warn("Access denied. User does not have the necessary permissions or status.");
-            window.location.href = '../html/Unauthorized.html';
-        }
-        console.log("User authenticated with role:", userData.role);
-        // Proceed with initializing page functionalities if needed
-    }
+function redirectToLogin() {
+    window.location.href = '../html/Login.html';
 }
 
+// Handle file upload and save data to Firestore
+document.querySelector('.upload-btn').addEventListener('click', async () => {
+    const caption = document.getElementById('caption').value;
+    const city = document.getElementById('city').value.trim().toLowerCase();
+    const country = document.getElementById('country').value.trim().toLowerCase();
+    const isPrivate = document.getElementById('private').checked;
+    const userId = auth.currentUser?.uid;
 
-//=====================================Upload.html===============================//
-
-
-// Initialize Places Autocomplete for location input
-
-const locationsRef = collection(db, "Locations");
-
-document.getElementById("location").addEventListener("input", async (event) => {
-    const input = event.target.value.toLowerCase();
-    const locationSuggestions = document.getElementById("location-suggestions");
-    locationSuggestions.innerHTML = "";  // Clear previous suggestions
-
-    // Query Firestore for locations that match the input in either city or country
-    const q = query(locationsRef, where("city", ">=", input), where("city", "<=", input + "\uf8ff"));
-    const querySnapshot = await getDocs(q);
-
-    // Display "City, Country" suggestions
-    querySnapshot.forEach((doc) => {
-        const locationData = doc.data();
-        const formattedLocation = `${locationData.city}, ${locationData.country}`;
-        const option = document.createElement("div");
-        option.textContent = formattedLocation;
-        
-        option.addEventListener("click", () => {
-            document.getElementById("location").value = formattedLocation;
-            locationSuggestions.innerHTML = "";  // Clear suggestions
-        });
-        locationSuggestions.appendChild(option);
-    });
-});
-
-// Optional: Clear suggestions if user clicks outside of the input
-document.addEventListener("click", (event) => {
-    if (!document.getElementById("location").contains(event.target)) {
-        document.getElementById("location-suggestions").innerHTML = "";
+    if (!userId || !document.getElementById('fileInput').files[0]) {
+        alert('Please select an image to upload and ensure you are logged in.');
+        return;
     }
+
+    if (!city || !country) {
+        alert('Please provide both city and country.');
+        return;
+    }
+
+    const file = document.getElementById('fileInput').files[0];
+    const fileName = `${userId}_${Date.now()}_${file.name}`;
+    const storageRef = ref(storage, `photos/${fileName}`);
+
+    if (!file) {
+        alert('Please select a file to upload.');
+        return;
+    }
+
+    if (!allowedImageFormats.includes(file.type)) {
+        alert('Invalid file format. Please select a valid image file (JPEG, PNG, GIF).');
+        return;
+    }
+
+    if (file.size > maxFileSizeMB * 1024 * 1024) {
+        alert(`File size exceeds ${maxFileSizeMB}MB. Please select a smaller file.`);
+        return;
+    }
+
+    // Check if location exists and add it if necessary, and update photo count
+    await checkAndAddOrUpdateLocation(city, country);
+
+    // Start the upload process
+    const uploadTask = uploadBytesResumable(storageRef, file);
+console.log("Starting upload for file:", file.name);
+
+
+    // Monitor upload progress
+    uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log("Upload is " + progress + "% done");
+            document.getElementById("progress-bar").style.width = progress + "%"; // Update the progress bar width
+            document.getElementById("progress-text").textContent = "Upload " + Math.round(progress) + "%"; // Update the progress text
+        },
+
+        (error) => {
+            console.error("Error uploading file:", error);
+            alert('Failed to upload photo. Please try again.');
+        },
+        async () => {
+            // Handle upload success
+            try {
+                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                const status = isPrivate ? 'Private' : 'Public';
+
+                // Retrieve hashtags from the input
+                const hashtags = getHashtagsFromInput(); // Extract hashtags from the input
+                 
+                
+                await addDoc(collection(db, 'Photos'), {
+                    caption,
+                    city,
+                    country,
+                    imageUrl: downloadURL,
+                    status,
+                    userId,
+                    uploadDate: new Date().toISOString(),
+                    likesCount: 0,
+                    commentsCount: 0,
+                    hashtags, // Save hashtags in the photo document
+                });
+                
+                // Update the label text with the uploaded photo name
+            document.querySelector('.upload-label span').textContent = file.name;
+
+                // Save hashtags to Firestore and increment their photo count
+                await saveHashtagsToFirestore(hashtags);
+
+                // Update the label text with the uploaded photo name
+                document.querySelector('.upload-label span').textContent = file.name;
+
+                alert('Photo uploaded successfully!');
+                resetUploadForm();
+            } catch (error) {
+                console.error('Error saving photo details to Firestore:', error);
+                alert('Failed to save photo details. Please try again.');
+            }
+        }
+    );
 });
 
-
-
-
-// Handle file input selection and update label to show selected file name
-const fileInput = document.getElementById('fileInput');
-const uploadLabel = document.querySelector('.upload-label');
-uploadLabel.addEventListener('click', () => {
-    fileInput.click(); // Trigger file input when label is clicked
-});
-fileInput.addEventListener('change', () => {
-    uploadLabel.querySelector('span').textContent = fileInput.files[0] ? fileInput.files[0].name : 'Upload image';
-});
-
-// Function to update or create a location document in Firestore
-async function handleLocation(locationName) {
-    const locationsRef = collection(db, "Locations");
-    const q = query(locationsRef, where("location", "==", locationName));
+// Function to check and add/update location and photo count
+async function checkAndAddOrUpdateLocation(city, country) {
+    const locationsRef = collection(db, "Location");
+    const q = query(locationsRef, where("city", "==", city), where("country", "==", country));
     const querySnapshot = await getDocs(q);
 
     if (querySnapshot.empty) {
-        // No such location exists, create new document
-        return addDoc(locationsRef, {
-            location: locationName,
-            photoCount: 1  // Initialize photo count
+        // Add the new location with photoCount = 1
+        await addDoc(locationsRef, {
+            city,
+            country,
+            photoCount: 1
         });
     } else {
-        // Location exists, increment the photo count
+        // Increment photoCount if location exists
         const locationDoc = querySnapshot.docs[0];
-        const locationDocRef = doc(db, "Locations", locationDoc.id);
-        return updateDoc(locationDocRef, {
+        const locationRef = doc(db, "Location", locationDoc.id);
+        await updateDoc(locationRef, {
             photoCount: increment(1)
         });
     }
 }
 
-// Handle the upload process when the upload button is clicked
-document.querySelector('.upload-btn').addEventListener('click', async () => {
-    const caption = document.getElementById('caption').value;
-    const location = document.getElementById('location').value;
-    const isPrivate = document.getElementById('private').checked;
-    const username = sessionStorage.getItem('username'); // Retrieve the username from session storage
-    const userId = sessionStorage.getItem('userId'); // Retrieve the user ID from session storage
 
-    if (!fileInput.files[0]) {
-        alert('Please select an image to upload.');
+// Save hashtags to Firestore
+async function saveHashtagsToFirestore(hashtags) {
+    const hashtagRef = collection(db, 'Hashtag');
+
+    for (const hashtag of hashtags) {
+        const q = query(hashtagRef, where('hashtag', '==', hashtag));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+            await addDoc(hashtagRef, { hashtag, photoCount: 1 });
+        } else {
+            const hashtagDoc = querySnapshot.docs[0];
+            const hashtagDocRef = doc(db, 'Hashtag', hashtagDoc.id);
+            await updateDoc(hashtagDocRef, { photoCount: increment(1) });
+        }
+    }
+}
+
+
+// Extract hashtags from input
+function getHashtagsFromInput() {
+    const hashtagElements = document.querySelectorAll('.hashtag-circle span');
+    return Array.from(hashtagElements).map((el) => el.textContent.replace('#', ''));
+}
+
+
+
+// Reset the upload form
+function resetUploadForm() {
+    document.getElementById('caption').value = '';
+    document.getElementById('city').value = '';
+    document.getElementById('country').value = '';
+    document.getElementById('fileInput').value = '';
+    document.querySelector('.upload-label span').textContent = 'Upload image'; // Reset the label text
+    document.getElementById('progress-bar').style.width = '0%'; // Reset the progress bar
+    document.getElementById('progress-text').textContent = 'Upload 0%'; // Reset progress text
+    document.getElementById('hashtag-warning').style.display = 'none'; // Hide the warning
+
+    // Clear hashtag input wrapper and reinitialize
+    const hashtagWrapper = document.getElementById('hashtag-wrapper');
+    hashtagWrapper.innerHTML = '<input type="text" id="hashtagInput" placeholder="Type a hashtag and press space...">';
+
+    // Remove existing hashtag count display
+    const hashtagCountDisplay = document.getElementById('hashtag-count');
+    if (hashtagCountDisplay) {
+        hashtagCountDisplay.remove();
+    }
+
+    // Reinitialize hashtags
+    setupHashtags();
+}
+
+
+// Handle location autocomplete suggestions
+const cityInput = document.getElementById("city");
+const countryInput = document.getElementById("country");
+const citySuggestions = document.getElementById("city-suggestions");
+const countrySuggestions = document.getElementById("country-suggestions");
+
+// Autocomplete for city
+cityInput.addEventListener("input", async (event) => {
+    const input = event.target.value.toLowerCase();
+    citySuggestions.innerHTML = ""; // Clear previous suggestions
+
+    if (input.trim() === "") {
+        citySuggestions.style.display = "none";
         return;
     }
 
-    const file = fileInput.files[0];
-    const fileName = `${userId}_${Date.now()}_${file.name}`;
-    const storageRef = ref(storage, `photos/${fileName}`);
+    const locationsRef = collection(db, "Location");
+    const q = query(locationsRef, where("city", ">=", input), where("city", "<=", input + "\uf8ff"));
+    const querySnapshot = await getDocs(q);
 
-    try {
-        await uploadBytes(storageRef, file);
-        const downloadURL = await getDownloadURL(storageRef);
-        const status = isPrivate ? 'Private' : 'Public';
+    const uniqueCities = new Set(); // Ensure uniqueness
 
-        // Save photo details in Firestore with initialized like and comment counts
-        const photoDocRef = await addDoc(collection(db, 'Photos'), {
-            caption,
-            location,
-            imageUrl: downloadURL,
-            status,
-            userId,
-            username,
-            uploadDate: new Date().toISOString(),
-            likesCount: 0, // Initialize likes count to 0
-            commentsCount: 0 // Initialize comments count to 0
+    querySnapshot.forEach((doc) => {
+        const locationData = doc.data();
+        uniqueCities.add(locationData.city.toLowerCase()); // Add unique city
+    });
+
+    uniqueCities.forEach((cityName) => {
+        const option = document.createElement("div");
+        option.textContent = cityName;
+
+        option.addEventListener("click", () => {
+            cityInput.value = cityName;
+            citySuggestions.style.display = "none"; // Hide on selection
         });
 
-        // Handle location data
-        await handleLocation(location);
+        citySuggestions.appendChild(option);
+    });
 
-        alert('Photo uploaded successfully!');
-        document.getElementById('caption').value = '';
-        document.getElementById('location').value = '';
-        fileInput.value = '';
-        uploadLabel.querySelector('span').textContent = 'Upload image';
-    } catch (error) {
-        console.error('Error uploading photo:', error);
-        alert('Failed to upload photo. Please try again.');
+    citySuggestions.style.display = "block"; // Show suggestions
+});
+
+// Autocomplete for country
+countryInput.addEventListener("input", async (event) => {
+    const input = event.target.value.toLowerCase();
+    countrySuggestions.innerHTML = ""; // Clear previous suggestions
+
+    if (input.trim() === "") {
+        countrySuggestions.style.display = "none";
+        return;
+    }
+
+    const locationsRef = collection(db, "Location");
+    const q = query(locationsRef, where("country", ">=", input), where("country", "<=", input + "\uf8ff"));
+    const querySnapshot = await getDocs(q);
+
+    const uniqueCountries = new Set(); // Ensure uniqueness
+
+    querySnapshot.forEach((doc) => {
+        const locationData = doc.data();
+        uniqueCountries.add(locationData.country.toLowerCase()); // Add unique country
+    });
+
+    uniqueCountries.forEach((countryName) => {
+        const option = document.createElement("div");
+        option.textContent = countryName;
+
+        option.addEventListener("click", () => {
+            countryInput.value = countryName;
+            countrySuggestions.style.display = "none"; // Hide on selection
+        });
+
+        countrySuggestions.appendChild(option);
+    });
+
+    countrySuggestions.style.display = "block"; // Show suggestions
+});
+
+// Hide dropdowns when clicking outside
+document.addEventListener("click", (event) => {
+    if (!cityInput.contains(event.target) && !citySuggestions.contains(event.target)) {
+        citySuggestions.style.display = "none"; // Hide city dropdown
+    }
+    if (!countryInput.contains(event.target) && !countrySuggestions.contains(event.target)) {
+        countrySuggestions.style.display = "none"; // Hide country dropdown
     }
 });
 
-// Redirect to user dashboard if cancel button is clicked
-document.querySelector('.cancel-btn').addEventListener('click', () => {
-    window.location.href = 'UserDashboard.html';
+// Show suggestions when input is focused
+cityInput.addEventListener("focus", () => {
+    if (citySuggestions.innerHTML.trim() !== "") {
+        citySuggestions.style.display = "block";
+    }
 });
-
-// Enhance the caption input to automatically linkify hashtags
-document.getElementById('caption').addEventListener('input', function(event) {
-    const inputText = event.target.innerText;
-    let formattedText = inputText.replace(/(#\w+)(\s|$)/g, '<span class="hashtag">$1</span>$2');
-    event.target.innerHTML = formattedText;
-
-    // Move cursor to end to avoid issues with cursor position after innerHTML change
-    document.execCommand('selectAll', false, null);
-    document.getSelection().collapseToEnd();
-
-    // Extract hashtag for suggestion
-    const lastWord = inputText.split(/\s/).pop();
-    if (lastWord.startsWith("#")) {
-        fetchHashtags(lastWord.slice(1));
+countryInput.addEventListener("focus", () => {
+    if (countrySuggestions.innerHTML.trim() !== "") {
+        countrySuggestions.style.display = "block";
     }
 });
 
-function fetchHashtags(currentTag) {
-    const suggestionsElement = document.getElementById('hashtag-suggestions');
-    suggestionsElement.innerHTML = ''; // Clear previous suggestions
 
-    // Assume hashtags is an available array of existing hashtag names
-    const matchingTags = hashtags.filter(tag => tag.startsWith(currentTag));
-
-    matchingTags.forEach(tag => {
-        const option = document.createElement('div');
-        option.textContent = `#${tag}`;
-        option.onclick = function() {
-            // Append selected tag to caption and clear suggestions
-            const caption = document.getElementById('caption');
-            caption.innerText += `#${tag} `;
-            suggestionsElement.innerHTML = '';
-        };
-        suggestionsElement.appendChild(option);
-    });
-}
+// Enhance caption input with hashtag suggestions
+const captionInput = document.getElementById('caption');
+const wordCountDisplay = document.getElementById('word-count');
+const maxLetters = 100; // Set the letter limit
 
 
-function showHashtagSuggestions(currentTag) {
-    const suggestionsElement = document.getElementById('hashtag-suggestions');
-    suggestionsElement.innerHTML = ''; // Clear previous suggestions
-    suggestionsElement.style.display = 'block';
+// Enhance caption input with letter counting and hashtag suggestions
+captionInput.addEventListener('input', async () => {
+    const inputText = captionInput.value;
 
-    // Assuming `hashtags` is an array of existing hashtag names fetched from Firestore
-    const matchingTags = hashtags.filter(tag => tag.startsWith(currentTag));
+    // Count letters excluding spaces
+    const letterCount = inputText.replace(/\s/g, '').length;
+    wordCountDisplay.textContent = `${letterCount} / ${maxLetters} letters`;
 
-    matchingTags.forEach(tag => {
-        const option = document.createElement('div');
-        option.textContent = `#${tag}`;
-        option.onclick = function() {
-            // Logic to add this tag to the caption
-        };
-        suggestionsElement.appendChild(option);
-    });
-}
+    // Enforce the letter limit
+    if (letterCount > maxLetters) {
+        captionInput.value = captionInput.value.slice(0, maxLetters);
+        wordCountDisplay.textContent = `${maxLetters} / ${maxLetters} letters`;
+    }
 
-// Firestore logic to add new hashtags or update counts
-function updateHashtagInFirestore(tag) {
-    const tagRef = db.collection('Hashtags').doc(tag);
+    
+});
 
-    tagRef.get().then(doc => {
-        if (doc.exists) {
-            tagRef.update({ photoCount: firebase.firestore.FieldValue.increment(1) });
-        } else {
-            tagRef.set({ photoCount: 1 });
+
+// Hashtag functionality
+function setupHashtags() {
+    const hashtagInput = document.getElementById('hashtagInput');
+    const hashtagWrapper = document.getElementById('hashtag-wrapper');
+    const hashtagWarning = document.getElementById('hashtag-warning');
+
+    // Check if hashtagCountDisplay already exists
+    let hashtagCountDisplay = document.getElementById('hashtag-count');
+    if (!hashtagCountDisplay) {
+        hashtagCountDisplay = document.createElement('div');
+        hashtagCountDisplay.className = 'word-count';
+        hashtagCountDisplay.id = 'hashtag-count';
+        document.querySelector('.hashtag-container').appendChild(hashtagCountDisplay);
+    }
+
+    hashtagCountDisplay.textContent = '0 / 5 hashtags'; // Reset count
+
+    let hashtags = [];
+
+    hashtagInput.addEventListener('keydown', (event) => {
+        if (event.key === ' ' || event.key === 'Enter') {
+            event.preventDefault();
+            const hashtag = hashtagInput.value.trim();
+
+            if (hashtags.length >= 5) {
+                showWarning('Maximum 5 hashtags allowed.');
+            } else if (!/^[a-zA-Z0-9]+$/.test(hashtag)) {
+                showWarning('Invalid hashtag. Only letters and numbers allowed.');
+            } else {
+                addHashtag(hashtag);
+                hashtagInput.value = '';
+            }
         }
     });
+
+    function addHashtag(hashtag) {
+        hashtags.push(hashtag);
+        const hashtagCircle = document.createElement('div');
+        hashtagCircle.className = 'hashtag-circle';
+        hashtagCircle.innerHTML = `<span>#${hashtag}</span><button class="remove-hashtag">&times;</button>`;
+        hashtagWrapper.insertBefore(hashtagCircle, hashtagInput);
+
+        hashtagCircle.querySelector('.remove-hashtag').addEventListener('click', () => {
+            hashtags = hashtags.filter((h) => h !== hashtag);
+            hashtagCircle.remove();
+            updateHashtagCount();
+        });
+
+        updateHashtagCount();
+    }
+
+    function updateHashtagCount() {
+        hashtagCountDisplay.textContent = `${hashtags.length} / 5 hashtags`;
+        if (hashtags.length < 5) hashtagWarning.style.display = 'none';
+    }
+
+    function showWarning(message) {
+        hashtagWarning.textContent = message;
+        hashtagWarning.style.display = 'block';
+    }
 }
-
-
-
-
-
-//=====================================Upload.html===============================//
