@@ -227,10 +227,46 @@ export async function changePasscode(userId, oldPasscode, newPasscode, confirmNe
     }
 }
 
+// Track inactivity and logout user
+let inactivityTimeout;
+
+// Function to reset the inactivity timer
+function resetInactivityTimer() {
+    clearTimeout(inactivityTimeout);
+    inactivityTimeout = setTimeout(() => {
+        alert("You have been logged out due to inactivity.");
+        logout();
+    }, 15 * 60 * 1000); // 15 minutes
+}
+
+function updateLastActive() {
+    const userId = auth.currentUser ? auth.currentUser.uid : null;
+    if (userId) {
+        const sessionRef = doc(db, "sessions", userId);
+        const currentTimestamp = new Date().toISOString();
+
+        updateDoc(sessionRef, { lastActive: currentTimestamp }).catch((error) => {
+            console.error("Error updating lastActive:", error);
+        });
+    }
+}
+
+function handleUserActivity() {
+    resetInactivityTimer();  // Reset inactivity timeout
+    updateLastActive();      // Update the last active timestamp
+}
+
+// Consolidate event listeners for user activity
+window.addEventListener('mousemove', handleUserActivity);
+window.addEventListener('keydown', handleUserActivity);
+window.addEventListener('touchstart', handleUserActivity);
+window.addEventListener('scroll', handleUserActivity);
+
+// Initialize inactivity timer
+resetInactivityTimer();
+
 // Function to log out the user and update Firestore
 export async function logout() {
-    console.log("Logout function called");
-
     try {
         const userId = auth.currentUser.uid;
         const sessionRef = doc(db, "sessions", userId);
@@ -242,12 +278,35 @@ export async function logout() {
         });
 
         await signOut(auth);
-        console.log("User signed out successfully");
-
+    
         sessionStorage.clear(); // Clear all session storage
+
+        clearTimeout(inactivityTimeout); // Clear the inactivity timer
 
         window.location.href = '../html/index.html';
     } catch (error) {
         console.error("Error signing out: ", error);
     }
 }
+
+window.addEventListener('beforeunload', () => {
+    const userId = auth.currentUser ? auth.currentUser.uid : null;
+    if (userId) {
+        const sessionRef = doc(db, "sessions", userId);
+        const logoutTimestamp = new Date().toISOString();
+
+        const payload = JSON.stringify({
+            status: "offline",
+            logoutTime: logoutTimestamp,
+        });
+
+        // Use a custom Cloud Function or API endpoint to handle the update
+        navigator.sendBeacon('/update-session', payload);
+    }
+});
+
+
+
+
+
+

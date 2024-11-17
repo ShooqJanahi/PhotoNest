@@ -41,18 +41,30 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function checkUserAuthentication() {
+    document.body.style.display = "none"; // Hide the page content initially
+
     onAuthStateChanged(auth, user => {
         if (!user) {
-            redirectToLogin();
+            redirectToLogin(); // Redirect to login if not authenticated
         } else {
-            console.log("User authenticated with UID:", user.uid);
+            // Retrieve the role from session storage
+            const userRole = sessionStorage.getItem("role");
+
+            if (userRole !== "user") {
+                redirectToLogin(); // Redirect to login if not a "user"
+            } else {
+                document.body.style.display = "block"; // Show the page content
+                console.log("Access granted for user with role:", userRole);
+            }
         }
     });
 }
 
+// Redirect to login function
 function redirectToLogin() {
-    window.location.href = '../html/Login.html';
+    window.location.href = '../html/Login.html'; // Redirect to the login page
 }
+
 
 // Handle file upload and save data to Firestore
 document.querySelector('.upload-btn').addEventListener('click', async () => {
@@ -418,3 +430,14 @@ function setupHashtags() {
         hashtagWarning.style.display = 'block';
     }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const cancelButton = document.querySelector('.cancel-btn');
+
+    if (cancelButton) {
+        cancelButton.addEventListener('click', () => {
+            // Redirect to the UserDashboard
+            window.location.href = '../html/UserDashboard.html';
+        });
+    }
+});
