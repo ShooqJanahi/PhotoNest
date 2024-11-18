@@ -7,77 +7,176 @@ body, html {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
 }
 
 .container {
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 350px;
-    padding: 30px;
-    text-align: left;
+    position: relative; /* Ensure relative positioning for internal elements */
+    max-width: 600px; /* Set a fixed maximum width for regular screens */
+    width: 90%; /* Stretch up to 90% of the viewport width */
+    margin: 20px auto; /* Center the container horizontally and add vertical spacing */
+    padding: 20px; /* Add padding for spacing inside the container */
+    border: 1px solid #ccc; /* Add a subtle border */
+    border-radius: 10px; /* Add rounded corners */
+    background-color: #fff; /* White background for clarity */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Add a shadow for better aesthetics */
+    overflow: hidden; /* Ensure no overflowing content */
 }
 
+
+
 h1 {
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 700;
     margin-bottom: 10px;
+    text-align: center;
 }
 
 p {
     font-size: 14px;
     color: #666;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
+    text-align: center;
 }
 
 label {
     display: block;
-    font-size: 14px;
+    font-size: 12px;
     color: #888;
     margin-bottom: 5px;
 }
 
-
-
-input[type="text"], input[type="file"], textarea {
-    width: 100%;
-    padding: 8px;
-    margin: 10px 0;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-}
-
-
 #caption {
-    width: 100%;
-    padding: 8px;
-    margin: 10px 0;
-    border-radius: 4px;
+    margin-top: 20px; /* Add margin to ensure separation */
+    z-index: 10; /* Keep it above other elements */
+    position: relative;
+}
+
+.hashtag-container {
+    margin: 20px 0;
+    position: relative;
+    z-index: 5; /* Keep it below caption input */
+}
+
+#hashtag-wrapper {
+    display: flex;
+    flex-wrap: wrap; /* Allow wrapping to the next row */
+    gap: 5px; /* Space between hashtags */
     border: 1px solid #ccc;
-    font-family: Arial, sans-serif; /* Ensures the textarea font is consistent */
-    resize: vertical; /* Allows only vertical resizing */
+    border-radius: 5px;
+    padding: 5px; /* Minimal padding */
+    max-height: 150px; /* Optional: Limit height with scroll */
+    overflow-y: auto; /* Add vertical scroll when exceeding height */
+    width: 100%; /* Full width of the container */
+    background-color: #f9f9f9; /* Light background color */
 }
 
-.hashtag-suggestions {
-    margin-top: 5px;
-    background: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 5px;
-    width: calc(100% - 10px); /* Matches width with textarea */
-    display: none; /* Hidden by default */
+.hashtag-circle {
+    background-color: #6c63ff;
+    color: white;
+    padding: 2px 6px; /* Minimal padding to tightly wrap around the text */
+    border-radius: 12px; /* Slightly rounded corners */
+    display: inline-flex;
+    align-items: center;
+    gap: 4px; /* Space between the text and the close button */
+    font-size: 12px; /* Adjust font size to fit within the smaller box */
+    height: auto; /* Allow the height to adjust to the content */
+    white-space: nowrap; /* Prevent text from wrapping */
 }
 
-.hashtag-suggestions div {
-    padding: 3px 5px;
+
+
+
+#hashtagInput {
+    border: none;
+    outline: none;
+    flex: 1;
+    margin-top: 5px; /* Add spacing from hashtags */
+    font-size: 12px; /* Match font size with hashtags */
+    width: 100%; /* Ensure the input spans the width */
+}
+
+
+
+.hashtag-circle .remove-hashtag {
+    background: none;
+    border: none;
+    color: white;
+    font-weight: bold;
     cursor: pointer;
 }
 
-.hashtag-suggestions div:hover {
-    background-color: #ececec;
+.warning {
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
+    position: absolute;
 }
 
+
+/* Location Input Styling */
+.location-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.input-container {
+    position: relative;
+    width: 100%;
+}
+
+.suggestions {
+    position: absolute;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    max-height: 150px;
+    overflow-y: auto;
+    width: calc(100% - 2px);
+    z-index: 10;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: none; /* Hidden by default */
+}
+
+
+
+.suggestions div {
+    padding: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+}
+
+.suggestions div:hover {
+    background-color: #f0f0f0;
+}
+
+
+/* Input and Caption Styling */
+input[type="text"], textarea {
+    width: 100%;
+    padding: 8px;
+    margin: 10px 0;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    resize: none;
+    font-size: 14px;
+}
+
+textarea#caption {
+    max-height: 80px;
+    overflow-y: auto;
+    resize: none;
+    height: 60px;
+}
+
+.word-count {
+    font-size: 12px;
+    color: #666;
+    margin-top: 5px;
+    text-align: right;
+}
 
 .checkbox-container {
     display: flex;
@@ -95,20 +194,47 @@ input[type="text"], input[type="file"], textarea {
 }
 
 .upload-section i {
-    font-size: 24px;
+    font-size: 20px;
     color: #666;
 }
 
 .upload-section span {
     display: block;
-    font-size: 14px;
+    font-size: 12px;
+    color: #888;
+    margin-top: 5px;
+}
+
+/* Progress Display Styling */
+.progress-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#progress-bar-container {
+    width: 100%;
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    margin-top: 10px;
+    overflow: hidden;
+}
+
+#progress-bar {
+    height: 8px;
+    background-color: #6c63ff;
+    width: 0;
+    transition: width 0.2s ease;
+}
+
+#progress-text {
+    font-size: 12px;
     color: #888;
     margin-top: 5px;
 }
 
 button {
     width: 100%;
-    padding: 10px;
+    padding: 8px;
     border: none;
     border-radius: 5px;
     font-size: 14px;
@@ -129,38 +255,9 @@ button {
 /* Responsive layout for tablets */
 @media (max-width: 768px) {
     .container {
-        width: 80%;
+        max-width: 90%; /* Shrinks the container for smaller screens */
+        width: 90%; /* Ensure it stretches fully within the viewport */
         padding: 20px;
-    }
-
-    h1 {
-        font-size: 20px;
-    }
-
-    p {
-        font-size: 13px;
-    }
-
-    input[type="text"] {
-        font-size: 13px;
-        padding: 7px;
-    }
-
-    .upload-section i {
-        font-size: 22px;
-    }
-
-    button {
-        padding: 8px;
-        font-size: 13px;
-    }
-}
-
-/* Responsive layout for mobile */
-@media (max-width: 480px) {
-    .container {
-        width: 90%;
-        padding: 15px;
     }
 
     h1 {
@@ -171,21 +268,59 @@ button {
         font-size: 12px;
     }
 
-    label, .upload-section span {
+    input[type="text"], textarea {
         font-size: 12px;
-    }
-
-    input[type="text"] {
-        font-size: 12px;
-        padding: 6px;
-    }
-
-    .upload-section i {
-        font-size: 20px;
+        padding: 8px;
     }
 
     button {
+        font-size: 13px;
+        padding: 8px;
+    }
+
+    .upload-section i {
+        font-size: 18px;
+    }
+}
+
+/* Responsive layout for phones */
+@media (max-width: 480px) {
+    .container {
+        max-width: 95%; /* Smaller container for phones */
+        padding: 15px;
+    }
+
+    h1 {
+        font-size: 16px;
+    }
+
+    p {
+        font-size: 11px;
+    }
+
+    label {
+        font-size: 10px;
+    }
+
+    input[type="text"], textarea {
+        font-size: 10px;
+        padding: 6px;
+    }
+
+    textarea#caption {
+        height: 50px;
+    }
+
+    .word-count {
+        font-size: 10px;
+    }
+
+    button {
+        font-size: 11px;
         padding: 7px;
-        font-size: 12px;
+    }
+
+    .upload-section i {
+        font-size: 16px;
     }
 }

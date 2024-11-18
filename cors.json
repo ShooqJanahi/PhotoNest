@@ -1,8 +1,9 @@
+
 [
   {
-    "origin": ["http://127.0.0.1:5500", "https://photonest-a16aa.web.app"],
+    "origin": ["*"],
     "method": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    "maxAgeSeconds": 3600,
-    "responseHeader": ["Content-Type", "Authorization"]
+    "responseHeader": ["Content-Type", "Authorization", "x-goog-resumable"],
+    "maxAgeSeconds": 3600
   }
 ]

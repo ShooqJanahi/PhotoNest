@@ -1,12 +1,9 @@
-<!--UploadPhoto.html-->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-     <!--JQuray for the map-->
-     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-   
- 
+    <!-- jQuery for the map -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Photo Details</title>
@@ -15,20 +12,15 @@
     <link rel="stylesheet" href="../css/UploadPhoto.css">
     <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png">
 
-   
+    <!-- Firebase SDKs -->
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js"></script>
 
-
-<!-- Firebase SDKs -->
-<script type="module" src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
-<script type="module" src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
-<script type="module" src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
-<script type="module" src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js"></script>
-
-<!-- Local JavaScript files as modules -->
-<script type="module" src="../js/PhotoManagement.js"></script>
-<script type="module" src="../js/login.js"></script>
-
-
+    <!-- Local JavaScript files as modules -->
+    <script type="module" src="../js/UploadPhoto.js"></script>
+    <script type="module" src="../js/login.js"></script>
 </head>
 <body>
     <div class="container">
@@ -36,22 +28,40 @@
         <p>Start by selecting an image</p>
         
         <label for="caption">Caption</label>
-        <textarea id="caption" placeholder="Type your caption here..."></textarea>
-        <div id="hashtag-suggestions" class="hashtag-suggestions" style="display: none;"></div>
+    <textarea id="caption" placeholder="Type your caption here..."></textarea>
+    <div id="word-count" class="word-count">0 / 200 letters</div>
 
-
-        <label for="location">Location</label>
-        <input type="text" id="location" placeholder="Start typing city or country..." autocomplete="off">
-        <div id="location-suggestions" class="suggestions"></div>
+    <div class="hashtag-container">
+        <label for="hashtagInput">Add Hashtags</label>
+        <div id="hashtag-wrapper">
+            <input type="text" id="hashtagInput" placeholder="Type a hashtag and press space...">
+        </div>
+        <small id="hashtag-warning" class="warning" style="display: none;">Maximum 5 hashtags allowed or invalid hashtag.</small>
+    </div>
+        
+        <div class="location-container">
+            <label for="city">City</label>
+            <div class="input-container">
+                <input type="text" id="city" placeholder="Type city..." autocomplete="off">
+                <div id="city-suggestions" class="suggestions"></div>
+            </div>
+        
+            <label for="country">Country</label>
+            <div class="input-container">
+                <input type="text" id="country" placeholder="Type country..." autocomplete="off">
+                <div id="country-suggestions" class="suggestions"></div>
+            </div>
+        </div>
+        
+        
+        
         
 
-
         <div class="checkbox-container">
-
             <input type="checkbox" id="private">
-
             <label for="private">Make image private?</label>
         </div>
+        
         <div class="upload-section">
             <input type="file" id="fileInput" accept="image/*" style="display: none;">
             <label for="fileInput" class="upload-label">
@@ -59,11 +69,17 @@
                 <span>Upload image</span>
             </label>
         </div>
+
+        <!-- Progress Display Element -->
+        <div id="UpProgress" class="progress-container">
+            <div id="progress-bar-container">
+                <div id="progress-bar"></div>
+            </div>
+            <span id="progress-text">Upload 0%</span>
+        </div>
+
         <button class="upload-btn">Upload</button>
         <button class="cancel-btn">Cancel</button>
     </div>
-    
-    
-
 </body>
-</html>
+</html>  
