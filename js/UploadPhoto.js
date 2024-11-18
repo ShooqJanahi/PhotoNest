@@ -1,3 +1,5 @@
+//UploadPhoto.ja
+
 // Import Firebase services
 import { db, storage } from './firebaseConfig.js'; // Ensure `storage` is imported
 import { collection, addDoc, query, where, getDocs, doc, updateDoc, increment } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
@@ -348,7 +350,7 @@ countryInput.addEventListener("focus", () => {
 // Enhance caption input with hashtag suggestions
 const captionInput = document.getElementById('caption');
 const wordCountDisplay = document.getElementById('word-count');
-const maxLetters = 100; // Set the letter limit
+const maxLetters = 200; // Set the letter limit
 
 
 // Enhance caption input with letter counting and hashtag suggestions
