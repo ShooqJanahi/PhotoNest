@@ -350,7 +350,7 @@ countryInput.addEventListener("focus", () => {
 // Enhance caption input with hashtag suggestions
 const captionInput = document.getElementById('caption');
 const wordCountDisplay = document.getElementById('word-count');
-const maxLetters = 200; // Set the letter limit
+const maxLetters = 200; // Set the characters limit
 
 
 // Enhance caption input with letter counting and hashtag suggestions
