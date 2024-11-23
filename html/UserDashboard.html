@@ -27,8 +27,9 @@
 
     <!-- Firebase Initialization and app scripts as modules -->
     <script type="module" src="../js/firebaseConfig.js"></script>
+    <script type="module" src="../js/login.js"></script>
     <script type="module" src="../js/UserDashboard.js"></script>
-<script type="module" src="../js/login.js"></script>
+    
 
 </head>
 
@@ -47,8 +48,8 @@
             </div>
             <div class="create">
 
-                <div class="profile-photo">
-                    <img src="../assets/Ban_Icon.png" id="profile-image">
+                <div class="user-profile">
+                    <img id="user-profile-pic" src="../assets/Default_profile_icon.jpg" alt="User Profile Picture">
                 </div>
                 <!-- menu button to show sidebar -->
                 <button id="menu-btn"><i class="uil uil-bars"></i></button>
@@ -114,105 +115,31 @@
             </div>
             <!------------------- END OF LEFT -------------------->
 
-            <!--======================== MIDDLE ==========================-->
-            <div class="middle">
-                <form class="create-post">
-                    <div class="profile-photo">
-                      <img src="../assets/Ban_Icon.png">
-                    </div>
-                    <input type="text" placeholder="Search for photos or users, Diana?" id="search">
-                    <!-- Sort Dropdown -->
-                    <select id="sort-options" class="btn btn-primary">
-                      <option value="latest">Sort by Latest</option>
-                      <option value="oldest">Sort by Oldest</option>
-                      <option value="popular">Sort by Most Popular</option>
-                    </select>
-                    <input type="submit" value="Search" class="btn btn-primary">
-                  </form>
+           <!--======================== MIDDLE ==========================-->
+<div class="middle">
+    <form class="create-post">
+        <div class="profile-photo">
+            <img src="../assets/Ban_Icon.png">
+        </div>
+        <input type="text" placeholder="Search for photos or users, Diana?" id="search">
+        <!-- Sort Dropdown -->
+        <select id="sort-options" class="btn btn-primary">
+            <option value="latest">Sort by Latest</option>
+            <option value="oldest">Sort by Oldest</option>
+            <option value="popular">Sort by Most Popular</option>
+        </select>
+        <input type="submit" value="Search" class="btn btn-primary">
+    </form>
 
-                <!------------------- FEEDS --------------------->
-                <!-- Main content area -->
-                <main>
-                    <!-- Content dynamically loaded via JavaScript -->
-                    <div class="feeds">
-                        <!-- Dynamic feeds will be loaded here -->
-                    </div>
-                </main>
-                <!------------------------------- END OF FEEDS ------------------------------------>
-            </div>
-            <!--======================== END OF MIDDLE ==========================-->
+    <!------------------- FEEDS --------------------->
+    <div class="feeds" data-photo-id="PHOTO_ID" data-owner-id="OWNER_ID">
+        <!-- Dynamic feeds will be loaded here -->
+    </div>
+</div>
+<!------------------------ END OF MIDDLE ------------------------>
 
-            <!--======================== RIGHT ==========================-->
-            <div class="right">
-                <div class="messages">
-                    <div class="heading">
-                        <h4>Messages</h4><i class="uil uil-edit"></i>
-                    </div>
-                    <!------------ SEARCH BAR -------------->
-                    <div class="search-bar">
-                        <i class="uil uil-search"></i>
-                        <input type="search" placeholder="Search messages" id="message-search">
-                    </div>
-                    <!------------ MESSAGES CATEGORY -------------->
-                    <div class="category">
-                        <h6 class="active">Primary</h6>
-                        <h6>General</h6>
-                        <h6 class="message-requests">Requests(7)</h6>
-                    </div>
-                    <!------------ MESSAGE -------------->
-                    <div class="message">
-                        <div class="profile-photo">
-                            <img src="../assets/Ban_Icon.png">
-                        </div>
-                        <div class="message-body">
-                            <h5>Edem Quist</h5>
-                            <p class="text-muted">Just woke up bruh</p>
-                        </div>
-                    </div>
-                    <div class="message">
-                        <div class="profile-photo">
-                            <img src="../assets/Ban_Icon.png">
-                            <div class="active"></div>
-                        </div>
-                        <div class="message-body">
-                            <h5>Franca Deila</h5>
-                            <p class="text-bold">Received bruh. Thanks!</p>
-                        </div>
-                    </div>
-                    <div class="message">
-                        <div class="profile-photo">
-                            <img src="../assets/Ban_Icon.png">
-                        </div>
-                        <div class="message-body">
-                            <h5>Jane Doe</h5>
-                            <p class="text-bold">ok</p>
-                        </div>
-                    </div>
-                </div>
-                <!------------ END OF MESSAGES -------------->
-
-                <!------------ FRIEND REQUESTS -------------->
-                <div class="friend-requests">
-                    <h4>Requests</h4>
-                    <div class="request">
-                        <div class="info">
-                            <div class="profile-photo">
-                                <img src="../assets/Ban_Icon.png">
-                            </div>
-                            <div>
-                                <h5>Hajia Bintu</h5>
-                                <p class="text-muted">8 mutual friends</p>
-                            </div>
-                        </div>
-                        <div class="action">
-                            <button class="btn btn-primary">Accept</button>
-                            <button class="btn">Decline</button>
-                        </div>
-                    </div>
-                </div>
-                <!------------ END OF FRIEND REQUESTS -------------->
-            </div>
-            <!--====================== END OF RIGHT ==========================-->
+           
+                    
         </div>
     </main>
 

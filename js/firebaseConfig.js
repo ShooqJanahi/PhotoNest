@@ -28,5 +28,6 @@ const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
 
 
+
 // Export Firebase services for use in other JavaScript files
 export { auth, db, storage };

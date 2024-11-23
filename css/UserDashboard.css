@@ -1,3 +1,5 @@
+/*UserDashboard.css*/
+
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap");
 
 :root {
@@ -67,12 +69,14 @@ body {
 }
 
 
-.profile-photo {
+.profile-photo, .user-profile {
   width: 2.7rem;
   aspect-ratio: 1/1;
   border-radius: 50%;
   overflow: hidden;
 }
+
+
 
 img {
   display: block;
@@ -400,6 +404,30 @@ main .container .left .profile {
   margin: 0.7rem 0;
 }
 
+/*Activity log*/
+.activity-item-content {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.activity-profile {
+  margin-right: 10px;
+}
+
+.activity-profile-pic {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.activity-details {
+  flex: 1;
+}
+
+
+
 .middle .feed .action-buttons {
   display: flex;
   justify-content: space-between;
@@ -407,6 +435,19 @@ main .container .left .profile {
   font-size: 1.4rem;
   margin: 0.6rem;
 }
+
+/*when liked the icon turn red*/
+.uil-heart.liked {
+  color: red; /* Highlighted color for likes */
+  transition: color 0.3s ease;
+}
+
+
+.liked {
+  color: var(--color-primary); /* Highlighted color */
+}
+
+
 
 .middle .liked-by {
   display: flex;
