@@ -78,8 +78,23 @@ body::-webkit-scrollbar {
   margin-right: 10px; /* Space between the image and the text */
 }
 
+.create {
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Space between elements */
+}
 
-.profile-photo, .user-profile {
+.user-profile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.7rem;
+    height: 2.7rem;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.profile-photo {
   width: 2.7rem;
   aspect-ratio: 1/1;
   border-radius: 50%;
@@ -163,8 +178,26 @@ nav .create {
   gap: 2rem;
 }
 
-nav .create #menu-btn {
-  display: none;
+
+
+#menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.7rem;
+    height: 2.7rem;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+#menu-btn i {
+    font-size: 1.5rem;
+    color: var(--color-dark);
+}
+
+#menu-btn:hover {
+    opacity: 0.8; /* Add hover effect */
 }
 
 /* ===================== MAIN ======================= */
@@ -406,6 +439,34 @@ html {
     background-color: #999;
   }
 
+/*upload photo icon in the header */
+.upload-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none; /* Remove underline */
+    width: 2.7rem; /* Match the profile picture size */
+    height: 2.7rem; /* Match the profile picture size */
+    border-radius: 50%; /* Make it circular */
+    background-color: var(--color-light); /* Add a subtle background */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Add some shadow */
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.upload-link i {
+    font-size: 1.2rem; /* Adjust icon size */
+    color: var(--color-primary); /* Match your theme */
+}
+
+.upload-link:hover {
+    background-color: var(--color-primary); /* Highlight on hover */
+    color: var(--color-white); /* Change icon color on hover */
+    transform: scale(1.1); /* Slightly enlarge on hover */
+}
+
+.upload-link:active {
+    transform: scale(0.95); /* Add click feedback */
+}
 
 
 
@@ -564,16 +625,52 @@ html {
 
 
 @media screen and (max-width: 768px) {
+    .create {
+        display: flex;
+        align-items: center;
+        gap: 10px; /* Consistent spacing between elements */
+    }
+
+    .upload-link, .user-profile, #menu-btn {
+        width: 2.5rem; /* Smaller size for compact layout */
+        height: 2.5rem;
+    }
+
+    .upload-link i {
+        font-size: 1rem; /* Adjust icon size */
+    }
+
     .logo {
-      display: flex;
-      align-items: center; /* Ensure the logo is vertically centered */
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
-  
+
     .logo-image {
-      max-width: 40px; /* Adjust the logo size for smaller screens */
-      height: auto; /* Maintain aspect ratio */
-      display: block; /* Prevent inline block spacing issues */
+        max-width: 35px; /* Reduce logo size */
+        height: auto;
+        display: block;
     }
+
+    #menu-btn i {
+        font-size: 1.2rem; /* Smaller menu icon size */
+    }
+
+    .upload-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        border-radius: 50%;
+        background-color: var(--color-light);
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .upload-link:hover {
+        background-color: var(--color-primary);
+        transform: scale(1.1); /* Slight hover effect */
+    
+}
   
     nav .container {
       display: flex;
@@ -585,5 +682,6 @@ html {
     nav {
       height: auto; /* Allow the nav to adjust dynamically */
     }
-  }
+  
+}
   

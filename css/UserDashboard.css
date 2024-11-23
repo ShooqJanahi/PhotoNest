@@ -331,40 +331,33 @@ main .container .left .profile {
   padding: 1rem 0;
 }
 
-/* ----------------------- NOTIFICATION POPUP ---------------- */
-.left .notifications-popup {
-  position: absolute;
-  top: 0;
-  left: 110%;
-  width: 30rem;
-  background: var(--color-white);
-  border-radius: var(--card-border-radius);
-  padding: var(--card-padding);
-  box-shadow: 0 0 2rem rgba(0, 0, 0, 0.1);
-  z-index: 8;
-  display: none;
-}
-
-.left .notifications-popup::before {
-  content: "";
-  width: 1.2rem;
-  height: 1.2rem;
-  display: block;
-  background: var(--color-white);
-  position: absolute;
-  left: -0.6rem;
-  transform: rotate(45deg);
-}
-
-.left .notifications-popup > div {
+/*upload photo icon in the header */
+.upload-link {
   display: flex;
-  align-items: start;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none; /* Remove underline */
+  width: 2.7rem; /* Match the profile picture size */
+  height: 2.7rem; /* Match the profile picture size */
+  border-radius: 50%; /* Make it circular */
+  background-color: var(--color-light); /* Add a subtle background */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Add some shadow */
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-.left .notifications-popup small {
-  display: block;
+.upload-link i {
+  font-size: 1.2rem; /* Adjust icon size */
+  color: var(--color-primary); /* Match your theme */
+}
+
+.upload-link:hover {
+  background-color: var(--color-primary); /* Highlight on hover */
+  color: var(--color-white); /* Change icon color on hover */
+  transform: scale(1.1); /* Slightly enlarge on hover */
+}
+
+.upload-link:active {
+  transform: scale(0.95); /* Add click feedback */
 }
 
 /* ============================= MIDDLE ================================ */
