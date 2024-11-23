@@ -148,6 +148,9 @@ nav .container {
   margin-left: 1rem;
   font-size: 0.9rem;
   color: var(--color-dark);
+  border: none; /* Removes any border around the input */
+  outline: none; /* Removes the black box around the text */
+  
 }
 
 nav .search-bar input[type="search"]::placeholder {
@@ -476,6 +479,10 @@ html {
 
 /* ========================== MEDIA QUERIES FOR SMALL TABLETS AND MOBILE PHONES ========================== */
 @media screen and (max-width: 992px) {
+    body {
+        overflow-x: hidden; /* Disable horizontal scrolling */
+      }
+      
   nav .search-bar {
     display: none;
   }
@@ -484,12 +491,26 @@ html {
     display: none;
   }
 
+
   main .container {
-    grid-template-columns: auto 0;
+    grid-template-columns: 1fr; /* Middle content occupies full width */
     gap: 0;
   }
-
-
+ .left {
+    display: none; /* Ensure the sidebar remains hidden */
+  }
+  .middle {
+    padding: 1rem; /* Adjust padding for smaller screens */
+    width: 100%; /* Make the middle content responsive */
+  }
+  .middle .card {
+    width: calc(100% - 2rem); /* Take full width minus some space for margins */
+    max-width: 700px; /* Ensure it doesn't grow too large on wider screens */
+    margin: 1rem auto; /* Center the card with a little space around it */
+    padding: 1.5rem; /* Add some internal spacing for better readability */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Keep the shadow for a clean look */
+    border-radius: var(--card-border-radius); /* Ensure rounded corners */
+  }
   main .container .right {
     display: none;
   }
