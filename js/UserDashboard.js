@@ -44,6 +44,30 @@ function redirectToLogin() {
 }
 
 async function setupPage() {
+
+    const searchForm = document.querySelector('.create-post');
+    const sortDropdown = document.getElementById('sort-options');
+
+    // Handle form submission (search and sort)
+    if (searchForm) {
+        searchForm.addEventListener('submit', async (event) => {
+            event.preventDefault(); // Prevent default form submission
+            const searchInput = document.getElementById('search').value.trim().toLowerCase();
+            const sortOption = sortDropdown.value;
+            filterAndSortPosts(searchInput, sortOption);
+        });
+    }
+
+    // Handle sort dropdown change
+    if (sortDropdown) {
+        sortDropdown.addEventListener('change', () => {
+            const searchInput = document.getElementById('search').value.trim().toLowerCase();
+            const sortOption = sortDropdown.value;
+            filterAndSortPosts(searchInput, sortOption);
+        });
+    }
+    
+
     const homeMenuItem = document.querySelector('.menu-item.home');
     const exploreMenuItem = document.querySelector('.menu-item.explore');
 
@@ -91,8 +115,10 @@ async function setupPage() {
     });
     
 
-    // Initially load the 'Home' feed
-    fetchPhotos(true);
+    // Initially load the 'Home' feed and sort by latest
+    await fetchPhotos(true);
+    sortDropdown.value = 'latest'; // Default to 'latest'
+    filterAndSortPosts('', 'latest'); // Sort by latest initially
 }
 
 
@@ -102,16 +128,81 @@ async function setUserProfilePic() {
     const userRef = doc(db, 'users', currentUserId); // Reference to the user document
     const userDoc = await getDoc(userRef); // Fetch the user document
 
-    const profilePicElement = document.getElementById('user-profile-pic'); // Select the profile picture element
+    // Profile elements
+    const profilePicElement = document.getElementById('profile-image'); // Sidebar profile image
+    const profileNameElement = document.getElementById('profile-name'); // Sidebar profile name
+    const profileUsernameElement = document.getElementById('profile-username'); // Sidebar profile username
+
 
     if (userDoc.exists()) {
         const userData = userDoc.data();
-        const profilePicUrl = userData.profilePic || '../assets/Default_profile_icon.jpg'; // Use default if no profile pic
-        profilePicElement.src = profilePicUrl; // Set the profile picture
+
+        // Set profile picture (or default image if not available)
+        const profilePicUrl = userData.profilePic || '../assets/Default_profile_icon.jpg';
+        profilePicElement.src = profilePicUrl;
+
+        // Set profile name and username
+        profileNameElement.textContent = userData.firstName + ' ' + userData.lastName;
+        profileUsernameElement.textContent = `@${userData.username || 'Anonymous'}`;
     } else {
         console.error('User document not found');
+        profileNameElement.textContent = 'Unknown User';
+        profileUsernameElement.textContent = '@unknown';
+        profilePicElement.src = '../assets/Default_profile_icon.jpg'; // Fallback default image
     }
 }
+
+function filterAndSortPosts(searchTerm, sortOption) {
+    const feedsContainer = document.querySelector('.feeds');
+    if (!feedsContainer) {
+        console.error("Feeds container not found.");
+        return;
+    }
+
+    const allPosts = Array.from(feedsContainer.children); // Get all post elements
+
+    // Filter posts based on the search term (if provided)
+    const filteredPosts = allPosts.filter((post) => {
+        const username = post.querySelector('.info h3')?.textContent.toLowerCase() || '';
+        const location = post.querySelector('.info small')?.textContent.toLowerCase() || '';
+        const hashtags = post.querySelector('.hashtags')?.textContent.toLowerCase() || '';
+        const caption = post.querySelector('.caption p')?.textContent.toLowerCase() || '';
+
+        return (
+            !searchTerm || // Show all posts if searchTerm is empty
+            username.includes(searchTerm) ||
+            location.includes(searchTerm) ||
+            hashtags.includes(searchTerm) ||
+            caption.includes(searchTerm)
+        );
+    });
+
+    // Sort posts based on the selected option
+    const sortedPosts = filteredPosts.sort((a, b) => {
+        const aDateElem = a.querySelector('.info small');
+        const bDateElem = b.querySelector('.info small');
+        const aDate = aDateElem ? new Date(aDateElem.getAttribute('data-date')) : new Date();
+        const bDate = bDateElem ? new Date(bDateElem.getAttribute('data-date')) : new Date();
+
+         if (sortOption === 'latest') {
+            return bDate - aDate; // Descending by date
+        } else if (sortOption === 'oldest') {
+            return aDate - bDate; // Ascending by date
+        } else if (sortOption === 'popular') {
+            // Get likes
+            const aLikesElem = a.querySelector('.liked-by');
+            const bLikesElem = b.querySelector('.liked-by');
+            const aLikes = aLikesElem ? parseInt(aLikesElem.getAttribute('data-likes')) || 0 : 0;
+            const bLikes = bLikesElem ? parseInt(bLikesElem.getAttribute('data-likes')) || 0 : 0;
+            return bLikes - aLikes; // Descending by likes
+        }
+    });
+
+    // Clear and re-render the feeds with filtered and sorted posts
+    feedsContainer.innerHTML = '';
+    sortedPosts.forEach((post) => feedsContainer.appendChild(post));
+}
+
 
 
 
@@ -222,7 +313,7 @@ async function fetchPhotos(isHome) {
 
 
 
-            const photoHTML = `
+                const photoHTML = `
                 <div class="feed" data-photo-id="${docSnapshot.id}" data-owner-id="${photo.userId}">
                     <div class="head">
                         <div class="user">
@@ -231,7 +322,9 @@ async function fetchPhotos(isHome) {
                             </div>
                             <div class="info">
                                 <h3>${user.username || 'Unknown User'}</h3>
-                                <small>${photo.city || 'Unknown Location'}, ${relativeTime}</small>
+                                <small data-date="${photo.uploadDate || new Date().toISOString()}">
+                                    ${photo.city || 'Unknown Location'}, ${getRelativeTime(photo.uploadDate)}
+                                </small>
                             </div>
                         </div>
                         <span class="edit">
@@ -243,7 +336,7 @@ async function fetchPhotos(isHome) {
                     </div>
                     <div class="action-buttons">
                         <div class="interaction-buttons">
-                           <span><i class="uil uil-heart ${photo.likedByCurrentUser ? 'liked' : ''}"></i></span>
+                            <span><i class="uil uil-heart ${likedPhotoIds.includes(docSnapshot.id) ? 'liked' : ''}"></i></span>
                             <span><i class="uil uil-comment-dots"></i></span>
                             <span><i class="uil uil-share-alt"></i></span>
                         </div>
@@ -251,18 +344,18 @@ async function fetchPhotos(isHome) {
                             <span><i class="uil uil-bookmark-full"></i></span>
                         </div>
                     </div>
-                     ${likedByText ? `
-                        <div class="liked-by">
-                            <p>${likedByText}</p>
-                        </div>` : ''}
+                    <div class="liked-by" data-likes="${photo.likesCount || 0}">
+                        <p>${photo.likesCount > 0 ? `${photo.likesCount} likes` : 'No likes yet'}</p>
+                    </div>
                     <div class="caption">
                         <p><b>${user.username || 'Unknown User'}</b> ${photo.caption}</p>
-                        <p class="hashtags">${hashtagsHTML}</p> <!-- Display hashtags -->
-                        </div>
+                        <p class="hashtags">${photo.hashtags?.map(tag => `#${tag}`).join(' ') || ''}</p>
+                    </div>
                     <div class="comments text-muted">View all ${photo.commentsCount || 0} comments</div>
                 </div>
             `;
-            photosContainer.innerHTML += photoHTML; // Append the generated HTML to the feeds container
+            photosContainer.innerHTML += photoHTML;
+            
         }
     }
 }
