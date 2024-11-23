@@ -281,7 +281,9 @@ main .container .left .profile {
   width: 100%;
   text-align: center;
   padding: 1rem 0;
+  
 }
+
 
 
 
@@ -479,10 +481,19 @@ html {
 
 /* ========================== MEDIA QUERIES FOR SMALL TABLETS AND MOBILE PHONES ========================== */
 @media screen and (max-width: 992px) {
-    body {
-        overflow-x: hidden; /* Disable horizontal scrolling */
+    html, body {
+        overflow-x: hidden; /* Prevent horizontal scrolling */
       }
-      
+
+      body::-webkit-scrollbar {
+        display: none; /* Hide the scrollbar */
+      }
+
+ body {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+
   nav .search-bar {
     display: none;
   }
@@ -495,23 +506,84 @@ html {
   main .container {
     grid-template-columns: 1fr; /* Middle content occupies full width */
     gap: 0;
+    justify-content: center; /* Center the container */
+    align-items: center; /* Center the container vertically if needed */
   }
+
+
  .left {
     display: none; /* Ensure the sidebar remains hidden */
   }
   .middle {
     padding: 1rem; /* Adjust padding for smaller screens */
     width: 100%; /* Make the middle content responsive */
+    display: flex;
+    justify-content: center; /* Center the card horizontally */
+
   }
   .middle .card {
-    width: calc(100% - 2rem); /* Take full width minus some space for margins */
+    width: 100%; /* Use full width of the container */
     max-width: 700px; /* Ensure it doesn't grow too large on wider screens */
-    margin: 1rem auto; /* Center the card with a little space around it */
+    margin: 0 auto; /* Center the card horizontally */
     padding: 1.5rem; /* Add some internal spacing for better readability */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Keep the shadow for a clean look */
     border-radius: var(--card-border-radius); /* Ensure rounded corners */
+    background-color: var(--color-white); /* Ensure background color consistency */
   }
+  .middle .card input, 
+  .middle .card textarea {
+    width: 100%; /* Make input fields stretch to fit the container */
+    font-size: 1rem; /* Adjust font size for better readability */
+  }
+
   main .container .right {
     display: none;
   }
+  .logo {
+    display: flex;
+    align-items: center; /* Ensure the logo is vertically centered */
+  }
+
+  .logo-image {
+    max-width: 40px; /* Adjust the logo size for smaller screens */
+    height: auto; /* Maintain aspect ratio */
+    display: block; /* Prevent inline block spacing issues */
+  }
+
+  nav .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 1rem; /* Add padding to avoid overcrowding */
+  }
+
+  nav {
+    height: auto; /* Allow the nav to adjust dynamically */
+  }
 }
+
+
+@media screen and (max-width: 768px) {
+    .logo {
+      display: flex;
+      align-items: center; /* Ensure the logo is vertically centered */
+    }
+  
+    .logo-image {
+      max-width: 40px; /* Adjust the logo size for smaller screens */
+      height: auto; /* Maintain aspect ratio */
+      display: block; /* Prevent inline block spacing issues */
+    }
+  
+    nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 1rem; /* Add padding to avoid overcrowding */
+    }
+  
+    nav {
+      height: auto; /* Allow the nav to adjust dynamically */
+    }
+  }
+  
