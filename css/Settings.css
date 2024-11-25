@@ -181,7 +181,7 @@ nav .create {
 
 
 #menu-btn {
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     width: 2.7rem;
@@ -216,12 +216,12 @@ main .container {
 /* =================== LEFT ================ */
 main .container .left {
     height: calc(100vh - 5.4rem); /* Full viewport height minus header */
-    position: sticky;
-    top: 5.4rem; /* Stick below the header */
-    background: var(--color-white);
-    border-radius: var(--card-border-radius);
-    padding: var(--card-padding);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional shadow for visibility */
+  position: sticky;
+  top: 5.4rem; /* Stick below the header */
+  background: var(--color-white);
+  border-radius: var(--card-border-radius);
+  padding: var(--card-padding);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional shadow for visibility */
   }
   
 
@@ -333,8 +333,8 @@ html {
 /* Middle section styling */
 .middle{
     grid-column: 2; /* Ensures it stays in the middle column */
-    height: auto; /* Let the content determine the height */
-    padding: 20px;
+    padding: 1rem; /* Add padding for spacing */
+  width: 100%; /* Take full width of the remaining container */
     overflow: visible; /* Ensure no independent scrolling */
   }
 
@@ -358,8 +358,8 @@ html {
   background-color: var(--color-white);
   border-radius: var(--card-border-radius);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-width: 700px; /* Restrict the width of the card */
-  overflow: hidden; /* Prevent content from overflowing */
+  max-width: 100%; /* Allow full width within the middle container */
+  overflow: hidden; /* Prevent content overflow */
 }
 
   
@@ -468,6 +468,142 @@ html {
     transform: scale(0.95); /* Add click feedback */
 }
 
+/*dropdown middle */
+.profile-accordion {
+    width: 100%; /* Full width of the container */
+    margin-bottom: 1rem; /* Add space between each accordion */
+}
+
+
+.profile-accordion .faqs__item-bottom {
+    width: 100%; /* Stretch the content container */
+    padding: 1rem; /* Add padding for spacing */
+    display: none; /* Hide by default */
+    background-color: var(--color-white);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Same shadow as the header */
+    border-radius: var(--card-border-radius);
+}
+
+.profile-accordion .faqs__item-bottom.show {
+    display: block; /* Show the content when active */
+}
+
+
+.profile-accordion h5 {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.profile-accordion .faqs__item-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%; /* Ensure it spans the full width */
+    padding: 1rem;
+    background-color: var(--color-white);
+    border-left: 0.5rem solid var(--color-primary);
+    border-radius: var(--card-border-radius);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add shadow for better visibility */
+    font-size: 1rem;
+}
+
+.profile-accordion .faq__icon {
+    font-size: 1.5rem;
+}
+
+/*blocked users*/
+.blocked-users {
+    margin-bottom: 20px;
+}
+
+.blocked-users h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.blocked-user {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.user-profile-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 15px;
+}
+
+.user-details {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.username {
+    font-size: 16px;
+    font-weight: 500;
+    margin-right: auto;
+}
+
+.unblock-btn {
+    background-color: var(--color-danger);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.unblock-btn:hover {
+    background-color: #c20000;
+}
+
+/* Style for Logout and Delete Account buttons stacked vertically */
+.card .buttons {
+    display: flex;
+    flex-direction: column; /* Stack buttons vertically */
+    gap: 1rem; /* Add spacing between buttons */
+}
+
+.card .buttons button {
+    width: 100%; /* Make buttons take full width of the card */
+    padding: 1rem; /* Add padding for better touch experience */
+    border-radius: var(--border-radius); /* Apply consistent border radius */
+    font-size: 1rem; /* Adjust font size for readability */
+    cursor: pointer; /* Change cursor on hover */
+    border: none; /* Remove default border */
+    font-weight: bold;
+}
+
+.card .buttons .logout {
+    background-color: var(--color-primary);
+    color: white;
+    transition: background-color 0.3s ease;
+}
+
+.card .buttons .logout:hover {
+    background-color: hsl(var(--primary-color-hue), 75%, 50%);
+}
+
+.card .buttons .delete-account {
+    background-color: var(--color-danger);
+    color: white;
+    transition: background-color 0.3s ease;
+}
+
+.card .buttons .delete-account:hover {
+    background-color: hsl(0, 95%, 55%);
+}
+
+
 
 
 /* ========================== MEDIA QUERIES FOR SMALL LAPTOPS AND BIG TABLETS ========================== */
@@ -482,8 +618,10 @@ html {
   }
 
   main .container {
-    grid-template-columns: auto 30vw;
-    gap: 1rem;
+    display: grid;
+  grid-template-columns: 18vw auto; /* Only two columns: left and middle */
+  column-gap: 2rem; /* Space between columns */
+  position: relative;
   }
 
   .left {
@@ -555,6 +693,12 @@ html {
     scrollbar-width: none;  /* Firefox */
   }
 
+  #menu-btn {
+    display: flex; /* Show the menu button only on smaller screens */
+    align-items: center;
+    justify-content: center;
+}
+
   nav .search-bar {
     display: none;
   }
@@ -624,7 +768,53 @@ html {
 }
 
 
+
 @media screen and (max-width: 768px) {
+    .middle {
+        display: flex;
+        flex-direction: column; /* Stack items vertically */
+        align-items: stretch; /* Stretch items to fill the width */
+        padding: 1rem;
+        gap: 1rem; /* Add spacing between cards */
+    }
+
+    .profile-accordion {
+        width: 100%; /* Ensure full-width stretching */
+    }
+
+    .profile-accordion .faqs__item-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%; /* Always take full width */
+        padding: 1rem;
+        background-color: var(--color-white); /* Keep background consistent */
+        border-left: 0.5rem solid var(--color-primary); /* Add border for design */
+        border-radius: var(--card-border-radius); /* Rounded corners */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add shadow for emphasis */
+        font-size: 1rem; /* Adjust font size */
+    }
+
+    .profile-accordion .faqs__item-bottom {
+        padding: 1rem; /* Add padding for inner content */
+        display: none; /* Keep hidden by default */
+    }
+
+    .profile-accordion .faqs__item-bottom.show {
+        display: block; /* Show when active */
+        max-height: 1000px; /* Set a large enough height */
+    }
+
+    .profile-accordion h5 {
+        margin: 0; /* Remove margin for better alignment */
+        flex: 1; /* Allow text to take available space */
+        text-align: center; /* Center the title */
+    }
+
+    .profile-accordion .faq__icon {
+        font-size: 1.5rem; /* Adjust icon size */
+    }
+
     .create {
         display: flex;
         align-items: center;
@@ -632,8 +822,14 @@ html {
     }
 
     .upload-link, .user-profile, #menu-btn {
-        width: 2.5rem; /* Smaller size for compact layout */
+        width: 2.5rem; /* Compact size for smaller screens */
         height: 2.5rem;
+    }
+
+    #menu-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .upload-link i {
@@ -653,7 +849,7 @@ html {
     }
 
     #menu-btn i {
-        font-size: 1.2rem; /* Smaller menu icon size */
+        font-size: 1.2rem; /* Smaller icon size */
     }
 
     .upload-link {
@@ -669,19 +865,18 @@ html {
     .upload-link:hover {
         background-color: var(--color-primary);
         transform: scale(1.1); /* Slight hover effect */
-    
-}
-  
+    }
+
     nav .container {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.5rem 1rem; /* Add padding to avoid overcrowding */
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem 1rem;
     }
-  
+
     nav {
-      height: auto; /* Allow the nav to adjust dynamically */
+        height: auto;
     }
-  
 }
+
   

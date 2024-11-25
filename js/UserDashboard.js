@@ -9,39 +9,92 @@ import { db } from './firebaseConfig.js';
 const auth = getAuth();
 
 document.addEventListener('DOMContentLoaded', async function () {
-    checkUserAuthentication(); // Ensure user authentication
+    // Ensure user authentication is verified first
+    await checkUserAuthentication();
 
+    // Get the hash value (e.g., #explore or #home) and navigate
+    const currentHash = window.location.hash || '#home';
+    navigateToSection(currentHash);
+
+    // Listen for hash changes
+    window.addEventListener('hashchange', () => {
+        const newHash = window.location.hash;
+        navigateToSection(newHash);
+    });
+
+    // Initialize the rest of the page
     setupPage();
-
 });
 
 async function checkUserAuthentication() {
     document.body.style.display = "none"; // Hide the page content initially
 
-    onAuthStateChanged(auth, async (user) => {
-        if (!user) {
-            redirectToLogin(); // Redirect to login if not authenticated
-        } else {
-            // Retrieve the role from session storage
-            const userRole = sessionStorage.getItem("role");
-
-            if (userRole !== "user") {
-                redirectToLogin(); // Redirect to login if not a "user"
+    return new Promise((resolve) => {
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                redirectToLogin(); // Redirect to login if not authenticated
             } else {
-                document.body.style.display = "block"; // Show the page content
-                console.log("Access granted for user with role:", userRole);
+                const userRole = sessionStorage.getItem("role");
 
-                await setUserProfilePic(); // Set the user's profile picture in the header
+                if (userRole !== "user") {
+                    redirectToLogin(); // Redirect if the role is not 'user'
+                } else {
+                    document.body.style.display = "block"; // Show the page content
+                    console.log("Access granted for user with role:", userRole);
+
+                    await setUserProfilePic(); // Set user's profile picture
+                    resolve(); // Resolve the promise after authentication
+                }
             }
-        }
+        });
     });
 }
 
+function navigateToSection(hash) {
+    const feedsContainer = document.querySelector('.feeds');
+    if (!feedsContainer) return;
 
-// Redirect to login function
+    if (!auth.currentUser) {
+        console.error("User is not authenticated. Cannot navigate to section.");
+        return; // Prevent navigation if no user is authenticated
+    }
+
+    feedsContainer.innerHTML = ''; // Clear the container
+    updateActiveMenu(hash); // Highlight the correct menu item
+
+    if (hash === '#home') {
+        fetchPhotos(true); // Load "Home" content
+    } else if (hash === '#explore') {
+        fetchPhotos(false); // Load "Explore" content
+    } else {
+        console.warn(`Unknown hash: ${hash}, defaulting to Home.`);
+        window.location.hash = '#home'; // Redirect to Home by default
+        fetchPhotos(true);
+    }
+}
+
 function redirectToLogin() {
     window.location.href = '../html/Login.html'; // Redirect to the login page
 }
+
+
+
+
+function updateActiveMenu(hash) {
+    const menuItems = document.querySelectorAll('.menu-item');
+    menuItems.forEach((item) => item.classList.remove('active'));
+
+    const menuItem = document.querySelector(`a[href="UserDashboard.html${hash}"]`);
+    if (menuItem) {
+        menuItem.classList.add('active');
+    } else {
+        console.warn(`Menu item for ${hash} not found.`);
+    }
+}
+
+
+
+
 
 async function setupPage() {
 
@@ -129,7 +182,12 @@ async function setUserProfilePic() {
     const userDoc = await getDoc(userRef); // Fetch the user document
 
     // Profile elements
-    const profilePicElement = document.getElementById('profile-image'); // Sidebar profile image
+            // Update Sidebar Profile Image
+            const sidebarProfileImage = document.getElementById('sidebar-profile-image');
+    
+            // Update Top Navigation Profile Image
+            const topNavProfileImage = document.getElementById('topnav-profile-image');
+
     const profileNameElement = document.getElementById('profile-name'); // Sidebar profile name
     const profileUsernameElement = document.getElementById('profile-username'); // Sidebar profile username
 
@@ -137,9 +195,15 @@ async function setUserProfilePic() {
     if (userDoc.exists()) {
         const userData = userDoc.data();
 
-        // Set profile picture (or default image if not available)
-        const profilePicUrl = userData.profilePic || '../assets/Default_profile_icon.jpg';
-        profilePicElement.src = profilePicUrl;
+        if (sidebarProfileImage) {
+            sidebarProfileImage.src = userData.profilePic || '../assets/Default_profile_icon.jpg';
+        }
+
+        if (topNavProfileImage) {
+            topNavProfileImage.src = userData.profilePic || '../assets/Default_profile_icon.jpg';
+        }
+
+        console.log('Profile loaded successfully:', userData);
 
         // Set profile name and username
         profileNameElement.textContent = userData.firstName + ' ' + userData.lastName;
@@ -233,10 +297,18 @@ async function fetchPhotos(isHome) {
         console.error("Element with class 'feeds' not found in the DOM.");
         return; // Exit the function if not found
     }
-    photosContainer.innerHTML = ''; // Clear existing feeds
     
+    // Ensure user is authenticated
+    const currentUserId = auth.currentUser?.uid;
+    if (!currentUserId) {
+        console.error("User is not authenticated. Cannot fetch photos.");
+        return; // Exit if no user is authenticated
+    }
 
-    const currentUserId = auth.currentUser.uid; // Current logged-in user ID
+    photosContainer.innerHTML = ''; // Clear existing feeds
+
+
+   
 
     // Get all photos liked by the current user
     const userLikesQuery = query(
@@ -373,6 +445,8 @@ async function getFollowedUsers() {
     });
     return followedUsers;
 }
+
+
 
 
 
