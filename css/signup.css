@@ -1,37 +1,40 @@
 /* General Styling for the Body */
+/*providing a clean slate for further customizations*/
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden; /* Prevent horizontal scrolling */
-    overflow-y: auto; /* Allow vertical scrolling if needed */
+    font-family: Arial, sans-serif; /* Sets a clean and modern font style */
+    margin: 0; /* Removes default margin */
+    padding: 0; /* Removes default padding */
+    overflow-x: hidden; /* Prevents horizontal scrolling for better UX */
+    overflow-y: auto; /* Allows vertical scrolling when necessary */
 }
 
 /* Fullscreen Container */
+/*this part defines the main layout, making it adaptable for sidebar and main content alignment*/
 .container {
-    display: flex;
-    width: 100vw; /* Full viewport width */
-    height: 100vh; /* Full viewport height */
-    background: white;
-    overflow: hidden;
+    display: flex; /* Creates a flexible box container for layout management */
+    width: 100vw; /* Ensures the container spans the full width of the viewport */
+    height: 100vh; /* Ensures the container spans the full height of the viewport */
+    background: white; /* Sets the background color */
+    overflow: hidden; /* Prevents content from overflowing */
 }
 
 /* Sidebar Styling */
+/*create a visually distinct sidebar with centered content for branding and feature highlights*/ 
 .sidebar {
-    width: 30%;
-    background: #4A3E74;
-    color: white;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center; /* Center content in the sidebar */
-    text-align: center;
+    width: 30%; /* Takes up 30% of the container width */
+    background: #4A3E74; /* Sets a dark purple background color */
+    color: white; /* Ensures text is readable against the dark background */
+    padding: 20px; /* Adds spacing inside the sidebar */
+    display: flex; /* Creates a flexible container */
+    flex-direction: column; /* Aligns content vertically */
+    justify-content: center; /* Centers content vertically */
+    align-items: center; /* Centers content horizontally */
+    text-align: center;/* Centers text inside the sidebar */
 }
-
+/*ensures that the logo is responsive and fits well within the sidebar*/
 .sidebar .logo img {
-    max-width: 100%;
-    height: auto;
+    max-width: 100%; /* Ensures the image doesn't exceed the sidebar width */
+    height: auto; /* Maintains the image aspect ratio */
     margin-bottom: 20px; /* Add space below the image */
 }
 
@@ -54,24 +57,24 @@ body {
     margin-right: 10px;
     color: white;
 }
-
+/*provides a clean area for the signup form*/
 .main-content {
-    width: 70%;
-    padding: 40px;
-    background: #fff;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    position: relative;
+    width: 70%; /* Occupies the remaining 70% of the container width */
+    padding: 40px; /* Adds space around the content */
+    background: #fff; /* Sets a white background */
+    display: flex; /* Uses flex layout for child elements */
+    flex-direction: column; /* Stacks child elements vertically */
+    justify-content: center; /* Centers content vertically */
+    position: relative; /* Allows precise positioning of child elements */
 }
-
+/*create layout the header with login link for the users with existing accounts*/
 .top-bar {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    display: flex;
-    gap: 10px;
-    align-items: center;
+    position: absolute; /* Allows placement relative to the parent element */
+    top: 20px; /* Places the bar 20px from the top */
+    right: 20px; /* Aligns the bar to the right */
+    display: flex; /* Uses flex for layout */
+    gap: 10px; /* Adds space between elements */
+    align-items: center; /* Aligns items vertically */
 }
 
 .top-bar span {
@@ -87,11 +90,11 @@ body {
 .login-link:hover {
     color: #6B4DE6;
 }
-
+/*aligns the form fields neatly with consistent spacing for better user experience*/
 .signup-form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    display: flex; /* Uses flex layout */
+    flex-direction: column; /* Stacks input fields vertically */
+    gap: 10px; /* Adds space between input fields */
 }
 
 .signup-form h2 {
@@ -99,11 +102,11 @@ body {
     color: black;
     margin-top: 6%;
 }
-
+/*Standardizes input field layout and alignment*/
 .input-group {
-    position: relative;
-    width: 60%;
-    margin: 1px auto;
+    position: relative; /* Enables positioning for child elements */
+    width: 60%; /* Restricts input field width */
+    margin: 1px auto; /* Centers the input field horizontally */
 }
 
 .password-container {
@@ -129,12 +132,13 @@ input[type="password"] {
     margin: 0; /* Remove margin for terms label */
     white-space: nowrap; /* Prevent the label from breaking into multiple lines */
 }
+/*Ensures proper alignment of the terms checkbox and label for better readability*/
 .input-group.terms {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start; /* Align at the beginning */
-    width: 25%; /* Match the width of other input groups */
-    margin: 5px auto; /* Center the group */
+    display: flex; /* Arranges checkbox and label horizontally */
+    align-items: center; /* Aligns items vertically */
+    justify-content: flex-start; /* Aligns items to the left */
+    width: 25%; /* Matches other input field widths */
+    margin: 5px auto; /* Centers the group horizontally */
 }
 
 .input-group.terms input[type="checkbox"] {
@@ -157,18 +161,18 @@ input[type="password"] {
     margin: 5px 0;
     display: block;
 }
-
+/*Creates a visually appealing, responsive button for submitting the form*/
 .signup-btn {
-    background: #241E38;
-    color: white;
-    border: none;
-    padding: 15px 50px;
-    cursor: pointer;
-    border-radius: 25px;
-    font-weight: bold;
-    margin: 20px auto 0;
-    display: block;
-    width: fit-content;
+    background: #241E38; /* Sets a dark purple background */
+    color: white; /* Sets text color to white for contrast */
+    border: none; /* Removes default border */
+    padding: 15px 50px; /* Adds padding for a large, clickable button */
+    cursor: pointer; /* Changes cursor to pointer on hover */
+    border-radius: 25px; /* Creates a rounded button */
+    font-weight: bold;/* Makes the text bold */
+    margin: 20px auto 0; /* Centers the button and adds top margin */
+    display: block; /* Ensures the button is treated as a block-level element */
+    width: fit-content; /* Sizes the button to fit its content */
 }
 
 .signup-btn:hover {
@@ -182,11 +186,12 @@ input[type="password"] {
 }
 
 /* Media Queries for Responsiveness */
+/*Ensures the layout and button are mobile-friendly by adapting styles for smaller screens*/
 @media (max-width: 768px) {
     .container {
-        flex-direction: column; /* Stack sidebar and main content vertically */
-        height: auto; /* Allow container to expand based on content */
-        padding: 10px; /* Add a small gap around the container */
+        flex-direction: column; /* Stacks sidebar and content vertically */
+        height: auto; /* Allows container to expand based on content */
+        padding: 10px; /* Adds spacing around the container */
     }
 
     .sidebar {
@@ -206,8 +211,8 @@ input[type="password"] {
     }
 
     .signup-btn {
-        width: 100%; /* Full-width on small screens */
-        padding: 15px;
+        width: 100%; /* Makes the button full-width */
+        padding: 15px; /* Adds consistent padding */
     }
 }
 

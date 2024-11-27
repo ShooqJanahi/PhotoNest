@@ -1,197 +1,173 @@
 body {
-    font-family: 'Inter', sans-serif;
-    background-color: #f2f0f7;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
+    font-family: 'Inter', sans-serif; /* Sets a modern font for readability */
+    background-color: #f2f0f7; /* Light background for a clean look */
+    margin: 0; /* Removes default margin */
+    display: flex; /* Flexbox for vertical alignment of elements */
+    flex-direction: column; /* Stacks header, content, and footer vertically */
+    align-items: center; /* Centers content horizontally */
+    min-height: 100vh; /* Ensures the body takes up the full viewport height */
+    justify-content: space-between; /* Spaces out header, content, and footer */
 }
 
 /* Navbar styling */
 .navbar {
-    width: 100vw; /* Full viewport width */
-    background-color: white;
-    padding: 10px 20px;
-    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 1;
-    box-sizing: border-box; /* Ensure padding is included in total width */
+    width: 100vw; /* Spans the full viewport width */
+    background-color: white; /* Neutral background for contrast */
+    padding: 10px 20px; /* Adds inner spacing */
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for separation */
+    display: flex; /* Flexbox for aligning elements */
+    align-items: center; /* Vertically aligns logo */
+    justify-content: center; /* Centers content horizontally */
+    position: fixed; /* Keeps navbar fixed at the top */
+    top: 0; /* Positions at the very top */
+    left: 0; /* Ensures alignment with the left edge */
+    z-index: 1; /* Ensures the navbar stays above other elements */
+    box-sizing: border-box; /* Includes padding in width calculations */
 }
 
 /* Logo styling */
 .navbar .logo {
-    font-size: 24px;
-    font-weight: 700;
-    color: #000000;
-    display: flex;
-    align-items: center;
+    font-size: 24px; /* Sets the logo text size */
+    font-weight: 700; /* Makes the text bold */
+    color: #000000; /* Neutral black for text color */
+    display: flex; /* Aligns the logo text and image horizontally */
+    align-items: center; /* Vertically centers the logo components */
 }
 
 .navbar .logo i {
-    margin-right: 8px;
+    margin-right: 8px; /* Adds space between the icon and the text */
 }
 
 /* Login container styling */
 .login-container {
-    background-color: white;
-    padding: 40px 60px 40px 40px; /* Extra right padding added */
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    width: 300px;
-    margin-top: 100px; /* Adjust to account for navbar */
+    background-color: white; /* White background for contrast */
+    padding: 40px 60px; /* Adds inner spacing */
+    border-radius: 10px; /* Rounded corners for a polished look */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Adds shadow for depth */
+    text-align: center; /* Centers text within the container */
+    width: 300px; /* Fixed width for the login form */
+    margin-top: 100px; /* Adds space below the navbar */
+    margin-bottom: 50px; /* Separates the form from the footer */
+    flex-grow: 1; /* Allows the content to expand dynamically */
 }
 
 .login-container h2 {
-    margin-bottom: 20px;
-    font-weight: 600;
-    color: #333;
+    margin-bottom: 20px; /* Adds spacing below the title */
+    font-weight: 600; /* Slightly bold font for emphasis */
+    color: #333; /* Neutral gray for readability */
 }
+
 
 /* Form styling */
 .form-group {
-    margin-bottom: 20px;
-    text-align: left;
+    margin-bottom: 20px; /* Adds space between input fields */
+    text-align: left; /* Aligns labels to the left */
 }
 
 .form-group label {
-    font-weight: 500;
-    display: block;
-    margin-bottom: 5px;
+    font-weight: 500; /* Semi-bold for readability */
+    display: block; /* Ensures labels appear on a new line */
+    margin-bottom: 5px; /* Adds spacing below labels */
 }
 
 .form-group input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 25px;
-    font-size: 14px;
+    width: 100%; /* Input spans the container's width */
+    padding: 10px; /* Inner padding for larger click targets */
+    border: 1px solid #ddd; /* Light gray border for neutrality */
+    border-radius: 25px; /* Rounded input fields */
+    font-size: 14px; /* Standard font size for inputs */
 }
 
 .form-group input:focus {
-    outline: none;
-    border-color: #6c4cff;
+    outline: none; /* Removes default focus outline */
+    border-color: #6c4cff; /* Purple border on focus for branding */
 }
 
 .form-group .input-icon {
-    position: relative;
+    position: relative; /* Positions the icon relative to the input */
 }
 
 .form-group .input-icon i {
-    position: absolute;
-    left: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #6c4cff;
+    position: absolute; /* Allows precise placement within the input */
+    left: 10px; /* Positions icon inside the input */
+    top: 50%; /* Centers the icon vertically */
+    transform: translateY(-50%); /* Corrects vertical alignment */
+    color: #6c4cff; /* Matches the branding color */
 }
 
 .form-group input[type="text"],
 .form-group input[type="password"] {
-    padding-left: 30px;
+    padding-left: 30px; /* Adds space for the icon */
 }
 
 .btn {
-    background-color: #6c4cff;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 25px;
-    cursor: pointer;
-    font-size: 16px;
-    width: 100%;
+    background-color: #6c4cff; /* Branding color for buttons */
+    color: white; /* White text for contrast */
+    border: none; /* Removes default border */
+    padding: 10px 20px; /* Adds padding for a larger clickable area */
+    border-radius: 25px; /* Rounded button for consistency */
+    cursor: pointer; /* Changes cursor to pointer on hover */
+    font-size: 16px; /* Standard font size for buttons */
+    width: 100%; /* Button spans the container width */
 }
 
 .btn:hover {
-    background-color: #5a3bdb;
+    background-color: #5a3bdb; /* Darker shade on hover */
 }
+
 
 /* Footer styling */
 .footer {
-    width: 100vw; /* Full viewport width */
-    background-color: #fff;
-    padding: 20px;
-    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    box-sizing: border-box; /* Ensure padding is included in total width */
-    text-align: center;
-    position: fixed;
-    bottom: 0;
-    left: 0;
+    width: 100%; /* Footer spans the full width */
+    display: flex; /* Aligns elements horizontally */
+    justify-content: space-around; /* Spreads elements evenly */
+    align-items: center; /* Vertically centers the content */
+    padding: 20px; /* Adds inner spacing */
+    background-color: #fff; /* Matches navbar background */
+    color: #666; /* Neutral gray for secondary text */
+    font-size: 14px; /* Smaller text size */
+    box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.1); /* Shadow above for separation */
+    flex-wrap: wrap; /* Wraps items on smaller screens */
+    box-sizing: border-box; /* Includes padding in width calculations */
+    overflow-x: hidden; /* Prevents horizontal scrolling */
 }
 
-.footer nav {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
+
+.footer div {
+    text-align: center; /* Centers text inside each footer section */
 }
 
-.footer nav a {
-    margin: 0 15px;
-    color: #333;
-    text-decoration: none;
-    font-size: 14px;
+.footer .social-icons {
+    display: flex; /* Aligns social icons horizontally */
+    justify-content: center; /* Centers the icons */
+    gap: 10px; /* Adds spacing between icons */
+    margin-top: 5px; /* Adds spacing above the icons */
 }
 
-.footer .links {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
+.footer a {
+    color: #6a0dad; /* Purple color for branding */
+    text-decoration: none; /* Removes underlines from links */
+    display: block; /* Ensures consistent block layout */
+    margin-bottom: 5px; /* Adds spacing between links */
 }
 
-.footer .links div {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    align-items: center;
+.footer i {
+    margin: 0 5px; /* Adds spacing around icons */
+    font-size: 20px; /* Sets a standard size for icons */
+    color: #6a0dad; /* Matches the branding color */
 }
-
-.footer .links a {
-    text-decoration: none;
-    color: #333;
-    font-size: 14px;
-}
-
-.footer .social {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
-.footer .social i {
-    font-size: 20px;
-    margin: 0 10px;
-    color: #333;
-}
-
-.footer .copyright {
-    font-size: 14px;
-    color: #666;
-    text-align: right;
-    width: 100%;
-    margin-top: 10px;
-}  
 
 
 /* Responsive styling for tablets */
 @media (max-width: 768px) {
     .login-container {
-        width: 85%; /* Slightly smaller width for tablets */
-        padding: 25px 15px; /* Adjust padding */
+        width: 85%; /* Adjusts width for smaller screens */
+        padding: 25px 15px; /* Reduces padding */
         margin-top: 80px;
     }
 
     .navbar .logo {
-        font-size: 20px;
+        font-size: 20px; /* Reduces logo text size */
     }
 
     .form-group input {
@@ -199,15 +175,12 @@ body {
     }
 
     .btn {
-        font-size: 14px;
+        font-size: 14px; /* Reduces button font size */
     }
 
     .footer {
-        padding: 15px;
+        padding: 15px; /* Adjusts padding for compact layout */
     }
-
-    
-  
 
     .footer .links a,
     .footer .social i {
@@ -222,28 +195,23 @@ body {
 /* Responsive styling for mobile screens */
 @media (max-width: 480px) {
     .login-container {
-        width: 90%; /* Full width for smaller screens */
-        padding: 20px 10px; /* Smaller padding for mobile */
+        width: 90%; /* Adjusts width for small screens */
+        padding: 20px 10px; /* Further reduces padding */
         margin-top: 60px;
     }
 
     .navbar .logo {
-        font-size: 18px;
+        font-size: 18px; /* Smaller logo size */
     }
 
-
-    
     .form-group input {
         width: 87%;
     }
 
     .footer {
-        padding: 10px;
-        text-align: center;
+        padding: 10px; /* Compact padding */
+        text-align: center; /* Centers footer content */
     }
-
-    
-  
 
     .footer .links a,
     .footer .social i {

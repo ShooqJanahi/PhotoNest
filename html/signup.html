@@ -1,91 +1,144 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Sign Up</title>
-        <link rel="stylesheet" href="../css/signup.css">
-        <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/solid.css">
-        
-        <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png">
+<!--the below 2 lines a inportant for browsers to render the page correctly and 
+accessibility screen readers -->
+<!DOCTYPE html> <!--this line specifies the document type-->
+<html lang="en"> <!--this line declare the content language, which is english-->
 
-        <!-- Firebase App (the core Firebase SDK) -->
-        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js" type="module"></script>
-        <!-- Firebase Authentication -->
-        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js" type="module"></script>
-        <!-- Firebase Firestore -->
-        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js" type="module"></script>
-        <!-- Firebase Storage -->
-        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js" type="module"></script>
-    </head>
+
+<head>
+    <meta charset="UTF-8"> <!--ensures proper encoding of special characters-->
+
+    <!--makes the page responsive, essential for mobile friendly design-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+
+    <title>Sign Up</title> <!--set the title displayed in the browser tab-->
+
+    <link rel="stylesheet" href="../css/signup.css"> <!--link to a custom stylesheet-->
+
+    <!--external stylesheet for icons used in the form-->
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/solid.css">
+
+    <!--adds a favicon (icon in the browser tab) for branding and visual identification of the website-->
+    <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png">
+
+    <!-- Firebase App (the core Firebase SDK) for integrating backend services-->
+     <!--the firebase-app.js core is required for any firebase project-->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js" type="module"></script>
+    
+    <!-- Firebase Authentication -->
+     <!--firebase-auth.js enables authentication functionalities-->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js" type="module"></script>
+   
+    <!-- Firebase Firestore -->
+     <!--firebase-firestore.js provides functionalities to store user data-->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js" type="module"></script>
+   
+    <!-- Firebase Storage -->
+     <!--firebase-storage.js manages file uploads, such as the profile picture-->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js" type="module"></script>
+
+</head>
+
 <body>
-    <div class="container">
-        <div class="sidebar">
-            
-            <div class="logo">
-                <img src="../assets/SignUp.png" alt="Illustration of a person standing confidently with one foot resting on a purple block displaying the @ symbol. Behind them, there are large stylized purple and black leaves and small plants on a dark purple background">
+    <div class="container"> <!--Wraps the main content for styling and layout-->
+
+        <!--====================================LEFT SIDEBAR===========================================-->
+        <div class="sidebar"> <!--Contains branding and features of the application-->
+
+            <div class="logo"> <!--Displays an image to visually represent the page-->
+                <img src="../assets/SignUp.png"
+                    alt="Illustration of a person standing confidently with one foot resting on a purple block displaying the @ symbol. Behind them, there are large stylized purple and black leaves and small plants on a dark purple background">
             </div>
 
-            
+        <!--Lists key features of the platform to attract users and highlight the application's capabilities.-->
             <h2>Features include</h2>
             <ul>
+                <!--Icons are added for visual enhancement-->
                 <li><i class="uis uis-check-circle"></i> Effortless Photo Organization</li>
                 <li><i class="uis uis-check-circle"></i> Connect with Friends</li>
                 <li><i class="uis uis-check-circle"></i> Seamless Sharing Options</li>
                 <li><i class="uis uis-check-circle"></i> Advanced Search Filters</li>
             </ul>
+            <!--end of the features list-->
+
         </div>
+        <!--========================================END OF LEFT SIDEBAR===============================-->
+       
+        <!--Provides a link to the login page for users who already have an account-->
         <div class="main-content">
             <div class="top-bar">
                 <span>Already have an Account?</span>
                 <a href="./login.html" class="login-link">Login</a>
             </div>
+
+            <!--Defines the sign-up form for collecting user information-->
             <form class="signup-form">
                 <h2>Sign Up</h2>
+
+                <!--Collects the user's first name-->
                 <div class="input-group">
                     <label for="first-name">First Name</label>
-                    <input type="text" id="first-name" name="first-name" placeholder="First Name" required>
+                    <input type="text" id="first-name" name="first-name" placeholder="First Name" required> <!--The required attribute ensures the field is not left blank-->
                 </div>
+
+                <!--Collects the user's last name-->
                 <div class="input-group">
                     <label for="last-name">Last Name</label>
                     <input type="text" id="last-name" name="last-name" placeholder="Last Name">
                 </div>
+
+                <!--Collects the user's username-->
                 <div class="input-group">
                     <label for="username">Username</label>
-                    <input type="text" id="username" name="username" placeholder="Username" required>
+                    <input type="text" id="username" name="username" placeholder="Username" required> <!--The required attribute ensures the field is not left blank-->
                 </div>
+
+                <!--Collects the user's email-->
                 <div class="input-group">
                     <label for="email">Email</label>
-                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required> <!--The required attribute ensures the field is not left blank-->
                 </div>
+
+                 <!--Collects the user's Phone number-->
                 <div class="input-group">
                     <label for="phone">Phone Number</label>
-                    <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required>
+                    <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required> <!--The required attribute ensures the field is not left blank-->
                 </div>
+
+                 <!--Collects the user's password-->
                 <div class="input-group">
                     <label for="password">Password</label>
                     <div class="password-container">
-                        <input type="password" id="password" name="password" placeholder="Password" required>
+                        <input type="password" id="password" name="password" placeholder="Password" required> <!--The required attribute ensures the field is not left blank-->
                         <i class="toggle-password fas fa-eye" id="toggle-password"></i>
                     </div>
                 </div>
+
+                 <!--Confirm the collected password-->
                 <div class="input-group">
                     <label for="repeat-password">Repeat Password</label>
                     <div class="password-container">
-                        <input type="password" id="repeat-password" name="repeat-password" placeholder="Repeat password" required>
+                        <input type="password" id="repeat-password" name="repeat-password" placeholder="Repeat password"
+                            required> <!--The required attribute ensures the field is not left blank-->
                         <i class="toggle-password fas fa-eye" id="toggle-repeat-password"></i>
                     </div>
                 </div>
+
+                <!--Adds a checkbox for users to agree to terms and conditions.-->
                 <div class="input-group terms">
-                    <input type="checkbox" id="terms" name="terms" required>
+                    <input type="checkbox" id="terms" name="terms" required> <!--The required attribute ensures the field is not left blank-->
                     <label for="terms">I agree to the <a href="./Terms.html">Terms and Privacy Policy</a></label>
                 </div>
-                <button type="submit" class="signup-btn">Sign Up</button>
-                <p class="recaptcha">Protected by reCAPTCHA and the Google Privacy Policy.</p>
+
+
+                <button type="submit" class="signup-btn">Sign Up</button> <!--submits the form to firebase-->
+                
             </form>
+
         </div>
     </div>
-    <!-- Link the new Signup.js -->
+    
+    <!--Links the Signup.js script, which handles form validation, Firebase integration, and other interactive features-->
     <script type="module" src="../js/Signup.js"></script>
 </body>
+
 </html>

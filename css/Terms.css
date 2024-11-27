@@ -1,103 +1,121 @@
 /* General styling */
 body {
-    font-family: 'Inter', sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f8f8fc;
-    color: #333;
-    overflow-x: hidden; /* Prevent horizontal scrolling on the body */
-    max-width: 100%; /* Ensure body width does not exceed viewport */
+    font-family: 'Inter', sans-serif; /* Sets the primary font for the page */
+    margin: 0; /* Removes default margin */
+    padding: 0; /* Removes default padding */
+    background-color: #f8f8fc; /* Light background for a clean look */
+    color: #333; /* Dark gray text for readability */
+    overflow-x: hidden; /* Prevents horizontal scrolling */
+    max-width: 100%; /* Ensures the page width does not exceed the viewport */
 }
 
 .header {
-    display: flex;
-    align-items: center;
-    padding: 20px;
-    background-color: #fff;
-    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
-    position: fixed;
-    width: 100%; /* Adjust to fit within the viewport */
-    top: 0;
-    left: 0;
-    z-index: 1000;
-    height: auto;
-    box-sizing: border-box; /* Ensure padding does not cause overflow */
-    overflow-x: hidden; /* Prevent horizontal scrolling */
+    display: flex; /* Creates a horizontal layout for header elements */
+    align-items: center; /* Vertically aligns items within the header */
+    justify-content: space-between; /* Distributes space between elements evenly */
+    padding: 10px 20px; /* Adds inner spacing for a compact look */
+    background-color: #fff; /* White background for contrast */
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow for depth */
+    position: fixed; /* Fixes the header at the top of the page */
+    width: 100%; /* Ensures the header spans the full width */
+    top: 0; /* Positions the header at the top */
+    left: 0; /* Aligns the header to the left edge */
+    z-index: 1000; /* Ensures the header appears above other elements */
+    box-sizing: border-box; /* Includes padding in the element's dimensions */
+    height: auto; /* Allows the header height to adjust dynamically */
 }
 
-.header a {
-    color: #6a0dad;
-    text-decoration: none;
-    font-size: 16px;
-    margin-right: auto;
+.logo {
+    display: flex; /* Aligns logo elements horizontally */
+    align-items: center; /* Vertically centers logo elements */
+    justify-content: flex-start; /* Aligns the logo to the left */
+}
+  
+.logo-image {
+    width: 30px; /* Sets a small size for the logo */
+    height: auto; /* Maintains the aspect ratio */
+    margin-right: 8px; /* Adds spacing between the logo and text */
+}
+
+.title h1 {
+    font-size: 16px; /* Sets a smaller font size for the title */
+    color: #6a0dad; /* Purple color for branding */
+    margin: 0; /* Removes default margin */
+    text-align: right; /* Aligns the title text to the right */
+}
+
+h1, h2, h3 {
+    margin: 0; /* Remove default margin to reduce extra spacing */
 }
 
 .header h1 {
     font-size: 18px;
     color: #6a0dad;
-    margin: 0;
+   
 }
 
+/*Content Section*/
 .content {
-    width: calc(100% - 40px);
-    max-width: 900px;
-    margin: 100px auto 20px;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    box-sizing: border-box;
-    overflow-x: hidden; /* Prevent horizontal overflow */
+    width: calc(100% - 40px); /* Reduces width slightly for padding on both sides */
+    max-width: 900px; /* Limits the content width for better readability */
+    margin: 100px auto 20px; /* Centers content vertically and horizontally */
+    padding: 20px; /* Adds inner spacing */
+    background-color: #fff; /* White background for contrast with the page */
+    border-radius: 8px; /* Rounded corners for a polished look */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow */
+    box-sizing: border-box; /* Includes padding in the element's dimensions */
+    overflow-x: hidden; /* Prevents horizontal scrolling */
 }
 
 /* Footer styling */
 .footer {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    padding: 20px;
-    background-color: #fff;
-    color: #666;
-    font-size: 14px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    flex-wrap: wrap;
-    box-sizing: border-box; /* Include padding in the width calculation */
-    overflow-x: hidden; /* Prevent horizontal overflow */
+    display: flex; /* Aligns footer elements horizontally */
+    justify-content: space-around; /* Spreads elements evenly across the footer */
+    align-items: center; /* Vertically centers footer content */
+    padding: 20px; /* Adds inner spacing */
+    background-color: #fff; /* Matches the header's background color */
+    color: #666; /* Light gray text for secondary emphasis */
+    font-size: 14px; /* Smaller font size for footer content */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Adds shadow for separation */
+    flex-wrap: wrap; /* Allows elements to wrap on smaller screens */
+    box-sizing: border-box; /* Includes padding in the element's width */
+    overflow-x: hidden; /* Prevents horizontal scrolling */
 }
 
 .footer div {
-    text-align: center;
+    text-align: center; /* Centers text inside each footer section */
 }
 
 .footer .social-icons {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 5px;
+    display: flex; /* Aligns social icons horizontally */
+    justify-content: center; /* Centers the icons */
+    gap: 10px; /* Adds spacing between icons */
+    margin-top: 5px; /* Adds spacing above the icons */
 }
 
 .footer a {
-    color: #6a0dad;
-    text-decoration: none;
-    display: block;
-    margin-bottom: 5px;
+    color: #6a0dad; /* Purple color for branding */
+    text-decoration: none; /* Removes underlines from links */
+    display: block; /* Ensures consistent block layout */
+    margin-bottom: 5px; /* Adds spacing between links */
 }
 
 .footer i {
-    margin: 0 5px;
-    font-size: 20px;
-    color: #6a0dad;
+    margin: 0 5px; /* Adds spacing around icons */
+    font-size: 20px; /* Sets a standard size for icons */
+    color: #6a0dad; /* Matches the branding color */
 }
+
 
 /* Responsive styling for footer */
 @media only screen and (max-width: 1024px) {
     .header, .content {
-        padding: 15px;
-        overflow-x: hidden; /* Prevent horizontal scrolling on tablets */
+        padding: 15px; /* Reduces padding */
+        overflow-x: hidden; /* Prevents horizontal scrolling */
     }
 
     .content {
-        margin-top: 80px;
+        margin-top: 80px; /* Adjusts top margin */
     }
 
     .content h2, .content p, .content ul li {
@@ -106,8 +124,8 @@ body {
 
     /* Stack footer items vertically on tablet screens */
     .footer {
-        flex-direction: column;
-        text-align: center;
+        flex-direction: column; /* Stacks footer elements vertically */
+        text-align: center; /* Centers footer text */
         padding: 15px;
     }
 
@@ -117,8 +135,8 @@ body {
 
     /* Move social icons to the end */
     .footer .social-icons {
-        order: 3;
-        margin-top: 10px;
+        order: 3; /* Moves social icons to the last position */
+        margin-top: 10px; /* Adds spacing above the icons */
     }
 }
 
@@ -153,16 +171,16 @@ body {
 
 @media only screen and (max-width: 600px) {
     .header, .content {
-        padding: 5px;
+        padding: 5px; /* Reduces padding further */
         overflow-x: hidden; /* Prevent horizontal scrolling on phones */
     }
 
     .content {
-        margin-top: 60px;
+        margin-top: 60px; /* Adjusts spacing for smaller screens */
     }
 
     .footer {
-        flex-direction: column;
+        flex-direction: column; /* Stacks footer elements vertically */
         padding: 10px;
         overflow-x: hidden; /* Prevent horizontal overflow on phones */
     }
@@ -201,3 +219,4 @@ body {
         gap: 6px;
     }
 }
+

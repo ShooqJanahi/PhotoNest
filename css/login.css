@@ -1,148 +1,156 @@
-
-
+/*Ensures a consistent and modern appearance for the entire page with a neutral background*/
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
-    margin: 0;
-    padding: 0;
+    font-family: Arial, sans-serif; /* Sets a clean, readable font */
+    background-color: #f0f0f0; /* Light gray background for contrast */
+    margin: 0; /* Removes default margin */
+    padding: 0; /* Removes default padding */
 }
 
+/*Creates a flexible structure for managing the two main sections of the page*/
 .container {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
+    display: flex; /* Enables flexbox for layout management */
+    flex-direction: column; /* Stacks sections vertically by default */
+    height: 100vh; /* Full viewport height for a balanced layout */
 }
 
+/*Ensures both sections adapt dynamically to available space*/
 .left-section, .right-section {
-    flex: 1;
-    padding: 20px;
+    flex: 1; /* Ensures equal space allocation between sections */
+    padding: 20px; /* Adds spacing within each section */
 }
 
+/*=============================== LEFT SECTION ===================================*/
+/* Ensures the left section is visually distinct, with centered content and responsive design*/
 .left-section {
-    background-color: #4A3E74;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
+    background-color: #4A3E74; /* Purple background for branding */
+    color: white; /* Contrasts well with the background */
+    display: flex; /* Enables flexbox for alignment */
+    flex-direction: column; /* Stacks content vertically */
+    justify-content: center; /* Centers content vertically */
+    align-items: center; /* Centers content horizontally */
+    text-align: center; /* Centers text alignment */
 }
 
 .left-section img {
-    max-width: 100%;
-    height: auto;
+    max-width: 100%; /* Ensures the image is fully responsive */
+    height: auto; /* Maintains the aspect ratio */
 }
 
 .left-section h2 {
-    font-weight: 700;
-    line-height: 38px;
-    margin: 20px 0;
+    font-weight: 700; /* Makes the heading bold */
+    line-height: 38px; /* Improves readability */
+    margin: 20px 0; /* Adds space above and below the heading */
 }
+/*============================= END OF LEFT SECTION ==========================================*/
 
+/*=============================== RIGHT SECTION==========================================*/
+/*Creates a clean and professional space for the login form*/
 .right-section {
-    background-color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    background-color: white; /* Clean background for form */
+    display: flex; /* Enables flexbox */
+    flex-direction: column; /* Stacks content vertically */
+    justify-content: center; /* Centers content vertically */
+    align-items: center; /* Centers content horizontally */
 }
 
 .logo {
-    max-width: 150px;
-    margin-bottom: 20px;
+    max-width: 150px; /* Restricts the logo size */
+    margin-bottom: 20px; /* Adds spacing below the logo */
 }
 
 form {
-    display: flex;
-    flex-direction: column;
-    width: 80%;
+    display: flex; /* Uses flexbox for the form layout */
+    flex-direction: column; /* Stacks form elements vertically */
+    width: 80%; /* Restricts the form width */
 }
 
 label {
-    margin: 10px 0 5px;
+    margin: 10px 0 5px; /* Adds spacing around labels */
 }
 
 input {
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 25px; /* Rounded corners */
+    padding: 10px; /* Adds inner spacing for better usability */
+    margin-bottom: 10px; /* Adds spacing below each input field */
+    border: 1px solid #ccc; /* Light border for inputs */
+    border-radius: 25px; /* Rounded corners for modern design */
 }
 
 button {
-    padding: 10px;
-    background-color: #4A3E74;
-    color: white;
-    border: none;
-    border-radius: 25px; /* Rounded corners */
-    cursor: pointer;
-    margin-top: 20px;
+    padding: 10px; /* Adds inner spacing for the button */
+    background-color: #4A3E74; /* Purple background matching branding */
+    color: white; /* Text color contrasts with the button */
+    border: none; /* Removes default border */
+    border-radius: 25px; /* Rounded corners for consistency */
+    cursor: pointer; /* Changes cursor to pointer on hover */
+    margin-top: 20px; /* Adds space above the button */
 }
 
 button:hover {
-    background-color: #6B4DE6;
+    background-color: #6B4DE6; /* Changes color on hover for feedback */
 }
 
 a {
-    color: #6B4DE6;
-    text-decoration: none;
-    margin-top: 10px;
-    text-align: center;
+    color: #6B4DE6; /* Light purple color for links */
+    text-decoration: none; /* Removes underline for a cleaner look */
+    margin-top: 10px; /* Adds spacing above links */
+    text-align: center; /* Centers the link */
 }
 
 a:hover {
-    text-decoration: underline;
+    text-decoration: underline; /* Adds underline on hover for feedback */
 }
 
 .new-here-container {
-    margin-top: 20px;
-    text-align: center;
+    margin-top: 20px; /* Adds space above the container */
+    text-align: center; /* Centers content inside the container */
 }
 
 .new-here-label {
-    display: block;
-    margin: 10px 0 5px; /* Same style as labels */
-    text-align: center; /* Center the label */
-    margin-top: 50px;
+    display: block; /* Makes the label a block element */
+    margin: 10px 0 5px; /* Adds spacing around the label */
+    text-align: center; /* Centers the text */
+    margin-top: 50px; /* Adds additional space above the label */
 }
 
 /* Media Queries for Responsiveness */
 @media (min-width: 768px) {
     .container {
-        flex-direction: row;
+        flex-direction: row; /* Aligns sections side-by-side */
     }
 
     .left-section, .right-section {
-        flex: 1;
-        padding: 40px;
+        flex: 1; /* Ensures equal width for both sections */
+        padding: 40px; /* Increases padding for larger screens */
     }
 
     form {
-        width: 60%;
+        width: 60%; /* Increases form width for better usability */
     }
 }
 
 @media (min-width: 1024px) {
     .left-section img {
-        max-width: 80%;
+        max-width: 80%; /* Restricts the image size for larger screens */
     }
 
     form {
-        width: 50%;
+        width: 50%; /* Restricts form width for better visual balance */
     }
 }
 
 @media (max-width: 767px) {
     .left-section h2 {
-        font-size: 24px;
-        line-height: 32px;
+        font-size: 24px; /* Reduces font size for smaller screens */
+        line-height: 32px; /* Adjusts line height for readability */
     }
 
     .right-section {
-        padding: 20px;
+        padding: 20px; /* Adds inner spacing for better usability */
     }
 
     form {
-        width: 90%;
+        width: 90%; /* Expands form width for smaller screens */
     }
 }
+
+

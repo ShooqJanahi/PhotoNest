@@ -1,46 +1,53 @@
+<!--AddUser.html-->
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add User</title>
-    <link rel="stylesheet" href="../css/AddUser.css">
-    <script type="module" src="../js/AddUser.js"></script>
-    <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png">
+    <meta charset="UTF-8"> <!-- Specifies character encoding for the document -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Makes the page responsive -->
+    <title>Add User</title> <!-- Title displayed in the browser tab -->
+    <link rel="stylesheet" href="../css/AddUser.css"> <!-- Links to the CSS file for styling -->
+    <script type="module" src="../js/AddUser.js"></script> <!-- Links to the JavaScript file for functionality -->
+    <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png"> <!-- Adds a favicon -->
 </head>
 <body>
-    <div class="card"> <!-- Add this div for the white card background -->
-        <form class="add-user-form">
-            <h2>Add User</h2>
-            <div class="input-group">
-                <label for="first-name">First Name</label>
-                <input type="text" id="first-name" name="first-name" placeholder="First Name" required>
-            </div>
-            <div class="input-group">
-                <label for="last-name">Last Name</label>
-                <input type="text" id="last-name" name="last-name" placeholder="Last Name">
-            </div>
-            <div class="input-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" placeholder="Username" required>
+    <div class="card"> <!-- Container for the form with a white background styled as a card -->
+        <form class="add-user-form"> <!-- Form for adding a new user -->
+            <h2>Add User</h2> <!-- Form heading -->
+
+            <div class="input-group"> <!-- Input group for first name -->
+                <label for="first-name">First Name</label> <!-- Label for first name -->
+                <input type="text" id="first-name" name="first-name" placeholder="First Name" required> <!-- Input field for first name -->
             </div>
 
-            <div class="input-group">
-                <label for="role">Role</label>
-                <input type="text" id="role" name="role" placeholder="Enter user role" required>
-            </div>
-            <div class="input-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            <div class="input-group"> <!-- Input group for last name -->
+                <label for="last-name">Last Name</label> <!-- Label for last name -->
+                <input type="text" id="last-name" name="last-name" placeholder="Last Name"> <!-- Input field for last name -->
             </div>
 
-            <div class="input-group">
-                <label for="phone">Phone Number</label>
-                <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required>
+            <div class="input-group"> <!-- Input group for username -->
+                <label for="username">Username</label> <!-- Label for username -->
+                <input type="text" id="username" name="username" placeholder="Username" required> <!-- Input field for username -->
+            </div>
+
+            <div class="input-group"> <!-- Input group for role -->
+                <label for="role">Role</label> <!-- Label for user role -->
+                <input type="text" id="role" name="role" placeholder="Enter user role" required> <!-- Input field for user role -->
+            </div>
+
+            <div class="input-group"> <!-- Input group for email -->
+                <label for="email">Email</label> <!-- Label for email -->
+                <input type="email" id="email" name="email" placeholder="Enter your email" required> <!-- Input field for email -->
+            </div>
+
+            <div class="input-group"> <!-- Input group for phone number -->
+                <label for="phone">Phone Number</label> <!-- Label for phone number -->
+                <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required> <!-- Input field for phone number -->
             </div>
             
-            <button type="submit" class="signup-btn">Add User</button>
-            <button type="button" class="cancel-btn" onclick="window.location.href='../html/UserManagement.html';">Cancel</button>
+            <button type="submit" class="signup-btn">Add User</button> <!-- Submit button to add user -->
+            <button type="button" class="cancel-btn" onclick="window.location.href='../html/UserManagement.html';">Cancel</button> <!-- Cancel button to redirect to user management page -->
 
         </form>
     </div>
