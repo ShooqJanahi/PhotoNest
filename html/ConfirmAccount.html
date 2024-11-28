@@ -1,68 +1,94 @@
+<!--ConfirmAccount.html-->
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verfiy Account</title>
+    <meta charset="UTF-8"> <!-- Sets character encoding to UTF-8 for broad character support -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Ensures the page is responsive -->
+    <title>Confirm Account</title> <!-- Sets the browser tab title -->
+
+    <!-- Links to external resources for icons and fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
-    <link rel="stylesheet" href="../css/ConfirmAccount.css">
+    <link rel="stylesheet" href="../css/ConfirmAccount.css"> <!-- Links to the custom CSS file -->
 
-       <!-- ICONSCOUT -->
-       <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/line.css">
+    <!-- ICONSCOUT -->
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/line.css">
 
+    <!-- Favicon for branding -->
     <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png">
 </head>
+
 <body>
+
     <div class="navbar">
         <div class="logo">
-            <img src="../assets/PhotoNest_Transparent.png" alt="PhotoNest Logo" style="height: 24px; margin-right: 8px;">
+            <img src="../assets/PhotoNest_Transparent.png" alt="PhotoNest Logo"
+                style="height: 24px; margin-right: 8px;">
             PhotoNest
         </div>
-        
+
     </div>
+
     <div class="login-container">
-        <h2>Confirm Login to PhotoNest</h2>
-        <div class="form-group">
-            <label for="username">Username</label>
-            <div class="input-icon">
-                <i class="fas fa-user"></i>
-                <input type="text" id="username" placeholder="Enter your username">
+        <h2>Confirm Account</h2>
+        <form id="confirm-account-form"> <!-- Form for account confirmation -->
+            <div class="form-group">
+                <label for="username">Username</label> <!-- Label for the username field -->
+                <div class="input-icon">
+                    <i class="fas fa-user"></i> </i> <!-- Font Awesome icon for visual aid --> 
+                    <input type="text" id="username" placeholder="Enter your username" required> <!-- Username input -->
+                </div>
             </div>
-        </div>
-        <div class="form-group">
-            <label for="password">Password</label>
-            <div class="input-icon">
-                <i class="fas fa-lock"></i>
-                <input type="password" id="password" placeholder="Enter your password">
+            <div class="form-group">
+                <label for="password">Password</label> <!-- Label for the password field -->
+                <div class="input-icon">
+                    <i class="fas fa-lock"></i> <!-- Font Awesome icon for visual aid -->
+                    <input type="password" id="password" placeholder="Enter your password" required> <!-- Password input -->
+                </div>
             </div>
-        </div>
-       
-        <button class="btn">Login</button>
+            <button type="submit" class="btn">Confirm</button> <!-- Submit button -->
+        </form>
     </div>
     
+
+    <!-- Footer Section -->
     <div class="footer">
-        <div class="links">
-            <div>
-                <a href="index.html">Home</a>
-                <a href="#">Privacy Policy</a>
-                <a href="Terms.html">Terms and conditions</a>
+        <div>
+            <h4>Contact Us</h4>
+            <a href="mailto:contact@PhotoNest.com">Email: contact@PhotoNest.com</a> <!-- Support email -->
+        </div>
+        <div>
+            <h4>Follow Us</h4>
+            <div class="social-icons"> <!-- Social media icons -->
+                <a href="https://www.facebook.com/profile.php?id=61566861417599"><i class="fab fa-facebook-f"></i></a>
+
+                <a href="https://www.instagram.com/photonest.bh/"><i class="fab fa-instagram"></i></a>
             </div>
-            
+            <div class="copyright">
+                &copy; 2024 PhotoNest <!-- Copyright notice -->
+            </div>
         </div>
-        <div class="social">
-            <span>Follow us</span>
-            <a href="https://www.facebook.com/profile.php?id=61566861417599" class="contact__option" target="_blank">
-                <i class="uil uil-facebook-messenger-alt"></i>
-            </a>
-           
-            <a href="https://www.instagram.com/photonest.bh/" class="contact__option" target="_blank">
-                <i class="uil uil-instagram"></i>
-            </a>
+
+        <div>
+
+            <a href="index.html">Home</a><!-- Home link -->
+            <a href="terms.html#privacy-policy">Privacy Policy</a> <!-- Link to privacy policy -->
+            <a href="terms.html#TermsAndCondition">Terms and Conditions</a> <!-- Link to terms and conditions -->
         </div>
-        <div class="copyright">
-            &copy; 2024 PhotoNest
-        </div>
+
+
     </div>
+    <!--Handles login functionality (e.g., validating credentials with Firebase)-->
+    <script type="module" src="../js/ConfirmAccount.js"></script>
+
+    <!--Contains Firebase configuration and initialization-->
+    <script type="module" src="../js/firebaseConfig.js"></script>
+
+
 </body>
+
 </html>
+
+

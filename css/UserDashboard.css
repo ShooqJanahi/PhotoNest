@@ -1,3 +1,5 @@
+/*UserDashboard.css*/
+
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap");
 
 :root {
@@ -38,17 +40,28 @@
   border: none;
 }
 
-::-webkit-scrollbar {
-  display: none;
-}
+
 
 body {
   font-family: "Poppins", sans-serif;
   color: var(--color-dark);
   background: var(--color-light);
-  overflow-x: hidden;
+  overflow-y: scroll; /* Ensure scrollability */
+    scroll-behavior: smooth; /* Smooth scrolling */
 }
 
+body::-webkit-scrollbar {
+  width: 10px; /* Set the width of the scrollbar */
+}
+
+body::-webkit-scrollbar-thumb {
+  background: var(--color-gray); /* Thumb color */
+  border-radius: 10px; /* Rounded scrollbar */
+}
+
+body::-webkit-scrollbar-track {
+  background: var(--color-light); /* Track color */
+}
 /* GENERAL STYLES */
 .container {
   width: 80%;
@@ -67,12 +80,14 @@ body {
 }
 
 
-.profile-photo {
+.profile-photo, .user-profile {
   width: 2.7rem;
   aspect-ratio: 1/1;
   border-radius: 50%;
   overflow: hidden;
 }
+
+
 
 img {
   display: block;
@@ -165,8 +180,29 @@ main .container {
 
 /* =================== LEFT ================ */
 main .container .left {
-  height: 100vh;
+  height: calc(100vh - 5.4rem); /* Full viewport height minus header */
+  position: sticky; /* Make sidebar sticky */
+  top: 5.4rem; /* Stick below the header */
+  background: var(--color-white); /* Background color for sidebar */
+  border-radius: var(--card-border-radius); /* Rounded corners */
+  padding: var(--card-padding); /* Padding around content */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for visibility */
+  overflow-y: auto; /* Allow internal scrolling if content exceeds height */
 }
+
+main .container .left::-webkit-scrollbar {
+  width: 8px; /* Narrower scrollbar for sidebar */
+}
+
+main .container .left::-webkit-scrollbar-thumb {
+  background: var(--color-gray); /* Thumb color for sidebar */
+  border-radius: 4px; /* Rounded scrollbar for sidebar */
+}
+
+main .container .left::-webkit-scrollbar-track {
+  background: var(--color-light); /* Track color for sidebar */
+}
+
 
 main .container .left .profile {
   padding: var(--card-padding);
@@ -179,10 +215,12 @@ main .container .left .profile {
 }
 
 /* -------------- SIDEBAR ------------------ */
+/* Sidebar Menu Styling */
 .left .sidebar {
-  margin-top: 1rem;
-  background: var(--color-white);
-  border-radius: var(--card-border-radius);
+  margin-top: 1rem; /* Add spacing at the top */
+  background: var(--color-white); /* Background for the menu */
+  border-radius: var(--card-border-radius); /* Rounded corners */
+  padding: 0; /* Remove extra padding */
 }
 
 .left #close-btn {
@@ -192,14 +230,48 @@ main .container .left .profile {
 .left .sidebar .menu-item {
   display: flex;
   align-items: center;
-  height: 4rem;
-  cursor: pointer;
-  transition: all 300ms ease;
+  height: 4rem; /* Consistent height for items */
+  cursor: pointer; /* Pointer cursor for clickable items */
+  transition: all 300ms ease; /* Smooth hover effect */
   position: relative;
+  padding: 0.5rem 1rem; /* Internal spacing for menu items */
+  border-radius: 0.5rem; /* Rounded corners for menu items */
 }
 
 .left .sidebar .menu-item:hover {
-  background: var(--color-light);
+  background: var(--color-light); /* Highlight background on hover */
+}
+
+.left .sidebar .menu-item i {
+  font-size: 1.4rem; /* Icon size */
+  color: var(--color-gray); /* Icon color */
+  margin-right: 1rem; /* Space between icon and text */
+}
+
+.left .sidebar .menu-item h3 {
+  font-size: 1rem; /* Font size for menu text */
+  color: var(--color-dark); /* Text color */
+}
+
+/* Active Menu Item Styling */
+.left .sidebar .menu-item.active {
+  background: var(--color-light); /* Highlight active item */
+}
+
+.left .sidebar .menu-item.active i,
+.left .sidebar .menu-item.active h3 {
+  color: var(--color-primary); /* Highlight active text and icon */
+}
+
+.left .sidebar .menu-item.active::before {
+  content: ""; /* Visual indicator for active item */
+  display: block;
+  width: 0.3rem;
+  height: 100%;
+  background: var(--color-primary); /* Color of the active indicator */
+  position: absolute;
+  left: 0;
+  top: 0;
 }
 
 .left .sidebar i {
@@ -259,40 +331,33 @@ main .container .left .profile {
   padding: 1rem 0;
 }
 
-/* ----------------------- NOTIFICATION POPUP ---------------- */
-.left .notifications-popup {
-  position: absolute;
-  top: 0;
-  left: 110%;
-  width: 30rem;
-  background: var(--color-white);
-  border-radius: var(--card-border-radius);
-  padding: var(--card-padding);
-  box-shadow: 0 0 2rem rgba(0, 0, 0, 0.1);
-  z-index: 8;
-  display: none;
-}
-
-.left .notifications-popup::before {
-  content: "";
-  width: 1.2rem;
-  height: 1.2rem;
-  display: block;
-  background: var(--color-white);
-  position: absolute;
-  left: -0.6rem;
-  transform: rotate(45deg);
-}
-
-.left .notifications-popup > div {
+/*upload photo icon in the header */
+.upload-link {
   display: flex;
-  align-items: start;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none; /* Remove underline */
+  width: 2.7rem; /* Match the profile picture size */
+  height: 2.7rem; /* Match the profile picture size */
+  border-radius: 50%; /* Make it circular */
+  background-color: var(--color-light); /* Add a subtle background */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Add some shadow */
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-.left .notifications-popup small {
-  display: block;
+.upload-link i {
+  font-size: 1.2rem; /* Adjust icon size */
+  color: var(--color-primary); /* Match your theme */
+}
+
+.upload-link:hover {
+  background-color: var(--color-primary); /* Highlight on hover */
+  color: var(--color-white); /* Change icon color on hover */
+  transform: scale(1.1); /* Slightly enlarge on hover */
+}
+
+.upload-link:active {
+  transform: scale(0.95); /* Add click feedback */
 }
 
 /* ============================= MIDDLE ================================ */
@@ -400,6 +465,30 @@ main .container .left .profile {
   margin: 0.7rem 0;
 }
 
+/*Activity log*/
+.activity-item-content {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.activity-profile {
+  margin-right: 10px;
+}
+
+.activity-profile-pic {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.activity-details {
+  flex: 1;
+}
+
+
+
 .middle .feed .action-buttons {
   display: flex;
   justify-content: space-between;
@@ -407,6 +496,19 @@ main .container .left .profile {
   font-size: 1.4rem;
   margin: 0.6rem;
 }
+
+/*when liked the icon turn red*/
+.uil-heart.liked {
+  color: red; /* Highlighted color for likes */
+  transition: color 0.3s ease;
+}
+
+
+.liked {
+  color: var(--color-primary); /* Highlighted color */
+}
+
+
 
 .middle .liked-by {
   display: flex;

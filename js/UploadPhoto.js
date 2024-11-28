@@ -1,14 +1,14 @@
-//UploadPhoto.ja
+//UploadPhoto.js
 
 // Import Firebase services
-import { db, storage } from './firebaseConfig.js'; // Ensure `storage` is imported
-import { collection, addDoc, query, where, getDocs, doc, updateDoc, increment } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
-import { ref, uploadBytesResumable, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js';
-import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+import { db, storage } from './firebaseConfig.js'; //Imports db (Firestore) and storage (Firebase Storage)
+import { collection, addDoc, query, where, getDocs, doc, updateDoc, increment, getDoc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js'; //Firestore methods for database operations
+import { ref, uploadBytesResumable, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js'; //Firebase Storage methods to handle file uploads and retrieve URLs
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js'; //Firebase Authentication methods to manage user sessions and verify authentication
 
 
 // Firebase Authentication
-const auth = getAuth();
+const auth = getAuth(); //Initializes Firebase authentication
 
 // Allowed image formats
 const allowedImageFormats = ['image/jpeg', 'image/png', 'image/gif'];
@@ -20,19 +20,19 @@ document.addEventListener('DOMContentLoaded', () => {
     checkUserAuthentication(); // Ensure user authentication
     setupHashtags(); // Initialize hashtag functionality
 
-     // Change upload label text and check file format immediately after file selection
-     document.getElementById('fileInput').addEventListener('change', (event) => {
-        const file = event.target.files[0];
+    //  Handles file input changes. Validates file type and size. Updates the upload label or displays error messages for invalid files
+    document.getElementById('fileInput').addEventListener('change', (event) => {
+        const file = event.target.files[0]; // Access the selected file
         if (file) {
             if (allowedImageFormats.includes(file.type) && file.size <= maxFileSizeMB * 1024 * 1024) {
                 document.querySelector('.upload-label span').textContent = file.name; // Update label with file name
             } else if (file.size > maxFileSizeMB * 1024 * 1024) {
                 alert(`File size exceeds ${maxFileSizeMB}MB. Please select a smaller file.`);
-                event.target.value = ''; // Clear the file input
+                event.target.value = ''; // Clear invalid input
                 document.querySelector('.upload-label span').textContent = 'Upload image'; // Reset label text
             } else {
                 alert('Invalid file format. Please select a valid image file (JPEG, PNG, GIF).');
-                event.target.value = ''; // Clear the file input
+                event.target.value = ''; // Clear invalid input
                 document.querySelector('.upload-label span').textContent = 'Upload image'; // Reset label text
             }
         } else {
@@ -42,12 +42,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
+//Hides the page content while checking authentication status
 function checkUserAuthentication() {
     document.body.style.display = "none"; // Hide the page content initially
 
-    onAuthStateChanged(auth, user => {
+    //Checks the user role and retrieves additional user data from Firestore
+    onAuthStateChanged(auth, async (user) => {
         if (!user) {
-            redirectToLogin(); // Redirect to login if not authenticated
+            redirectToLogin(); // Redirect if role is not "user"
         } else {
             // Retrieve the role from session storage
             const userRole = sessionStorage.getItem("role");
@@ -55,27 +57,47 @@ function checkUserAuthentication() {
             if (userRole !== "user") {
                 redirectToLogin(); // Redirect to login if not a "user"
             } else {
+                // Fetch the username from Firestore
+                try {
+                    const userDocRef = doc(db, "users", auth.currentUser.uid);
+                    const userDoc = await getDoc(userDocRef);
+
+                    if (userDoc.exists()) {
+                        const username = userDoc.data().username;
+                        sessionStorage.setItem("username", username); // Store username
+                        console.log("Access granted for user with username:", username);
+                    } else {
+                        console.error("User document not found in Firestore.");
+                    }
+                } catch (error) {
+                    console.error("Error fetching user document:", error);
+                }
+
                 document.body.style.display = "block"; // Show the page content
                 console.log("Access granted for user with role:", userRole);
             }
         }
+
     });
 }
 
-// Redirect to login function
+// Redirects unauthorized users to the login page
 function redirectToLogin() {
-    window.location.href = '../html/Login.html'; // Redirect to the login page
+    window.location.href = '../html/Login.html'; // Redirect to login page
 }
 
 
 // Handle file upload and save data to Firestore
 document.querySelector('.upload-btn').addEventListener('click', async () => {
+
+    //Collects form data such as caption, location, privacy status, and user ID
     const caption = document.getElementById('caption').value;
     const city = document.getElementById('city').value.trim().toLowerCase();
     const country = document.getElementById('country').value.trim().toLowerCase();
     const isPrivate = document.getElementById('private').checked;
     const userId = auth.currentUser?.uid;
 
+    //Validates that a user is logged in and a file is selected
     if (!userId || !document.getElementById('fileInput').files[0]) {
         alert('Please select an image to upload and ensure you are logged in.');
         return;
@@ -86,6 +108,7 @@ document.querySelector('.upload-btn').addEventListener('click', async () => {
         return;
     }
 
+    //Creates a unique filename and reference for Firebase Storage
     const file = document.getElementById('fileInput').files[0];
     const fileName = `${userId}_${Date.now()}_${file.name}`;
     const storageRef = ref(storage, `photos/${fileName}`);
@@ -110,10 +133,10 @@ document.querySelector('.upload-btn').addEventListener('click', async () => {
 
     // Start the upload process
     const uploadTask = uploadBytesResumable(storageRef, file);
-console.log("Starting upload for file:", file.name);
+    console.log("Starting upload for file:", file.name);
 
 
-    // Monitor upload progress
+    // Monitor upload progress, by Updating the progress bar and text during file upload
     uploadTask.on(
         "state_changed",
         (snapshot) => {
@@ -127,6 +150,8 @@ console.log("Starting upload for file:", file.name);
             console.error("Error uploading file:", error);
             alert('Failed to upload photo. Please try again.');
         },
+
+        //Saves the uploaded photo's metadata in Firestore. Resets the form after successful upload
         async () => {
             // Handle upload success
             try {
@@ -135,8 +160,7 @@ console.log("Starting upload for file:", file.name);
 
                 // Retrieve hashtags from the input
                 const hashtags = getHashtagsFromInput(); // Extract hashtags from the input
-                 
-                
+
                 await addDoc(collection(db, 'Photos'), {
                     caption,
                     city,
@@ -148,10 +172,13 @@ console.log("Starting upload for file:", file.name);
                     likesCount: 0,
                     commentsCount: 0,
                     hashtags, // Save hashtags in the photo document
+
                 });
-                
+                const username = sessionStorage.getItem("username") || "unknown user";
+                await logActivity(userId, "photoUploaded", `Photo uploaded with caption: ${caption}`);
+
                 // Update the label text with the uploaded photo name
-            document.querySelector('.upload-label span').textContent = file.name;
+                document.querySelector('.upload-label span').textContent = file.name;
 
                 // Save hashtags to Firestore and increment their photo count
                 await saveHashtagsToFirestore(hashtags);
@@ -171,6 +198,7 @@ console.log("Starting upload for file:", file.name);
 
 // Function to check and add/update location and photo count
 async function checkAndAddOrUpdateLocation(city, country) {
+
     const locationsRef = collection(db, "Location");
     const q = query(locationsRef, where("city", "==", city), where("country", "==", country));
     const querySnapshot = await getDocs(q);
@@ -181,7 +209,11 @@ async function checkAndAddOrUpdateLocation(city, country) {
             city,
             country,
             photoCount: 1
+
         });
+        const username = sessionStorage.getItem("username") || "unknown user";
+        await logActivity(auth.currentUser?.uid, "locationCreated", `Location created: ${city}, ${country}`);
+
     } else {
         // Increment photoCount if location exists
         const locationDoc = querySnapshot.docs[0];
@@ -203,6 +235,10 @@ async function saveHashtagsToFirestore(hashtags) {
 
         if (querySnapshot.empty) {
             await addDoc(hashtagRef, { hashtag, photoCount: 1 });
+            const username = sessionStorage.getItem("username") || "unknown user";
+            await logActivity(auth.currentUser?.uid, "hashtagCreated", `Hashtag created: ${hashtag}`);
+
+
         } else {
             const hashtagDoc = querySnapshot.docs[0];
             const hashtagDocRef = doc(db, 'Hashtag', hashtagDoc.id);
@@ -252,7 +288,7 @@ const countryInput = document.getElementById("country");
 const citySuggestions = document.getElementById("city-suggestions");
 const countrySuggestions = document.getElementById("country-suggestions");
 
-// Autocomplete for city
+// Autocomplete for city. Fetches city suggestions based on user input and displays them dynamically
 cityInput.addEventListener("input", async (event) => {
     const input = event.target.value.toLowerCase();
     citySuggestions.innerHTML = ""; // Clear previous suggestions
@@ -288,7 +324,7 @@ cityInput.addEventListener("input", async (event) => {
     citySuggestions.style.display = "block"; // Show suggestions
 });
 
-// Autocomplete for country
+// Autocomplete for country, Fetches country suggestions based on user input and displays them dynamically
 countryInput.addEventListener("input", async (event) => {
     const input = event.target.value.toLowerCase();
     countrySuggestions.innerHTML = ""; // Clear previous suggestions
@@ -350,7 +386,7 @@ countryInput.addEventListener("focus", () => {
 // Enhance caption input with hashtag suggestions
 const captionInput = document.getElementById('caption');
 const wordCountDisplay = document.getElementById('word-count');
-const maxLetters = 200; // Set the letter limit
+const maxLetters = 200; // Set the characters limit
 
 
 // Enhance caption input with letter counting and hashtag suggestions
@@ -367,11 +403,11 @@ captionInput.addEventListener('input', async () => {
         wordCountDisplay.textContent = `${maxLetters} / ${maxLetters} letters`;
     }
 
-    
+
 });
 
 
-// Hashtag functionality
+// Handles hashtag functionality such as adding hashtags
 function setupHashtags() {
     const hashtagInput = document.getElementById('hashtagInput');
     const hashtagWrapper = document.getElementById('hashtag-wrapper');
@@ -443,3 +479,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// Logs user actions like photo uploads and hashtag creation to Firestore
+async function logActivity(userId, category, message) {
+    const activityLogRef = collection(db, "ActivityLogs");
+    const timestamp = new Date().toISOString();
+
+    try {
+        await addDoc(activityLogRef, {
+            userId: userId,
+            category: category,
+            message: message,
+            timestamp: timestamp
+        });
+        const username = sessionStorage.getItem("username") || "unknown user";
+        console.log(`Activity logged: ${category} - ${message} by ${username}`);
+
+    } catch (error) {
+        console.error("Error logging activity:", error);
+    }
+}

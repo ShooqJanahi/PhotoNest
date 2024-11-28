@@ -1,67 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <!-- jQuery for the map -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Photo Details</title>
+    <meta charset="UTF-8"> <!-- Sets character encoding to UTF-8 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Ensures the page is responsive -->
+    <title>Photo Upload</title> <!-- Sets the browser tab title -->
+
+    <!-- External Stylesheets -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
-    <link rel="stylesheet" href="../css/UploadPhoto.css">
+    <!-- Font Awesome icons -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="../css/UploadPhoto.css"> <!-- Custom styles -->
+
+    <!-- Favicon -->
     <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png">
 
-    <!-- Firebase SDKs -->
+    <!-- Firebase SDKs for app, authentication, Firestore, and storage -->
     <script type="module" src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
     <script type="module" src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
     <script type="module" src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
     <script type="module" src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js"></script>
 
-    <!-- Local JavaScript files as modules -->
+    <!-- Link to local JavaScript files -->
     <script type="module" src="../js/UploadPhoto.js"></script>
-    <script type="module" src="../js/login.js"></script>
+    <script type="module" src="../js/login.js"></script> <!--to track the session storage-->
 </head>
-<body>
-    <div class="container">
-        <h1>Upload your photo</h1>
-        <p>Start by selecting an image</p>
-        
-        <label for="caption">Caption</label>
-    <textarea id="caption" placeholder="Type your caption here..."></textarea>
-    <div id="word-count" class="word-count">0 / 200 letters</div>
 
-    <div class="hashtag-container">
-        <label for="hashtagInput">Add Hashtags</label>
-        <div id="hashtag-wrapper">
-            <input type="text" id="hashtagInput" placeholder="Type a hashtag and press space...">
+<body>
+    <div class="container"> <!-- main container for the content of the page -->
+        <h1>Upload your photo</h1> <!-- Displays the page title -->
+        <p>Start by selecting an image</p><!-- introductory message -->
+
+        <label for="caption">Caption</label>
+        <textarea id="caption" placeholder="Type your caption here..."></textarea> <!-- add a caption -->
+        <div id="word-count" class="word-count">0 / 200 characters</div>
+        <!-- word count dynamically, limited to 200 characters -->
+
+        <!-- input for hashtags -->
+        <div class="hashtag-container">
+            <label for="hashtagInput">Add Hashtags</label>
+            <div id="hashtag-wrapper">
+                <input type="text" id="hashtagInput" placeholder="Type a hashtag and press space...">
+            </div>
+            <small id="hashtag-warning" class="warning" style="display: none;">Maximum 5 hashtags allowed or invalid
+                hashtag.</small>
         </div>
-        <small id="hashtag-warning" class="warning" style="display: none;">Maximum 5 hashtags allowed or invalid hashtag.</small>
-    </div>
-        
+
+        <!-- Allows users to specify the city and country for the photo -->
         <div class="location-container">
             <label for="city">City</label>
             <div class="input-container">
                 <input type="text" id="city" placeholder="Type city..." autocomplete="off">
                 <div id="city-suggestions" class="suggestions"></div>
             </div>
-        
+
             <label for="country">Country</label>
             <div class="input-container">
                 <input type="text" id="country" placeholder="Type country..." autocomplete="off">
                 <div id="country-suggestions" class="suggestions"></div>
             </div>
         </div>
-        
-        
-        
-        
 
+        <!-- option to mark the photo as private -->
         <div class="checkbox-container">
             <input type="checkbox" id="private">
             <label for="private">Make image private?</label>
         </div>
-        
+
+        <!-- file input for users to upload an image -->
         <div class="upload-section">
             <input type="file" id="fileInput" accept="image/*" style="display: none;">
             <label for="fileInput" class="upload-label">
@@ -70,7 +81,7 @@
             </label>
         </div>
 
-        <!-- Progress Display Element -->
+        <!-- Displays the upload progress with a bar and percentage text -->
         <div id="UpProgress" class="progress-container">
             <div id="progress-bar-container">
                 <div id="progress-bar"></div>
@@ -78,8 +89,9 @@
             <span id="progress-text">Upload 0%</span>
         </div>
 
-        <button class="upload-btn">Upload</button>
-        <button class="cancel-btn">Cancel</button>
+        <button class="upload-btn">Upload</button> <!-- initiates the upload process -->
+        <button class="cancel-btn">Cancel</button> <!-- lets users abort the process -->
     </div>
 </body>
-</html>  
+
+</html>

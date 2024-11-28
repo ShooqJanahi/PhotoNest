@@ -1,38 +1,60 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="../css/login.css">
+<!DOCTYPE html> <!--Defines the document as an HTML5 document-->
+<html lang="en"> <!--Specifies the document language as English for accessibility-->
 
-    <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png">
+<head>
+    <meta charset="UTF-8"> <!--Ensures proper encoding of characters-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--Makes the page responsive, adapting its layout to various screen sizes-->
+    <title>Login</title><!--Sets the title in the browser tab.-->
+    <link rel="stylesheet" href="../css/login.css"> <!--Links an external CSS file for styling-->
+
+    <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png"><!--Sets the favicon for the website-->
 </head>
+
 <body>
-    <div class="container">
-        <div class="left-section">
-            <img src="../assets/login_connect.png" alt="Illustration of two people standing near a large smartphone screen displaying an image of a woman in a flamingo-shaped pool float. The background features purple trees and a heart icon, symbolizing social media engagement.">
-            <h2>Connect with friends, anytime, anywhere.</h2>
-            <p>Stay in touch with loved ones, easily.</p>
+    <div class="container"> <!--A wrapper element that holds the two sections of the page-->
+        <div class="left-section"> <!--Contains visual elements and a brief description to engage users-->
+            <!--Displays an illustration for aesthetic purposes with an alt attribute for accessibility-->
+            <img src="../assets/login_connect.png"
+                alt="Illustration of two people standing near a large smartphone screen displaying an image of a woman in a flamingo-shaped pool float. The background features purple trees and a heart icon, symbolizing social media engagement.">
+
+            <h2>Connect with friends, anytime, anywhere.</h2> <!--Highlights the main message of the left section-->
+            <p>Stay in touch with loved ones, easily.</p> <!--Provides additional context-->
         </div>
-        <div class="right-section">
-            <img src="../assets/PhotoNest_Transparent.png" alt="PhotoNest logo featuring a purple camera with stylized wings extending from each side, symbolizing creativity and freedom in photography." class="logo">
-            <h1>Log in</h1>
-            <form class="login-form" method="POST">
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" required>
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
-                <a href="#">Forgot your password?</a>
-                <button type="submit">Log in</button>
+
+        <!--============================ LOGIN FORM ================================-->
+        <div class="right-section"> <!--Contains the login-->
+
+            <!--Displays the "PhotoNest" logo, reinforcing branding-->
+            <img src="../assets/PhotoNest_Transparent.png"
+                alt="PhotoNest logo featuring a purple camera with stylized wings extending from each side, symbolizing creativity and freedom in photography."
+                class="logo"> 
+
+            <h1>Log in</h1> <!-- Displays the main heading for the section-->
+            <form class="login-form" method="POST"> <!--Creates the login form, using the POST method for secure data submission-->
+               
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required> <!--Collect the user's username, Ensures the fields are not left empty -->
+
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required> <!--Collect the user's password, Ensures the fields are not left empty -->
+
+                <a href="Terms.html#forget">Forgot your password?</a> <!--Provides a link for password recovery-->
+               
+                <button type="submit">Log in</button> <!--A button for form submission-->
+                
+                <!--Adds a prompt for new users to navigate to the sign-up page-->
                 <div class="new-here-container">
                     <label class="new-here-label">New Here?</label>
                     <a href="signup.html">Sign up</a>
                 </div>
+
             </form>
         </div>
+        <!--============================= LOGIN FORM ==============================-->
     </div>
-    <script type="module" src="../js/login.js"></script>
-    <script type="module" src="../js/firebaseConfig.js"></script>
+    <script type="module" src="../js/login.js"></script> <!--Handles login functionality (e.g., validating credentials with Firebase)-->
+    <script type="module" src="../js/firebaseConfig.js"></script> <!--Contains Firebase configuration and initialization-->
 </body>
+
 </html>

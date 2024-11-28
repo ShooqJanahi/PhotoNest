@@ -1,52 +1,271 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+    <!-- Meta tags -->
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PhotoNest</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
-    <link rel="stylesheet" href="../css/Settings.css"> <!-- Link to the external CSS file -->
+    <title>Home</title>
 
+    <!-- ICONSCOUT CDN for icons -->
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v2.1.6/css/unicons.css">
+
+    <!-- Custom stylesheet -->
+    <link rel="stylesheet" href="../css/Settings.css">
+
+
+    <!--font Awesome CDN-->
+    <link rel="stylesheet" href= "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
+    
+    <!-- Favicon -->
     <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png">
-</head>
-<body>
-    <div class="navbar">
-        <div class="logo">
-            <i class="fas fa-camera"></i> PhotoNest
-        </div>
-        <div class="icons">
-            <i class="fas fa-bell"></i>
-            <i class="fas fa-cog"></i>
-            <a href="#" class="logout">Logout</a>
-        </div>
-    </div>
-    <div class="container">
-        <div class="section">
-            <h2>Update Profile</h2>
-            <label for="name">First Name</label>
-            <input type="text" id="firstname" placeholder="Enter your first name">
-            <label for="name">Last Name</label>
-            <input type="text" id="lastname" placeholder="Enter your last name">
 
-            <label for="username">Username</label>
-            <input type="text" id="username" placeholder="Enter your new username">
-            <label for="bio">Bio</label>
-            <input type="text" id="bio" placeholder="Bio">
-            <label for="link">Link</label>
-            <input type="text" id="link" placeholder="Enter link">
-        </div>
-        <div class="section">
-            <h2>Change Profile Image</h2>
-            <div class="profile-image">
-                <img src="https://placehold.co/80x80" alt="Profile Image Placeholder">
-                <a href="#" class="upload-btn">Upload New Image</a>
+    <!-- jQuery -->
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- Firebase SDKs -->
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
+
+    <!-- Firebase Initialization and app scripts as modules -->
+    <script type="module" src="../js/firebaseConfig.js"></script>
+    <script type="module" src="../js/login.js"></script>
+    <script type="module" src="../js/Settings.js"></script>
+    
+
+</head>
+
+
+<body>
+    <nav>
+        <div class="container">
+            <div class="logo">
+                <img src="../assets/PhotoNest_Transparent.png" alt="PhotoNest Logo" class="logo-image">
+                <h2 class="log">PhotoNest</h2>
+            </div>
+
+            <div class="search-bar">
+                <i class="uil uil-search"></i>
+                <input type="search" placeholder="Search for creators, inspirations, and projects">
+            </div>
+            <div class="create">
+
+                <a href="UploadPhoto.html" class="upload-link">
+                    <i class="fa-solid fa-camera"></i>
+                </a>
+                
+
+                <div class="profile-photo">
+                    <img src="../assets/Default_profile_icon.jpg" id="topnav-profile-image" alt="User Profile Picture">
+                </div>
+
+                <!-- menu button to show sidebar -->
+                <button id="menu-btn"><i class="uil uil-bars"></i></button>
             </div>
         </div>
-        <div class="buttons">
-            <button class="save">Save</button>
-            <button class="cancel">Cancel</button>
+    </nav>
+
+    <!------------------------- MAIN -------------------------->
+    <main>
+        <div class="container">
+            <!--======================== LEFT ==========================-->
+            <div class="left">
+                
+
+                <!-- Profile Information Card -->
+  
+                <a class="profile">
+                    <div class="profile-photo">
+                        <img src="../assets/Default_profile_icon.jpg" id="sidebar-profile-image" alt="User Profile Picture">
+                    </div>
+                    <div class="handle">
+                        <h4 id="profile-name">Loading...</h4>
+                        <p class="text-muted" id="profile-username">@loading</p>
+                    </div>
+                </a>
+
+                <!-- close button -->
+                <span id="close-btn"><i class="uil uil-multiply"></i></span>
+
+                <!-------------------- SIDEBAR ------------------------->
+                
+                <div class="sidebar">
+                    <a class="menu-item " href="UserDashboard.html#home">
+                        <span><i class="uil uil-home"></i></span>
+                        <h3>Home</h3>
+                    </a>
+                    <a class="menu-item" href="UserDashboard.html#explore">
+                        <span><i class="uil uil-compass"></i></span>
+                        <h3>Explore</h3>
+                    </a>
+                    <a class="menu-item" id="notifications">
+                        <span><i class="uil uil-bell"><small class="notification-count">9+</small></i></span>
+                        <h3>Notifications</h3>
+                    </a>
+                    <a class="menu-item" id="messages-notification">
+                        <span><i class="uil uil-envelope-alt"><small class="notification-count">6</small></i></span>
+                        <h3>Messages</h3>
+                    </a>
+                    <a class="menu-item">
+                        <span><i class="uil uil-bookmark"></i></span>
+                        <h3>Bookmarks</h3>
+                    </a>
+                    <a class="menu-item">
+                        <span><i class="uil uil-chart-line"></i></span>
+                        <h3>Analytics</h3>
+                    </a>
+                    
+                    <a class="menu-item active" href="Settings.html">
+                        <span><i class="uil uil-setting"></i></span>
+                        <h3>Settings</h3>
+                    </a>
+                </div>
+               
+                <!------------------- END OF SIDEBAR -------------------->
+                <a href="UploadPhoto.html" class="btn btn-primary">Create Post</a>
+            </div>
+            <!------------------- END OF LEFT -------------------->
+
+ <!--======================== MIDDLE ==========================-->
+ <div class="middle">
+    <div class="faqs__item profile-accordion" data-aos="fade-in" data-aos-delay="200">
+        <div class="faqs__item-top">
+            <span class="faq__icon"><i class="uil uil-angle-down"></i></span>
+            <h5>Edit Profile</h5>
+        </div>
+        <div class="faqs__item-bottom">
+            <div class="card">
+                <!-- Profile Section -->
+                <div class="section profile-image">
+                    <img id="Changeprofile-image" src="../assets/Default_profile_icon.jpg" alt="Profile Image">
+                    <a href="#" class="upload-btn">Upload New Image</a>
+                </div>
+
+
+                <!-- User Info Form -->
+                <div class="section">
+                    <h2>Personal Information</h2>
+                    <label for="firstName">First Name</label>
+                    <input type="text" id="firstName" placeholder="Enter your first name">
+
+                    <label for="lastName">Last Name</label>
+                    <input type="text" id="lastName" placeholder="Enter your last name">
+
+                    <label for="email">Email</label>
+                    <input type="text" id="email" placeholder="email">
+
+                    <label for="username">Username</label>
+                    <input type="text" id="username" placeholder="Enter your new username">
+                    <label for="bio">Bio</label>
+                    <input type="text" id="bio" placeholder="Bio">
+                    <label for="link">Link</label>
+                    <input type="text" id="link" placeholder="Enter link">
+
+                    <h2>Change Password</h2>
+                    <label for="password">Current Password</label>
+                    <input type="text" id="password" placeholder="password">
+                    <label for="link">Change password</label>
+                    <input type="text" id="Change_password" placeholder="Change Password">
+                    <label for="link">Confirm password</label>
+                    <input type="text" id="Confirm_password" placeholder="Confirm Password">
+                </div>
+
+                <!-- Buttons Section -->
+                <div class="buttons">
+                    <button class="save">Save Changes</button>
+                    <button class="cancel">Cancel</button>
+                </div>
+            </div>
         </div>
     </div>
+
+     <!-- Blocked Users Card -->
+     <div class="faqs__item profile-accordion" data-aos="fade-in" data-aos-delay="300">
+        <div class="faqs__item-top">
+            <span class="faq__icon"><i class="uil uil-angle-down"></i></span>
+            <h5>Blocked Users</h5>
+        </div>
+        <div class="faqs__item-bottom">
+            <div class="card">
+                <!-- Blocked Users List Section -->
+                <div class="section blocked-users">
+                    <h2>Blocked Users</h2>
+                    <!-- Example Blocked User -->
+                    <div class="blocked-user">
+                        <img src="../assets/Default_profile_icon.jpg" alt="User Profile" class="user-profile-img">
+                        <div class="user-details">
+                            <h3 class="username">JohnDoe</h3>
+                            <button class="unblock-btn">Unblock</button>
+                        </div>
+                    </div>
+                    <!-- Add more blocked users dynamically -->
+                    <div id="blockedUsersContainer"></div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+ <!-- Community Dropdown -->
+ <div class="faqs__item profile-accordion" data-aos="fade-in" data-aos-delay="400">
+    <div class="faqs__item-top">
+        <span class="faq__icon"><i class="uil uil-angle-down"></i></span>
+        <h5>Community</h5>
+    </div>
+    <div class="faqs__item-bottom">
+        <div class="card">
+            <p>Community content goes here.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Support Dropdown -->
+<div class="faqs__item profile-accordion" data-aos="fade-in" data-aos-delay="500">
+    <div class="faqs__item-top">
+        <span class="faq__icon"><i class="uil uil-angle-down"></i></span>
+        <h5>Support</h5>
+    </div>
+    <div class="faqs__item-bottom">
+        <div class="card">
+            <p>Support content goes here.</p>
+        </div>
+    </div>
+</div>
+
+<!-- About Dropdown -->
+<div class="faqs__item profile-accordion" data-aos="fade-in" data-aos-delay="600">
+    <div class="faqs__item-top">
+        <span class="faq__icon"><i class="uil uil-angle-down"></i></span>
+        <h5>About</h5>
+    </div>
+    <div class="faqs__item-bottom">
+        <div class="card">
+            <p>About content goes here.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Logout and Delete Account Card -->
+<div class="card" data-aos="fade-in" data-aos-delay="700">
+    <div class="section buttons">
+        <button class="logout">Logout</button>
+        <button class="delete-account">Delete Account</button>
+    </div>
+</div>
+</div>
+
+
+<!------------------------ END OF MIDDLE ------------------------>
+
+           
+                    
+        </div>
+    </main>
+
+
+
 </body>
+
 </html>

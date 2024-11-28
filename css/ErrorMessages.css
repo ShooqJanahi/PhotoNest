@@ -1,111 +1,119 @@
+/*by using this approch we ensure a clean and centered layout for the content*/
 body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Inter', sans-serif;
-    background-color: #f4f3fb; /* Slightly different background color, choose one or keep both for different sections */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+    margin: 0; /* Removes default margin */
+    padding: 0; /* Removes default padding */
+    font-family: 'Inter', sans-serif; /* Sets the font for the entire page */
+    background-color: #f4f3fb; /* Light purple/gray background for a soft aesthetic */
+    display: flex; /* Centers content using Flexbox */
+    justify-content: center; /* Horizontally centers the content */
+    align-items: center; /* Vertically centers the content */
+    height: 100vh; /* Makes the body height equal to the viewport height */
 }
 
-/* General Card Styles */
+
+/* Styles the main container to create a polished card layout. Also Makes the container responsive by using percentages and a maximum width */
 .card, .error-container {
-    background-color: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    padding: 70px;
-    width: 90%;
-    max-width: 800px;
-    box-sizing: border-box; /* Include padding in width calculation */
+    background-color: #ffffff; /* White background for the card */
+    border-radius: 12px; /* Rounded corners for a smooth look */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    text-align: center; /* Centers the text inside the card */
+    padding: 70px; /* Adds padding for inner spacing */
+    width: 90%; /* Ensures the card takes up 90% of the width */
+    max-width: 800px; /* Sets a maximum width for larger screens */
+    box-sizing: border-box; /* Includes padding in the width calculation */
 }
 
+/*Ensures images are appropriately sized and maintain their aspect ratio. Also Adds spacing to separate the image from subsequent content*/
 .card img, .error-container img {
-    width: 100px;
-    height: auto;
-    margin-bottom: 20px;
+    width: 100px; /* Sets a consistent width for the images */
+    height: auto; /* Maintains the aspect ratio */
+    margin-bottom: 20px; /* Adds spacing below the image */
 }
 
+/*Provides clear and visually appealing typography for headings and text. Also Ensures proper spacing for readability and hierarchy*/
 .card h2, .error-container h1 {
-    font-size: 24px;
-    font-weight: 700;
-    color: #333333;
-    margin-bottom: 10px;
+    font-size: 24px; /* Sets a consistent font size for headings */
+    font-weight: 700; /* Makes the text bold */
+    color: #333333; /* Dark gray for readability */
+    margin-bottom: 10px; /* Adds spacing below the heading */
+}
+.card p, .error-container p {
+    font-size: 16px; /* Sets a standard font size for paragraphs */
+    color: #666666; /* Lighter gray for contrast with the heading */
+    margin-bottom: 30px; /* Adds spacing below paragraphs */
 }
 
-.card p, .error-container p {
-    font-size: 16px;
-    color: #666666; /* Adjust color for consistency */
-    margin-bottom: 30px;
-}
 
 .button-group {
-    display: flex;
-    justify-content: center;
-    gap: 10px; /* Adjust gap for consistency */
-    margin-bottom: 20px;
+    display: flex; /* Aligns buttons horizontally */
+    justify-content: center; /* Centers the button group */
+    gap: 10px; /* Adds spacing between buttons */
+    margin-bottom: 20px; /* Adds spacing below the button group */
 }
 
 .button-group a {
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 600;
-    padding: 10px 50px; /* Consistent padding */
-    border-radius: 30px; /* Consistent border-radius */
-    transition: background-color 0.3s;
-    display: inline-block;
+    text-decoration: none; /* Removes underline from links */
+    font-size: 14px; /* Sets a standard font size for buttons */
+    font-weight: 600; /* Makes the text slightly bold */
+    padding: 10px 50px; /* Adds padding for larger clickable areas */
+    border-radius: 30px; /* Rounds the button edges */
+    transition: background-color 0.3s; /* Smooth background color change on hover */
+    display: inline-block; /* Ensures buttons are inline-block elements */
 }
 
 .retry-button, .button-group a {
-    background-color: #6c63ff;
-    color: #ffffff;
+    background-color: #6c63ff; /* Purple background for primary buttons */
+    color: #ffffff; /* White text for contrast */
 }
 
 .retry-button:hover, .button-group a:hover {
-    background-color: #5a54d1;
+    background-color: #5a54d1; /* Darker purple on hover for feedback */
 }
 
 .homepage-button {
-    background-color: #f0f0f0;
-    color: #333333;
+    background-color: #f0f0f0; /* Light gray for secondary buttons */
+    color: #333333; /* Dark text for readability */
 }
 
 .homepage-button:hover {
-    background-color: #e0e0e0;
+    background-color: #e0e0e0; /* Slightly darker gray on hover */
 }
 
 /* Responsive Media Queries */
 @media (max-width: 768px) {
     .card, .error-container {
-        padding: 20px;
+        padding: 20px; /* Reduces padding for smaller screens */
     }
 
     .card img, .error-container img {
-        width: 80px;
+        width: 80px; /* Reduces image size */
     }
 
     .card h2, .error-container h1 {
-        font-size: 20px;
+        font-size: 20px; /* Reduces heading font size */
     }
 
     .card p, .error-container p, .card .note {
-        font-size: 14px;
+        font-size: 14px; /* Adjusts text size for readability */
     }
 
     .button-group a {
-        padding: 8px 16px;
-        font-size: 12px;
+        padding: 8px 16px; /* Reduces button padding for smaller screens */
+        font-size: 12px; /* Reduces font size */
     }
 }
 
 @media (max-width: 480px) {
     .card, .error-container {
-        width: 80%; /* Slightly increase width on very small screens */
+        width: 80%; /* Uses 80% of the width for very small screens */
     }
 
     .button-group {
-        flex-direction: column;
-        gap: 5px;
+        flex-direction: column; /* Stacks buttons vertically */
+        gap: 5px; /* Reduces spacing between buttons */
     }
 }
+
+
+
+
