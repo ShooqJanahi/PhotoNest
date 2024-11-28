@@ -1,91 +1,86 @@
 body, html {
-    margin: 0;
-    padding: 0;
-    font-family: 'Inter', sans-serif;
-    background: url('../assets/UploadPhoto.png') no-repeat center center fixed;
-    background-size: cover;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+    margin: 0; /* Removes default margin */
+    padding: 0; /* Removes default padding */
+    font-family: 'Inter', sans-serif; /* Sets a modern, clean font */
+    background: url('../assets/UploadPhoto.png') no-repeat center center fixed; /* Adds a fixed background image */
+    background-size: cover; /* Ensures the background image covers the entire screen */
+    display: flex; /* Flexbox for centering content */
+    justify-content: center; /* Horizontally centers the container */
+    align-items: center; /* Vertically centers the container */
+    min-height: 100vh; /* Ensures the height spans the full viewport */
 }
 
 .container {
-    position: relative; /* Ensure relative positioning for internal elements */
-    max-width: 600px; /* Set a fixed maximum width for regular screens */
-    width: 90%; /* Stretch up to 90% of the viewport width */
-    margin: 20px auto; /* Center the container horizontally and add vertical spacing */
-    padding: 20px; /* Add padding for spacing inside the container */
-    border: 1px solid #ccc; /* Add a subtle border */
-    border-radius: 10px; /* Add rounded corners */
+    position: relative; /* Allows absolute positioning for child elements */
+    max-width: 600px; /* Limits the container width */
+    width: 90%; /* Adjusts width for smaller screens */
+    margin: 20px auto; /* Centers the container horizontally and adds vertical spacing */
+    padding: 20px; /* Adds inner spacing */
+    border: 1px solid #ccc; /* Subtle border for structure */
+    border-radius: 10px; /* Rounded corners for modern design */
     background-color: #fff; /* White background for clarity */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Add a shadow for better aesthetics */
-    overflow: hidden; /* Ensure no overflowing content */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    overflow: hidden; /* Prevents content overflow */
 }
 
-
-
 h1 {
-    font-size: 22px;
-    font-weight: 700;
-    margin-bottom: 10px;
-    text-align: center;
+    font-size: 22px; /* Larger font size for emphasis */
+    font-weight: 700; /* Bold font for importance */
+    margin-bottom: 10px; /* Adds spacing below */
+    text-align: center; /* Centers the text */
 }
 
 p {
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 15px;
-    text-align: center;
+    font-size: 14px; /* Standard paragraph font size */
+    color: #666; /* Light gray for less emphasis */
+    margin-bottom: 15px; /* Adds spacing below */
+    text-align: center; /* Centers the paragraph */
 }
 
 label {
-    display: block;
-    font-size: 12px;
-    color: #888;
-    margin-bottom: 5px;
+    display: block; /* Forces labels onto their own line */
+    font-size: 12px; /* Smaller font size for labels */
+    color: #888; /* Light gray for subtlety */
+    margin-bottom: 5px; /* Adds spacing below */
 }
 
 #caption {
-    margin-top: 20px; /* Add margin to ensure separation */
-    z-index: 10; /* Keep it above other elements */
-    position: relative;
+    margin-top: 20px; /* Adds spacing above */
+    z-index: 10; /* Ensures it is above other elements */
+    position: relative; /* For proper stacking context */
 }
 
 .hashtag-container {
-    margin: 20px 0;
-    position: relative;
-    z-index: 5; /* Keep it below caption input */
+    margin: 20px 0; /* Adds vertical spacing */
+    position: relative; /* Ensures stacking for child elements */
+    z-index: 5; /* Stays below the caption */
 }
 
 #hashtag-wrapper {
-    display: flex;
-    flex-wrap: wrap; /* Allow wrapping to the next row */
-    gap: 5px; /* Space between hashtags */
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 5px; /* Minimal padding */
-    max-height: 150px; /* Optional: Limit height with scroll */
-    overflow-y: auto; /* Add vertical scroll when exceeding height */
-    width: 100%; /* Full width of the container */
-    background-color: #f9f9f9; /* Light background color */
+    display: flex; /* Aligns hashtags in a row */
+    flex-wrap: wrap; /* Wraps hashtags to the next row if needed */
+    gap: 5px; /* Adds space between hashtags */
+    border: 1px solid #ccc; /* Light border for structure */
+    border-radius: 5px; /* Slightly rounded corners */
+    padding: 5px; /* Adds inner padding */
+    max-height: 150px; /* Limits the height */
+    overflow-y: auto; /* Adds vertical scrolling when needed */
+    width: 100%; /* Fills the container width */
+    background-color: #f9f9f9; /* Light background for contrast */
 }
 
 .hashtag-circle {
-    background-color: #6c63ff;
-    color: white;
-    padding: 2px 6px; /* Minimal padding to tightly wrap around the text */
-    border-radius: 12px; /* Slightly rounded corners */
-    display: inline-flex;
-    align-items: center;
-    gap: 4px; /* Space between the text and the close button */
-    font-size: 12px; /* Adjust font size to fit within the smaller box */
-    height: auto; /* Allow the height to adjust to the content */
-    white-space: nowrap; /* Prevent text from wrapping */
+    background-color: #6c63ff; /* Purple for branding */
+    color: white; /* White text for contrast */
+    padding: 2px 6px; /* Adds minimal padding */
+    border-radius: 12px; /* Circular design */
+    display: inline-flex; /* Aligns text and remove button in a row */
+    align-items: center; /* Vertically centers content */
+    gap: 4px; /* Adds space between text and button */
+    font-size: 12px; /* Smaller font size */
+    height: auto; /* Adjusts height to fit content */
+    white-space: nowrap; /* Prevents text wrapping */
 }
-
-
-
 
 #hashtagInput {
     border: none;
@@ -96,50 +91,45 @@ label {
     width: 100%; /* Ensure the input spans the width */
 }
 
-
-
 .hashtag-circle .remove-hashtag {
-    background: none;
-    border: none;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
+    background: none; /* Removes button background */
+    border: none; /* Removes border */
+    color: white; /* Matches hashtag text color */
+    font-weight: bold; /* Makes the text bold */
+    cursor: pointer; /* Indicates clickable element */
 }
 
 .warning {
-    color: red;
-    font-size: 12px;
-    margin-top: 5px;
-    position: absolute;
+    color: red; /* Highlights warnings in red */
+    font-size: 12px; /* Small font size for subtlety */
+    margin-top: 5px; /* Adds spacing above */
+    position: absolute; /* Allows precise placement */
 }
-
 
 /* Location Input Styling */
 .location-container {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+    display: flex; /* Stacks inputs vertically */
+    flex-direction: column; /* Default direction for child elements */
+    gap: 15px; /* Adds space between inputs */
 }
 
 .input-container {
-    position: relative;
-    width: 100%;
+    position: relative; /* Ensures positioning for suggestion box */
+    width: 100%; /* Matches container width */
 }
 
 .suggestions {
-    position: absolute;
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    max-height: 150px;
-    overflow-y: auto;
-    width: calc(100% - 2px);
-    z-index: 10;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: absolute; /* Positioned relative to the input */
+    background: #fff; /* White background for contrast */
+    border: 1px solid #ddd; /* Subtle border */
+    border-radius: 4px; /* Rounded corners */
+    max-height: 150px; /* Limits height */
+    overflow-y: auto; /* Adds scrolling when needed */
+    width: calc(100% - 2px); /* Matches input width minus borders */
+    z-index: 10; /* Ensures it stays above other elements */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
     display: none; /* Hidden by default */
 }
-
-
 
 .suggestions div {
     padding: 8px;
@@ -152,16 +142,15 @@ label {
     background-color: #f0f0f0;
 }
 
-
 /* Input and Caption Styling */
 input[type="text"], textarea {
-    width: 100%;
-    padding: 8px;
-    margin: 10px 0;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    resize: none;
-    font-size: 14px;
+    width: 100%; /* Full width input */
+    padding: 8px; /* Inner spacing */
+    margin: 10px 0; /* Vertical spacing */
+    border-radius: 4px; /* Rounded edges */
+    border: 1px solid #ccc; /* Light border */
+    resize: none; /* Disables resizing for textarea */
+    font-size: 14px; /* Standard font size */
 }
 
 textarea#caption {
@@ -220,10 +209,10 @@ textarea#caption {
 }
 
 #progress-bar {
-    height: 8px;
-    background-color: #6c63ff;
-    width: 0;
-    transition: width 0.2s ease;
+    height: 8px; /* Fixed height for the bar */
+    background-color: #6c63ff; /* Purple for branding */
+    width: 0; /* Initially set to 0 */
+    transition: width 0.2s ease; /* Smooth width transition */
 }
 
 #progress-text {
@@ -257,11 +246,11 @@ button {
     .container {
         max-width: 90%; /* Shrinks the container for smaller screens */
         width: 90%; /* Ensure it stretches fully within the viewport */
-        padding: 20px;
+        padding: 20px; /* Adjusts padding */
     }
 
     h1 {
-        font-size: 18px;
+        font-size: 18px; /* Smaller font size */
     }
 
     p {
@@ -287,11 +276,11 @@ button {
 @media (max-width: 480px) {
     .container {
         max-width: 95%; /* Smaller container for phones */
-        padding: 15px;
+        padding: 15px; /* Reduces padding */
     }
 
     h1 {
-        font-size: 16px;
+        font-size: 16px; /* Further reduces font size */
     }
 
     p {
@@ -324,3 +313,4 @@ button {
         font-size: 16px;
     }
 }
+
