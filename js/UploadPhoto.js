@@ -402,8 +402,6 @@ captionInput.addEventListener('input', async () => {
         captionInput.value = captionInput.value.slice(0, maxLetters);
         wordCountDisplay.textContent = `${maxLetters} / ${maxLetters} letters`;
     }
-
-
 });
 
 
