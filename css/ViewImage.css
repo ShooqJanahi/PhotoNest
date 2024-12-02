@@ -26,20 +26,26 @@ body {
     font-weight: 700;
 }
 
-.header .logo i {
-    margin-right: 10px;
-    color: #6a1b9a;
+.header .logo img {
+    width: 40px; /* Adjust the size of the image */
+    height: auto; /* Maintain the aspect ratio */
+    margin-right: 10px; /* Space between the image and the text */
+    object-fit: contain; /* Ensure the image fits nicely */
 }
 
-.header .icons {
+
+.header .profile-photo {
     display: flex;
     align-items: center;
+    justify-content: center;
 }
 
-.header .icons i {
-    margin-left: 20px;
-    font-size: 20px;
-    color: #333;
+.header .profile-photo img {
+    width: 40px; /* Size of the profile photo */
+    height: 40px; /* Keep it square */
+    border-radius: 50%; /* Makes the photo circular */
+    object-fit: cover; /* Ensures the image covers the container */
+    border: 2px solid #6a1b9a; /* Optional border for styling */
 }
 
 .container {
@@ -54,28 +60,45 @@ body {
     box-sizing: border-box;
 }
 
-.back-button-container {
-    margin-bottom: 20px;
+/* Style for the user details container */
+#photo-user-details {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px; /* Space between user details and caption */
+    font-family: 'Inter', sans-serif;
 }
 
-.back-button {
-    background-color: #6a1b9a;
-    color: #fff;
-    padding: 10px 20px;
-    border-radius: 20px;
-    text-decoration: none;
-    font-weight: 500;
-    display: inline-block;
-    text-align: center;
-    cursor: pointer;
-    border: none;
+/* Style for the user's profile picture */
+#photo-user-profile-pic {
+    width: 40px; /* Adjust size as needed */
+    height: 40px;
+    border-radius: 50%; /* Make the image circular */
+    margin-right: 10px; /* Space between the image and text */
+    object-fit: cover; /* Ensure the image maintains its aspect ratio */
+    border: 2px solid #ccc; /* Optional: Add a border for aesthetics */
 }
+
+/* Style for the username */
+#photo-username {
+    font-weight: bold;
+    font-size: 1rem;
+    margin-right: 5px; /* Space between username and full name */
+    color: #333; /* Adjust color as needed */
+}
+
+/* Style for the full name */
+#photo-full-name {
+    font-size: 0.9rem;
+    color: #666; /* Subtle color for full name */
+}
+
 
 .image-section img {
     width: 100%;
     max-width: 600px;
     border-radius: 20px;
     box-sizing: border-box;
+    
 }
 
 .details-options {
@@ -112,8 +135,161 @@ body {
 
 .details-section .likes i {
     margin-right: 10px;
+    color: #a7a4a4;
+}
+
+/*comment section*/
+.comment-card {
+    display: flex;
+    flex-direction: column;
+    background: #f9f9f9;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.comment-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.comment-profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px;
+}
+
+.comment-details {
+    flex-grow: 1;
+}
+
+.comment-details strong {
+    font-size: 1rem;
+    color: #333;
+}
+
+.comment-time {
+    font-size: 0.8rem;
+    color: #666;
+    display: block;
+}
+
+.comment-text {
+    font-size: 0.9rem;
+    color: #333;
+    margin-top: 5px;
+}
+
+.options-icon {
+    font-size: 1.2rem;
+    color: #999;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.options-icon:hover {
     color: #6a1b9a;
 }
+
+
+
+/* Dropdown menu styling */
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.dropdown-menu.hidden {
+    display: none; /* Ensure the dropdown is hidden when this class is applied */
+}
+
+.dropdown-menu:not(.hidden) {
+    display: block; /* Show the dropdown when the hidden class is not present */
+}
+
+
+.dropdown-menu button {
+    display: block;
+    background: none;
+    border: none;
+    color: black;
+    padding: 5px 10px;
+    text-align: left;
+    width: 100%;
+    cursor: pointer;
+}
+
+.dropdown-menu button:hover {
+    background-color: #f1f1f1;
+}
+
+/* Report popup styling */
+.report-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.report-popup-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 400px;
+    max-width: 90%;
+    text-align: center;
+}
+
+.report-popup-content h3 {
+    margin-bottom: 15px;
+}
+
+.report-popup-content textarea {
+    width: 100%;
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.report-popup-content button {
+    margin: 5px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.report-popup-content button#report-submit {
+    background-color: #6a1b9a;
+    color: white;
+}
+
+.report-popup-content button#report-cancel {
+    background-color: #ccc;
+}
+
+
+
+
+/*comment section*/
 
 .details-section .buttons {
     display: flex;
@@ -145,17 +321,18 @@ body {
     margin-bottom: 10px;
 }
 
+
 .comments-section .comment i {
     color: #6a1b9a;
 }
 
-.comments-section .add-comment {
+.add-comment {
     display: flex;
     align-items: center;
     margin-top: 10px;
 }
 
-.comments-section .add-comment input {
+.add-comment input {
     width: 100%;
     padding: 10px;
     border: 1px solid #ddd;
@@ -163,7 +340,7 @@ body {
     margin-right: 10px;
 }
 
-.comments-section .add-comment button {
+.add-comment button {
     background-color: #6a1b9a;
     color: #fff;
     padding: 10px 20px;
@@ -173,58 +350,47 @@ body {
     font-weight: 500;
 }
 
+/* Footer styling */
 .footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    background-color: white;
-    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    position: bottom;
-    bottom: 0;
-    box-sizing: border-box;
+    display: flex; /* Aligns footer elements horizontally */
+    justify-content: space-around; /* Spreads elements evenly across the footer */
+    align-items: center; /* Vertically centers footer content */
+    padding: 20px; /* Adds inner spacing */
+    background-color: #fff; /* Matches the header's background color */
+    color: #666; /* Light gray text for secondary emphasis */
+    font-size: 14px; /* Smaller font size for footer content */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Adds shadow for separation */
+    flex-wrap: wrap; /* Allows elements to wrap on smaller screens */
+    box-sizing: border-box; /* Includes padding in the element's width */
+    overflow-x: hidden; /* Prevents horizontal scrolling */
 }
 
-.footer .links {
-    display: flex;
-    justify-content: space-between;
-    width: 50%;
-    max-width: 600px;
+.footer div {
+    text-align: center; /* Centers text inside each footer section */
 }
 
-.footer .links a {
-    text-decoration: none;
-    color: #333;
-    font-weight: 500;
+.footer .social-icons {
+    display: flex; /* Aligns social icons horizontally */
+    justify-content: center; /* Centers the icons */
+    gap: 10px; /* Adds spacing between icons */
+    margin-top: 5px; /* Adds spacing above the icons */
 }
 
-.footer .social {
-    display: flex;
-    align-items: center;
+.footer a {
+    color: #6a0dad; /* Purple color for branding */
+    text-decoration: none; /* Removes underlines from links */
+    display: block; /* Ensures consistent block layout */
+    margin-bottom: 5px; /* Adds spacing between links */
 }
 
-.footer .links div {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.footer i {
+    margin: 0 5px; /* Adds spacing around icons */
+    font-size: 20px; /* Sets a standard size for icons */
+    color: #6a0dad; /* Matches the branding color */
 }
 
-.footer .social span {
-    font-weight: 500;
-    margin-right: 10px;
-}
 
-.footer .social i {
-    font-size: 24px;
-    margin-right: 10px;
-    color: #333;
-}
 
-.footer .copyright {
-    font-size: 14px;
-    color: #aaa;
-}
 
 /* Responsive adjustments */
 @media (max-width: 768px) {

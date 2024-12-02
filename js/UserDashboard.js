@@ -9,6 +9,34 @@ import { db } from './firebaseConfig.js';
 const auth = getAuth();
 
 document.addEventListener('DOMContentLoaded', async function () {
+
+    const photoContainer = document.querySelector('.feeds'); // Assuming '.feeds' contains photo elements
+
+    // Event listener for photo clicks
+    photoContainer.addEventListener('click', (event) => {
+        const photoElement = event.target.closest('.feed'); // Get the closest photo container element
+
+        if (photoElement) {
+            const photoId = photoElement.getAttribute('data-photo-id');
+            const photoUrl = photoElement.querySelector('.photo img').src;
+            const caption = photoElement.querySelector('.caption p').textContent;
+            const location = photoElement.querySelector('.info small').textContent;
+            const ownerId = photoElement.getAttribute('data-owner-id');
+
+            // Store photo details in localStorage
+            localStorage.setItem('photoId', photoId);
+            localStorage.setItem('photoUrl', photoUrl);
+            localStorage.setItem('caption', caption);
+            localStorage.setItem('location', location);
+            localStorage.setItem('ownerId', ownerId);
+
+            // Redirect to ViewImage.html
+            window.location.href = 'ViewImage.html';
+
+        }
+    });
+
+
     // Ensure user authentication is verified first
     await checkUserAuthentication();
 
@@ -146,6 +174,26 @@ async function setupPage() {
 
     // Like/Unlike event listener
     document.addEventListener('click', async (event) => {
+
+        const feedElement = event.target.closest('.feed'); // Check if the clicked element is part of the feed
+        if (feedElement) {
+            const photoId = feedElement.getAttribute('data-photo-id');
+            const photoUrl = feedElement.querySelector('.photo img').src;
+            const caption = feedElement.querySelector('.caption p').textContent;
+            const location = feedElement.querySelector('.info small').textContent;
+            const ownerId = feedElement.getAttribute('data-owner-id');
+    
+            // Store clicked photo details in localStorage
+            localStorage.setItem('photoId', photoId);
+            localStorage.setItem('photoUrl', photoUrl);
+            localStorage.setItem('caption', caption);
+            localStorage.setItem('location', location);
+            localStorage.setItem('ownerId', ownerId);
+    
+            // Redirect to ViewImage.html
+            window.location.href = 'ViewImage.html';
+        }
+        
         if (event.target.classList.contains('uil-heart')) {
             const photoElement = event.target.closest('.feed');
             if (!photoElement) {
@@ -293,6 +341,18 @@ function getRelativeTime(dateString) {
 
 async function fetchPhotos(isHome) {
     const photosContainer = document.querySelector('.feeds');
+
+    photosContainer.addEventListener('click', (event) => {
+        const photoElement = event.target.closest('.feed');
+        if (photoElement) {
+            const photoId = photoElement.getAttribute('data-photo-id');
+            // More attributes can be retrieved similarly
+            localStorage.setItem('photoId', photoId);
+            window.location.href = 'ViewImage.html'; // Redirect to detail view
+        }
+
+});
+
     if (!photosContainer) {
         console.error("Element with class 'feeds' not found in the DOM.");
         return; // Exit the function if not found
