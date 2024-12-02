@@ -133,6 +133,11 @@ body {
     margin-bottom: 20px;
 }
 
+.liked {
+    color: red;
+}
+
+
 .details-section .likes i {
     margin-right: 10px;
     color: #a7a4a4;

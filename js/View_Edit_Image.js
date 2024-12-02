@@ -1,6 +1,6 @@
 // Importing necessary Firebase modules
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getFirestore, doc, getDoc,deleteDoc, collection, query, where, getDocs, addDoc, increment, updateDoc, orderBy } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc,deleteDoc, collection, query, where, getDocs, addDoc, increment, updateDoc, orderBy, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import { auth, db } from './firebaseConfig.js';
 
 /**
@@ -532,6 +532,84 @@ async function deletePhoto(photoId) {
     }
 }
 
+
+/**
+ * Initializes and sets up the like button functionality for a given photo.
+ * @param {string} photoId - The ID of the photo to handle likes for.
+ */
+async function setupLikeButton(photoId) {
+    const userId = auth.currentUser.uid;  // Ensure the user is authenticated
+    const likeIcon = document.getElementById('like-icon');
+    const likesCount = document.getElementById('likes-count');
+
+    // Check if the user has already liked the photo
+    const userLikeRef = doc(db, "Likes", `${userId}_${photoId}`);
+    const userLikeSnap = await getDoc(userLikeRef);
+
+    if (userLikeSnap.exists()) {
+        likeIcon.classList.add('liked');
+    } else {
+        likeIcon.classList.remove('liked');
+    }
+
+     // Add event listener to toggle like status on click
+    likeIcon.addEventListener('click', () => { // Using 'addEventListener' to ensure proper handling
+        const isLiked = likeIcon.classList.contains('liked');
+        toggleLikeStatus(isLiked, userLikeRef, photoId, likeIcon, likesCount);
+    });
+}
+
+/**
+ * Toggles the like status of a photo and updates UI accordingly.
+ * @param {boolean} isLiked - Whether the photo is currently liked by the user.
+ * @param {DocumentReference} userLikeRef - Reference to the user's like document.
+ * @param {string} photoId - Photo ID.
+ * @param {Element} likeIcon - DOM element of the like icon.
+ * @param {Element} likesCount - DOM element where likes count is displayed.
+ */
+async function toggleLikeStatus(isLiked, userLikeRef, photoId, likeIcon, likesCount) {
+    if (isLiked) {
+        // Unlike the photo
+        console.log("Unlike the photo");
+        await deleteDoc(userLikeRef);
+        likeIcon.classList.remove('liked');
+        await updateDoc(doc(db, "Photos", photoId), { likesCount: increment(-1) });
+    } else {
+        // Like the photo
+        console.log("Like the photo");
+        await setDoc(userLikeRef, {
+            userId: auth.currentUser.uid,
+            photoId: photoId,
+            timestamp: new Date()
+        });
+        likeIcon.classList.add('liked');
+        await updateDoc(doc(db, "Photos", photoId), { likesCount: increment(1) });
+    }
+
+    // Update the likes count display
+    const photoDoc = await getDoc(doc(db, "Photos", photoId));
+    likesCount.textContent = (photoDoc.data().likesCount || 0) + ' Likes';
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Call loadComments when the page loads
 document.addEventListener('DOMContentLoaded', async () => {
     const photoId = localStorage.getItem('photoId');
@@ -540,8 +618,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else {
         console.error("Photo ID not found in localStorage.");
     }
-
+    setupLikeButton(photoId);
     loadUserProfilePic();
+
     const optionsIcon = document.getElementById('image-options-icon');
     const dropdownMenu = document.getElementById('image-options-dropdown');
 
