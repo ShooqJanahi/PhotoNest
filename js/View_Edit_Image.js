@@ -1,6 +1,6 @@
 // Importing necessary Firebase modules
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getFirestore, doc, getDoc, collection, query, where, getDocs, addDoc, increment, updateDoc, orderBy } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc,deleteDoc, collection, query, where, getDocs, addDoc, increment, updateDoc, orderBy } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import { auth, db } from './firebaseConfig.js';
 
 /**
@@ -124,14 +124,13 @@ async function deleteComment(commentId, photoId) {
  * @param {string} commentId - The ID of the comment to report.
  */
 function showReportPopup(commentId) {
-    // Create the popup container
     const popup = document.createElement('div');
     popup.className = 'report-popup';
 
     popup.innerHTML = `
         <div class="report-popup-content">
             <h3>Report Comment</h3>
-            <textarea id="report-details" placeholder="Enter details about the issue..." rows="5"></textarea>
+            <textarea id="report-details" placeholder="Describe the issue..." rows="5"></textarea>
             <button id="report-submit">Submit</button>
             <button id="report-cancel">Cancel</button>
         </div>
@@ -142,7 +141,6 @@ function showReportPopup(commentId) {
     const submitButton = popup.querySelector('#report-submit');
     const cancelButton = popup.querySelector('#report-cancel');
 
-    // Handle Report Submission
     submitButton.addEventListener('click', async () => {
         const reportDetails = document.getElementById('report-details').value.trim();
         if (!reportDetails) {
@@ -151,12 +149,11 @@ function showReportPopup(commentId) {
         }
 
         await submitReport(commentId, reportDetails);
-        document.body.removeChild(popup);
+        document.body.removeChild(popup); // Close the popup
     });
 
-    // Handle Popup Cancellation
     cancelButton.addEventListener('click', () => {
-        document.body.removeChild(popup);
+        document.body.removeChild(popup); // Close the popup
     });
 }
 
@@ -167,12 +164,25 @@ function showReportPopup(commentId) {
  */
 async function submitReport(commentId, details) {
     try {
+        const userId = sessionStorage.getItem("userId"); // Get the user who is reporting
+        const photoId = localStorage.getItem("photoId"); // Get the photo ID
+
+        if (!userId || !photoId) {
+            alert("User or photo information is missing.");
+            return;
+        }
+
+        // Prepare the report data
         const reportData = {
-            commentId,
-            details,
-            timestamp: new Date().toISOString(),
+            photoId, // ID of the photo being reported
+            commentId, // ID of the comment being reported
+            reportedBy: userId, // The user making the report
+            reason: details, // Description of the issue
+            status: "Pending Review", // Default status for new reports
+            timestamp: new Date().toISOString(), // Time the report was created
         };
 
+        // Add the report to the Firestore 'Reports' collection
         await addDoc(collection(db, "Reports"), reportData);
         console.log("Report submitted successfully.");
         alert("Thank you for your report. We'll review it shortly.");
