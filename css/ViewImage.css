@@ -199,25 +199,19 @@ body {
 
 
 /* Dropdown menu styling */
-.dropdown-menu {
+.hidden {
     display: none;
+}
+
+.dropdown-menu {
     position: absolute;
     background-color: white;
-    border: 1px solid #ccc;
+    border: 1px solid #ddd;
     border-radius: 5px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     padding: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     z-index: 1000;
 }
-
-.dropdown-menu.hidden {
-    display: none; /* Ensure the dropdown is hidden when this class is applied */
-}
-
-.dropdown-menu:not(.hidden) {
-    display: block; /* Show the dropdown when the hidden class is not present */
-}
-
 
 .dropdown-menu button {
     display: block;

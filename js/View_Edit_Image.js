@@ -123,7 +123,7 @@ async function deleteComment(commentId, photoId) {
  * Show the report popup for a specific comment.
  * @param {string} commentId - The ID of the comment to report.
  */
-function showReportPopup(commentId) {
+function showCommentReportPopup(commentId) {
     const popup = document.createElement('div');
     popup.className = 'report-popup';
 
@@ -148,7 +148,7 @@ function showReportPopup(commentId) {
             return;
         }
 
-        await submitReport(commentId, reportDetails);
+        await submitCommentReport(commentId, reportDetails);
         document.body.removeChild(popup); // Close the popup
     });
 
@@ -162,7 +162,7 @@ function showReportPopup(commentId) {
  * @param {string} commentId - The ID of the comment being reported.
  * @param {string} details - The details of the report.
  */
-async function submitReport(commentId, details) {
+async function submitCommentReport(commentId, details) {
     try {
         const userId = sessionStorage.getItem("userId"); // Get the user who is reporting
         const photoId = localStorage.getItem("photoId"); // Get the photo ID
@@ -178,6 +178,7 @@ async function submitReport(commentId, details) {
             commentId, // ID of the comment being reported
             reportedBy: userId, // The user making the report
             reason: details, // Description of the issue
+            category: "comment",   // Default category for the report
             status: "Pending Review", // Default status for new reports
             timestamp: new Date().toISOString(), // Time the report was created
         };
@@ -433,6 +434,104 @@ function loadHashtags(hashtags) {
 }
 
 
+/**
+ * Deletes a photo and its associated references from Firestore.
+ * @param {string} photoId - The ID of the photo to delete.
+ */
+async function deletePhoto(photoId) {
+    if (!photoId) {
+        console.error("Photo ID is required to delete a photo.");
+        return;
+    }
+
+    const userConfirmed = confirm("Are you sure you want to delete this photo?");
+    if (!userConfirmed) {
+        console.log("User cancelled photo deletion.");
+        return;
+    }
+
+    try {
+        // References to Firestore collections
+        const photoDocRef = doc(db, "Photos", photoId);
+
+        // Step 1: Fetch photo data to update related collections (hashtags, location)
+        const photoDocSnap = await getDoc(photoDocRef);
+        if (!photoDocSnap.exists()) {
+            console.error("Photo not found in Firestore.");
+            return;
+        }
+        const photoData = photoDocSnap.data();
+        const { hashtags, locationId } = photoData;
+
+        // Step 2: Delete photo document
+        await deleteDoc(photoDocRef);
+        console.log("Photo deleted successfully from Photos collection.");
+
+        // Step 3: Delete comments associated with the photo
+        const commentsQuery = query(
+            collection(db, "Comments"),
+            where("photoId", "==", photoId)
+        );
+        const commentsSnapshot = await getDocs(commentsQuery);
+        commentsSnapshot.forEach(async (commentDoc) => {
+            await deleteDoc(doc(db, "Comments", commentDoc.id));
+        });
+        console.log("Comments deleted successfully.");
+
+        // Step 4: Delete likes associated with the photo
+        const likesQuery = query(
+            collection(db, "Likes"),
+            where("photoId", "==", photoId)
+        );
+        const likesSnapshot = await getDocs(likesQuery);
+        likesSnapshot.forEach(async (likeDoc) => {
+            await deleteDoc(doc(db, "Likes", likeDoc.id));
+        });
+        console.log("Likes deleted successfully.");
+
+        // Step 5: Reduce photoCount for hashtags
+        if (hashtags && Array.isArray(hashtags)) {
+            for (const hashtag of hashtags) {
+                const hashtagQuery = query(
+                    collection(db, "Hashtag"),
+                    where("hashtag", "==", hashtag)
+                );
+                const hashtagSnapshot = await getDocs(hashtagQuery);
+                hashtagSnapshot.forEach(async (hashtagDoc) => {
+                    const hashtagDocRef = doc(db, "Hashtag", hashtagDoc.id);
+                    await updateDoc(hashtagDocRef, {
+                        photoCount: increment(-1),
+                    });
+                });
+            }
+            console.log("Photo count reduced for hashtags.");
+        }
+
+        // Step 6: Reduce photoCount for location
+        if (locationId) {
+            const locationDocRef = doc(db, "Location", locationId);
+            const locationDocSnap = await getDoc(locationDocRef);
+            if (locationDocSnap.exists()) {
+                await updateDoc(locationDocRef, {
+                    photoCount: increment(-1),
+                });
+                console.log("Photo count reduced for location.");
+            }
+        }
+
+        console.log("Photo and all references deleted successfully.");
+
+        // Redirect to user dashboard after successful deletion
+        alert("Photo deleted successfully!");
+        window.location.href = "../html/UserDashboard.html"; // Replace with your actual dashboard path
+
+
+    } catch (error) {
+        console.error("Error deleting photo and references:", error);
+        alert("Failed to delete the photo. Please try again.");
+    }
+}
+
 // Call loadComments when the page loads
 document.addEventListener('DOMContentLoaded', async () => {
     const photoId = localStorage.getItem('photoId');
@@ -443,8 +542,40 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     loadUserProfilePic();
-});
+    const optionsIcon = document.getElementById('image-options-icon');
+    const dropdownMenu = document.getElementById('image-options-dropdown');
 
+    if (!optionsIcon || !dropdownMenu) {
+        console.error("Options icon or dropdown menu not found in the DOM.");
+        return;
+    }
+
+    // Toggle dropdown visibility
+    optionsIcon.addEventListener('click', () => {
+        dropdownMenu.classList.toggle('hidden');
+    });
+
+    // Add click listeners for dropdown options
+    dropdownMenu.addEventListener('click', (event) => {
+        const target = event.target;
+        if (target.classList.contains('dropdown-delete')) {
+            console.log("Delete photo clicked");
+           deletePhoto(photoId);
+        } else if (target.classList.contains('dropdown-edit')) {
+            console.log("Edit photo clicked");
+            // Add edit functionality here
+        } else if (target.classList.contains('dropdown-vault')) {
+            console.log("Move photo to vault clicked");
+            // Add move to vault functionality here
+        } else if (target.classList.contains('dropdown-album')) {
+            console.log("Move photo to album clicked");
+            // Add move to album functionality here
+        } else if (target.classList.contains('dropdown-report')) {
+            console.log("Report photo clicked");
+            // Add report functionality here
+        }
+    });
+});
 
 
 
@@ -477,4 +608,6 @@ async function loadUserProfilePic() {
         console.error("Error loading user profile picture:", error);
     }
 }
+
+
 
