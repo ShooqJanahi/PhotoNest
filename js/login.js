@@ -75,25 +75,30 @@ if (loginForm) {
                         // Log login activity
                         await logActivity(userId, "login", `${username} logged in.`);
                         try {
-                            // Save all user data to session storage for the current session
-                            for (const [key, value] of Object.entries(userData)) {
-                                sessionStorage.setItem(key, value); // Save each key-value pair
-                            }
-                            sessionStorage.setItem("userId", userId); // Save the user ID
-                            sessionStorage.setItem("loginTime", currentTimestamp); // Save the login time
+                            // Save all user data to sessionStorage as a JSON string
+                            sessionStorage.setItem("user", JSON.stringify({
+                                ...userData,          // All user data from Firestore
+                                uid: userId,          // Include Firebase Auth UID
+                                loginTime: currentTimestamp, // Login timestamp
+                            }));
+
+                            console.log("Session data stored:", JSON.parse(sessionStorage.getItem("user")));
+
 
                             // Save the user session data in Firestore
                             await setDoc(sessionRef, {
                                 ...userData, // Spread user data into the document
-                                userId: userId,// Include the user ID
+                                userId: userId, // Include the user ID
                                 loginTime: currentTimestamp, // Save login time
                                 logoutTime: null, // Initialize logout time as null
                                 status: "online" // Set the user status to online
                             }, { merge: true });
+
                             console.log("Session updated: User is online with full user data"); // Log success
                         } catch (error) {
-                            console.error("Error tracking session: ", error); // Log errors
+                            console.error("Error saving session data:", error); // Log errors
                         }
+
 
                         // Redirect the user based on their role
                         switch (userRole) {
@@ -127,7 +132,7 @@ let inactivityTimeout; // Declare a variable for the inactivity timeout
 // Function to reset the inactivity timer
 function resetInactivityTimer() {
     clearTimeout(inactivityTimeout); // Clear the existing timer
-    inactivityTimeout = setTimeout(async() => { // Start a new timer
+    inactivityTimeout = setTimeout(async () => { // Start a new timer
         alert("You have been logged out due to inactivity."); // Alert the user
         const userId = auth.currentUser ? auth.currentUser.uid : null;
 
@@ -191,6 +196,22 @@ export async function logout() {
         console.error("Error signing out: ", error); // Log any errors
     }
 }
+
+// Reference the logout button
+const logoutButton = document.querySelector('.logout-button');
+
+// Attach the logout function to the button
+if (logoutButton) {
+    logoutButton.addEventListener('click', async (event) => {
+        event.preventDefault();
+        const confirmLogout = confirm("Are you sure you want to log out?");
+        if (confirmLogout) {
+            await logout();
+        }
+    });
+}
+
+
 
 // Update session status before the browser is closed
 window.addEventListener('beforeunload', () => {

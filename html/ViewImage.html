@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PhotoGallery</title>
+    <title>View Image</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
     <link rel="stylesheet" href="../css/ViewImage.css"> <!-- Corrected the CSS file path -->
@@ -42,11 +42,7 @@
             <div class="details-options">
                 <i class="fas fa-ellipsis-v" id="image-options-icon"></i>
                 <div class="dropdown-menu hidden" id="image-options-dropdown">
-                    <button class="dropdown-delete">Delete</button>
-                    <button class="dropdown-edit">Edit Photo</button>
-                    <button class="dropdown-vault">Move to Vault</button>
-                    <button class="dropdown-album">Move to Album</button>
-                    <button class="dropdown-report">Report Photo</button>
+                    
                 </div>
             </div>
 
@@ -77,9 +73,9 @@
             
             
             <div class="buttons">
-                <button><i class="fas fa-share"></i> Share</button>
-                <button>Move to Album</button>
+                <button id="share-button"><i class="fas fa-share"></i> Share</button>
             </div>
+            
 
             <div class="add-comment">
                 <input type="text" id="comment-input" placeholder="Add a comment...">

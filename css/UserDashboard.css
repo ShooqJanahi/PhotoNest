@@ -141,6 +141,7 @@ nav .container {
   background: var(--color-light);
   border-radius: var(--border-radius);
   padding: var(--search-padding);
+  position: relative;
 }
 
 .search-bar input[type="search"] {
@@ -154,6 +155,52 @@ nav .container {
 nav .search-bar input[type="search"]::placeholder {
   color: var(--color-gray);
 }
+
+
+
+/*Sugggestion*/
+/* Suggestions Dropdown */
+#search-suggestions {
+  position: absolute;
+  top: 100%; /* Position below the search bar */
+  left: 0;
+  width: 30vw; /* Same width as the search bar */
+  background: var(--color-white);
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-height: 200px; /* Limit the dropdown height */
+  overflow-y: auto; /* Enable scrolling for long lists */
+  z-index: 100; /* Ensure it stays above other elements */
+  padding: 0.5rem 0; /* Padding around the suggestions */
+}
+
+/* Suggestion Items */
+.suggestion-item {
+  display: flex;
+  justify-content: space-between; /* Space between text and type */
+  align-items: center;
+  padding: 0.5rem 1rem; /* Padding inside each item */
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.suggestion-item:hover {
+  background: var(--color-light); /* Highlight background on hover */
+}
+
+/* Text Content */
+.suggestion-text {
+  font-size: 0.9rem; /* Adjust text size */
+  color: var(--color-dark);
+}
+
+/* Type (aligned to the right and in gray) */
+.suggestion-type {
+  font-size: 0.8rem; /* Slightly smaller font */
+  color: var(--color-gray); /* Gray color for type */
+  text-align: right; /* Ensure alignment to the right */
+}
+
 
 nav .create {
   display: flex;

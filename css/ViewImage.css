@@ -233,59 +233,175 @@ body {
     background-color: #f1f1f1;
 }
 
-/* Report popup styling */
-.report-popup {
+
+/* General popup styles for consistency */
+.popup {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 2000;
-}
-
-.report-popup-content {
-    background: white;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    background: #f8f0fa; /* Soft purple background */
+    border: 2px solid #a74fcb; /* Purple border */
+    border-radius: 12px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    width: 90%;
+    max-width: 400px;
     padding: 20px;
-    border-radius: 10px;
-    width: 400px;
-    max-width: 90%;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Popup header styles */
+.popup h3 {
+    font-size: 20px;
+    margin: 0 0 10px;
     text-align: center;
+    color: #5a2368; /* Darker purple for text */
+    font-weight: 700;
 }
 
-.report-popup-content h3 {
-    margin-bottom: 15px;
+/* Text area and input styles */
+.popup textarea,
+.popup input {
+    width: calc(100% - 20px);
+    margin: 10px 0;
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #d9c0e7;
+    border-radius: 6px;
+    outline: none;
+    background-color: #fffdfd; /* Subtle contrast */
+    color: #4c2956;
 }
 
-.report-popup-content textarea {
-    width: 100%;
-    margin-bottom: 15px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+/* Add focus effect */
+.popup textarea:focus,
+.popup input:focus {
+    border-color: #a74fcb;
+    box-shadow: 0 0 4px rgba(167, 79, 203, 0.6);
 }
 
-.report-popup-content button {
+/* Popup button styles */
+.popup button {
+    padding: 10px 15px;
     margin: 5px;
-    padding: 10px 20px;
+    font-size: 14px;
     border: none;
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
+    font-weight: 600;
+    text-transform: uppercase;
+    transition: background-color 0.3s ease;
 }
 
-.report-popup-content button#report-submit {
-    background-color: #6a1b9a;
+/* Primary button */
+.popup button#save-edit,
+.popup button#report-submit,
+.popup button#create-album-btn {
+    background-color: #a74fcb;
     color: white;
 }
 
-.report-popup-content button#report-cancel {
-    background-color: #ccc;
+.popup button#save-edit:hover,
+.popup button#report-submit:hover,
+.popup button#create-album-btn:hover {
+    background-color: #8e3aad;
+}
+
+/* Secondary button */
+.popup button#cancel-edit,
+.popup button#report-cancel,
+.popup button#close-album-popup {
+    background-color: #d9c0e7;
+    color: #4c2956;
+}
+
+.popup button#cancel-edit:hover,
+.popup button#report-cancel:hover,
+.popup button#close-album-popup:hover {
+    background-color: #b59cc5;
+}
+
+/* Album list container */
+.album-list {
+    max-height: 200px;
+    overflow-y: auto;
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid #d9c0e7;
+    border-radius: 6px;
+    background-color: #ffffff;
+}
+
+/* Album option styles */
+.album-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    margin: 5px 0;
+    background-color: #f5ebf9;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.album-option:hover {
+    background-color: #e9d7f2;
+}
+
+.album-option strong {
+    font-weight: 600;
+    color: #5a2368;
+}
+
+.album-option .add-to-album-btn {
+    padding: 5px 10px;
+    font-size: 12px;
+    background-color: #a74fcb;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.album-option .add-to-album-btn:hover {
+    background-color: #8e3aad;
 }
 
 
+/*share photo section*/
+.suggestions {
+    position: absolute;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    max-height: 150px;
+    overflow-y: auto;
+    z-index: 1000;
+    margin-top: 5px;
+    width: 100%;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.suggestion-item {
+    padding: 10px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #333;
+}
+
+.suggestion-item:hover {
+    background: #f0f0f0;
+}
+
+.no-suggestions {
+    padding: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #999;
+}
 
 
 /*comment section*/
@@ -348,6 +464,16 @@ body {
     cursor: pointer;
     font-weight: 500;
 }
+
+
+
+
+
+
+
+
+
+
 
 /* Footer styling */
 .footer {

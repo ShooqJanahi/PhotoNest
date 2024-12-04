@@ -15,7 +15,7 @@
 
     <!-- Custom stylesheet -->
     <link rel="stylesheet" href="../css/UserDashboard.css">
-
+    <link rel="stylesheet" href="../css/Notification.css"> <!-- notification popup style sheet-->
     
     <!--font Awesome CDN-->
     <link rel="stylesheet" href= "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
@@ -36,6 +36,7 @@
     <script type="module" src="../js/firebaseConfig.js"></script>
     <script type="module" src="../js/login.js"></script>
     <script type="module" src="../js/UserDashboard.js"></script>
+    <script type="module" src="../js/Notification.js"></script> <!-- notificatioion popup-->
     
 
 </head>
@@ -51,8 +52,10 @@
 
             <div class="search-bar">
                 <i class="uil uil-search"></i>
-                <input type="search" placeholder="Search for creators, inspirations, and projects">
+                <input type="search"  id="search-bar" placeholder="Search for creators, inspirations, and projects" autocomplete="off"/>
+                <div id="search-suggestions" class="suggestions"></div>
             </div>
+
             <div class="create">
                 <a href="UploadPhoto.html" class="upload-link">
                     <i class="fa-solid fa-camera"></i>
@@ -118,6 +121,11 @@
                     <a class="menu-item" href="Settings.html">
                         <span><i class="uil uil-setting"></i></span>
                         <h3>Settings</h3>
+                    </a>
+
+                    <a class="menu-item logout-button" href="#">
+                        <span><i class="uis uis-signout"></i></span>
+                        <h3>Logout</h3>
                     </a>
                     
                 </div>

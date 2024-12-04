@@ -1,0 +1,143 @@
+/* Popup Overlay to block background interactions */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
+    z-index: 999; /* Below the popup but above other elements */
+    display: none; /* Hidden by default */
+}
+
+/* Show overlay when popup is active */
+.popup-overlay.active {
+    display: block;
+}
+
+/* Popup styling */
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #5A0C8A; /* Purple background */
+    color: white;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    display: none; /* Hidden by default */
+}
+
+/* Show popup when active */
+.popup.active {
+    display: flex;
+}
+
+/* Popup Header */
+.popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.popup-header h3 {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.popup-header .close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.4rem;
+    color: white;
+}
+
+.popup-header .close-btn:hover {
+    color: #FFD700; /* Gold color for hover effect */
+}
+
+/* Search and Filter */
+.popup-search {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.popup-search input,
+.popup-search select {
+    flex: 1;
+    padding: 0.6rem;
+    border: 1px solid white;
+    border-radius: 8px;
+    background: #7C2986; /* A lighter purple */
+    color: white;
+    outline: none;
+}
+
+.popup-search input::placeholder,
+.popup-search select {
+    color: #D1B3E5; /* Lighter text */
+}
+
+/* Notification List */
+.popup-content {
+    max-height: 300px;
+    overflow-y: auto;
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: #FFD700 #5A0C8A;
+}
+
+.popup-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.popup-content::-webkit-scrollbar-thumb {
+    background-color: #FFD700;
+    border-radius: 10px;
+}
+
+.popup-content::-webkit-scrollbar-track {
+    background-color: #5A0C8A;
+}
+
+.notification-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem;
+    margin-bottom: 0.6rem;
+    border: 1px solid white;
+    border-radius: 8px;
+    background: #6C2A8A;
+    cursor: pointer;
+}
+
+.notification-item:hover {
+    background: #FFD700; /* Highlight with gold */
+    color: black;
+}
+
+.notification-item span {
+    font-size: 1rem;
+}
+
+.delete-notification {
+    background: red;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.4rem 0.8rem;
+    cursor: pointer;
+}
+
+.delete-notification:hover {
+    background: darkred;
+}

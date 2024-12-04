@@ -8,7 +8,73 @@ import { db } from './firebaseConfig.js';
 // Firebase Authentication
 const auth = getAuth();
 
+
+const suggestionsContainer = document.getElementById("search-suggestions");
+
 document.addEventListener('DOMContentLoaded', async function () {
+
+    const searchBar = document.getElementById("search-bar");
+   
+
+    // Debounce to reduce Firestore queries
+    let debounceTimeout;
+    searchBar.addEventListener("input", (event) => {
+        const searchText = event.target.value.trim();
+        clearTimeout(debounceTimeout);
+    
+        if (searchText.length > 0) {
+            debounceTimeout = setTimeout(() => performSearch(searchText), 300);
+        } else {
+            suggestionsContainer.innerHTML = ""; // Clear suggestions
+            suggestionsContainer.style.display = "none"; // Hide the dropdown
+        }
+    });
+
+
+    searchBar.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") { // Check if the Enter key is pressed
+            event.preventDefault(); // Prevent default form submission (if inside a form)
+            const searchText = searchBar.value.trim();
+            if (searchText.length > 0) {
+                performSearch(searchText);
+                suggestionsContainer.style.display = "block"; // Ensure dropdown is visible
+            } else {
+                suggestionsContainer.innerHTML = ""; // Clear suggestions
+                suggestionsContainer.style.display = "none"; // Hide the dropdown
+            }
+        }
+    });
+    
+    
+    // Hide the dropdown when the search bar loses focus
+    searchBar.addEventListener("blur", () => {
+        suggestionsContainer.style.display = "none";
+    });
+    
+    // Show the dropdown when the search bar gains focus (if there are suggestions)
+    searchBar.addEventListener("focus", () => {
+        if (suggestionsContainer.innerHTML.trim() !== "") {
+            suggestionsContainer.style.display = "block";
+        }
+    });
+    
+
+    const searchInput = document.getElementById("search");
+
+searchInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") { // Check if the Enter key is pressed
+        event.preventDefault(); // Prevent default behavior
+        const searchText = searchInput.value.trim().toLowerCase();
+        filterAndDisplayFeeds(searchText); // Filter the feeds displayed on the page
+    }
+});
+
+
+
+
+
+
+
 
     const photoContainer = document.querySelector('.feeds'); // Assuming '.feeds' contains photo elements
 
@@ -54,6 +120,50 @@ document.addEventListener('DOMContentLoaded', async function () {
     setupPage();
 });
 
+
+// Function to filter and display feeds based on search term
+function filterAndDisplayFeeds(searchTerm) {
+    const feedsContainer = document.querySelector('.feeds');
+    if (!feedsContainer) {
+        console.error("Feeds container not found.");
+        return;
+    }
+
+    const allFeeds = Array.from(feedsContainer.children);
+
+    if (!searchTerm) {
+        // If the search term is empty, reload all feeds (or fetch them again)
+        fetchPhotos(true); // Adjust based on your hash or current state
+        return;
+    }
+
+    const filteredFeeds = allFeeds.filter((feed) => {
+        const username = feed.querySelector('.info h3')?.textContent.toLowerCase() || '';
+        const location = feed.querySelector('.info small')?.textContent.toLowerCase() || '';
+        const caption = feed.querySelector('.caption p')?.textContent.toLowerCase() || '';
+        const hashtags = feed.querySelector('.hashtags')?.textContent.toLowerCase() || '';
+
+        return (
+            username.includes(searchTerm) ||
+            location.includes(searchTerm) ||
+            hashtags.includes(searchTerm) ||
+            caption.includes(searchTerm)
+        );
+    });
+
+    feedsContainer.innerHTML = '';
+    if (filteredFeeds.length > 0) {
+        filteredFeeds.forEach((feed) => feedsContainer.appendChild(feed));
+    } else {
+        feedsContainer.innerHTML = '<p>No results found for your search.</p>';
+    }
+}
+
+
+
+
+
+
 async function checkUserAuthentication() {
     document.body.style.display = "none"; // Hide the page content initially
 
@@ -87,7 +197,13 @@ function navigateToSection(hash) {
         return; // Prevent navigation if no user is authenticated
     }
 
-    feedsContainer.innerHTML = ''; // Clear the container
+
+    // Do not clear elements outside the feeds section
+    if (!document.getElementById("notification-popup")) {
+        feedsContainer.innerHTML = ''; // Clear the container
+    }
+
+    
     updateActiveMenu(hash); // Highlight the correct menu item
 
     if (hash === '#home') {
@@ -194,7 +310,7 @@ async function setupPage() {
             window.location.href = 'ViewImage.html';
         }
         
-        if (event.target.classList.contains('uil-heart')) {
+        if (event.target.classList.contains('fas fa-heart')) {
             const photoElement = event.target.closest('.feed');
             if (!photoElement) {
                 console.error("Photo element not found.");
@@ -468,7 +584,7 @@ async function fetchPhotos(isHome) {
                     </div>
                     <div class="action-buttons">
                         <div class="interaction-buttons">
-                            <span><i class="uil uil-heart ${likedPhotoIds.includes(docSnapshot.id) ? 'liked' : ''}"></i></span>
+                            <span><i class="uil fas fa-heart ${likedPhotoIds.includes(docSnapshot.id) ? 'liked' : ''}"></i></span>
                             <span><i class="uil uil-comment-dots"></i></span>
                             <span><i class="uil uil-share-alt"></i></span>
                         </div>
@@ -600,22 +716,124 @@ async function toggleLike(photoId, ownerId, liked) {
 
 
 
+//header search bar
+async function performSearch(searchText) {
+    suggestionsContainer.innerHTML = `<p>Searching...</p>`; // Show loading message
+
+    const lowerCaseText = searchText.toLowerCase();
+
+    // Firestore queries for users, locations, and hashtags
+    const userQuery = query(
+        collection(db, "users"),
+        where("role", "==", "user"),
+        where("status", "==", "active")
+    );
+    const locationQuery = collection(db, "Location");
+    const hashtagQuery = collection(db, "Hashtag");
+
+    try {
+        // Fetch matching users
+        const userSnapshot = await getDocs(userQuery);
+        const userResults = userSnapshot.docs
+            .map((doc) => doc.data())
+            .filter(
+                (user) =>
+                    user.username.toLowerCase().includes(lowerCaseText) ||
+                    user.firstName.toLowerCase().includes(lowerCaseText) ||
+                    user.lastName.toLowerCase().includes(lowerCaseText)
+            )
+            .map((user) => ({
+                type: "user",
+                displayText: `${user.firstName} ${user.lastName} (@${user.username})`,
+                id: doc.id,
+            }));
+
+        // Fetch matching locations
+        const locationSnapshot = await getDocs(locationQuery);
+        const locationResults = locationSnapshot.docs
+            .map((doc) => doc.data())
+            .filter(
+                (location) =>
+                    location.city.toLowerCase().includes(lowerCaseText) ||
+                    location.country.toLowerCase().includes(lowerCaseText)
+            )
+            .map((location) => ({
+                type: "location",
+                displayText: `${location.city}, ${location.country}`,
+                id: doc.id,
+            }));
+
+        // Fetch matching hashtags
+        const hashtagSnapshot = await getDocs(hashtagQuery);
+        const hashtagResults = hashtagSnapshot.docs
+            .map((doc) => doc.data())
+            .filter((hashtag) =>
+                hashtag.hashtag.toLowerCase().includes(lowerCaseText.replace("#", ""))
+            )
+            .map((hashtag) => ({
+                type: "hashtag",
+                displayText: `#${hashtag.hashtag}`,
+                id: doc.id,
+            }));
+
+        // Combine all results
+        const results = [...userResults, ...locationResults, ...hashtagResults];
+
+        // Display the suggestions
+        displaySuggestions(results);
+    } catch (error) {
+        console.error("Error performing search:", error);
+        suggestionsContainer.innerHTML = `<p>Error loading suggestions.</p>`;
+    }
+}
+
+function displaySuggestions(results) {
+    suggestionsContainer.innerHTML = ""; // Clear previous suggestions
+
+    if (results.length === 0) {
+        suggestionsContainer.innerHTML = `<p>No results found.</p>`;
+        return;
+    }
+
+    results.forEach((result) => {
+        const suggestionItem = document.createElement("div");
+        suggestionItem.className = "suggestion-item";
+
+        suggestionItem.innerHTML = `
+    <div class="suggestion-content">
+        <span class="suggestion-text">${result.displayText}</span>
+        <span class="suggestion-type">(${result.type})</span>
+    </div>
+`;
 
 
+        suggestionItem.addEventListener("click", () => {
+            handleSuggestionClick(result);
+        });
 
+        suggestionsContainer.appendChild(suggestionItem);
+    });
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
+function handleSuggestionClick(result) {
+    switch (result.type) {
+        case "user":
+            window.location.href = `../html/UserProfile.html?userId=${result.id}`;
+            break;
+        case "location":
+            window.location.href = `../html/LocationDetails.html?locationId=${result.id}`;
+            break;
+        case "hashtag":
+            window.location.href = `../html/HashtagResults.html?hashtag=${result.displayText.replace(
+                "#",
+                ""
+            )}`;
+            break;
+        default:
+            console.error("Unknown suggestion type:", result.type);
+            break;
+    }
+}
 
 
 
