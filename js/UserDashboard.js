@@ -8,6 +8,9 @@ import { db } from './firebaseConfig.js';
 // Firebase Authentication
 const auth = getAuth();
 
+google.charts.load('current', { packages: ['bar'] });
+google.charts.setOnLoadCallback(() => console.log("Google Charts Loaded"));
+
 
 const suggestionsContainer = document.getElementById("search-suggestions");
 
@@ -200,7 +203,11 @@ async function checkUserAuthentication() {
 
 function navigateToSection(hash) {
     const feedsContainer = document.querySelector('.feeds');
-    if (!feedsContainer) return;
+    const analyticsContainer = document.getElementById('analytics-section');
+    const sortDropdown = document.getElementById('sort-options'); // Sort dropdown element
+    const searchInput = document.getElementById('search'); // Search input element
+
+    if (!feedsContainer || !analyticsContainer) return;
 
     if (!auth.currentUser) {
         console.error("User is not authenticated. Cannot navigate to section.");
@@ -216,15 +223,39 @@ function navigateToSection(hash) {
     
     updateActiveMenu(hash); // Highlight the correct menu item
 
-    if (hash === '#home') {
-        fetchPhotos(true); // Load "Home" content
-    } else if (hash === '#explore') {
-        fetchPhotos(false); // Load "Explore" content
-    } else {
-        console.warn(`Unknown hash: ${hash}, defaulting to Home.`);
-        window.location.hash = '#home'; // Redirect to Home by default
-        fetchPhotos(true);
-    }
+   // Clear content and show appropriate section
+   if (hash === '#home') {
+    feedsContainer.style.display = 'block';
+    analyticsContainer.style.display = 'none';
+    sortDropdown.style.display = 'inline-block'; // Show the dropdown
+    searchInput.setAttribute('placeholder', 'Search for photos or users, Diana?');
+    searchInput.oninput = null; // Remove analytics-specific behavior
+    fetchPhotos(true);
+} else if (hash === '#explore') {
+    feedsContainer.style.display = 'block';
+    analyticsContainer.style.display = 'none';
+    sortDropdown.style.display = 'inline-block'; // Show the dropdown
+    searchInput.setAttribute('placeholder', 'Search for photos or users, Diana?');
+    searchInput.oninput = null; // Remove analytics-specific behavior
+    fetchPhotos(false);
+} else if (hash === '#analytics') {
+    feedsContainer.style.display = 'none';
+    analyticsContainer.style.display = 'flex';
+    sortDropdown.style.display = 'none'; // Hide the dropdown in analytics
+    searchInput.setAttribute('placeholder', 'Search posts by caption in analytics');
+    searchInput.oninput = (event) => {
+        const searchQuery = event.target.value.toLowerCase();
+        filterChartData(searchQuery); // Call the chart filtering function
+    };
+    drawPostPopularityChart();
+} else {
+    console.warn(`Unknown hash: ${hash}, defaulting to Home.`);
+    window.location.hash = '#home';
+    feedsContainer.style.display = 'block';
+    analyticsContainer.style.display = 'none';
+    sortDropdown.style.display = 'inline-block'; // Show the dropdown
+    fetchPhotos(true);
+}
 }
 
 function redirectToLogin() {
@@ -865,6 +896,202 @@ function handleSuggestionClick(result) {
             break;
     }
 }
+
+
+
+
+
+// Global variable to store chart and data for zoom functionality
+let chart, chartData, chartOptions;
+let zoomLevel = 1;
+
+/**
+ * Fetch post popularity data and render the Google Charts bar chart.
+ */
+async function drawPostPopularityChart() {
+    const chartContainer = document.getElementById('post-popularity-chart');
+    chartContainer.innerHTML = '<p>Loading chart...</p>'; // Loading message
+
+    try {
+        const photosRef = collection(db, 'Photos');
+        const photosSnapshot = await getDocs(photosRef);
+
+        chartData = new google.visualization.DataTable();
+        chartData.addColumn('string', 'Post'); // Post title
+        chartData.addColumn('number', 'Likes'); // Likes count
+        chartData.addColumn('number', 'Views'); // Views count
+        chartData.addColumn({ type: 'string', role: 'tooltip' }); // Tooltip (full caption)
+
+        photosSnapshot.forEach((doc) => {
+            const photo = doc.data();
+            const truncatedCaption = truncateText(photo.caption || 'Untitled', 25); // Short caption
+            const fullCaption = photo.caption || 'Untitled'; // Full caption
+            chartData.addRow([
+                truncatedCaption, // Displayed in the chart
+                photo.likesCount || 0, // Likes
+                photo.viewCount || 0, // Views
+                fullCaption, // Tooltip with full text
+            ]);
+        });
+
+        if (chartData.getNumberOfRows() === 0) {
+            chartContainer.innerHTML = '<p>No posts available to display popularity.</p>';
+            return;
+        }
+
+        chartOptions = {
+            chart: {
+                title: 'Post Popularity',
+                subtitle: 'Comparison of likes and views across posts',
+            },
+            bars: 'horizontal',
+            height: 500 * zoomLevel,
+            tooltip: { isHtml: true },
+            hAxis: {
+                title: 'Count',
+                textStyle: { fontSize: 14 },
+                titleTextStyle: { fontSize: 16 },
+            },
+            vAxis: {
+                title: 'Post Caption',
+                textStyle: { fontSize: 14 },
+                titleTextStyle: { fontSize: 16 },
+            },
+            legend: {
+                textStyle: { fontSize: 14 },
+            },
+        };
+
+        // Draw the chart
+        chart = new google.charts.Bar(chartContainer);
+        chart.draw(chartData, google.charts.Bar.convertOptions(chartOptions));
+    } catch (error) {
+        console.error('Error fetching or rendering chart data:', error);
+        chartContainer.innerHTML = '<p>Error loading chart. Please try again later.</p>';
+    }
+}
+
+
+/**
+ * Zoom in or out on the chart.
+ * @param {number} direction - 1 to zoom in, -1 to zoom out
+ */
+function zoomChart(direction) {
+    const maxZoomLevel = 1.5; // Maximum zoom level
+    const minZoomLevel = 0.5; // Minimum zoom level
+
+    zoomLevel += direction * 0.2; // Adjust zoom level (increase or decrease)
+    zoomLevel = Math.max(minZoomLevel, Math.min(zoomLevel, maxZoomLevel)); // Clamp zoom level between min and max
+
+    if (chart && chartData && chartOptions) {
+        // Ensure chart height stays within max-height of the container
+        const maxHeight = 500; // Max height of the chart container in pixels
+        chartOptions.height = Math.min(maxHeight * zoomLevel, maxHeight);
+        chartOptions.vAxis.textStyle.fontSize = 12 * zoomLevel; // Adjust text size dynamically
+        chart.draw(chartData, google.charts.Bar.convertOptions(chartOptions));
+    }
+}
+
+
+// Event listeners for zoom buttons
+document.getElementById('zoom-in').addEventListener('click', () => zoomChart(1));
+document.getElementById('zoom-out').addEventListener('click', () => zoomChart(-1));
+
+// Resize the chart on window resize
+window.addEventListener('resize', () => {
+    if (chart && chartData && chartOptions) {
+        chart.draw(chartData, google.charts.Bar.convertOptions(chartOptions));
+    }
+});
+
+
+
+const chartWrapper = document.getElementById('post-popularity-chart-wrapper');
+let isDragging = false;
+let startX, scrollLeft;
+
+// Mouse down
+chartWrapper.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    chartWrapper.classList.add('dragging');
+    startX = e.pageX - chartWrapper.offsetLeft;
+    scrollLeft = chartWrapper.scrollLeft;
+});
+
+// Mouse up or leave
+chartWrapper.addEventListener('mouseup', () => {
+    isDragging = false;
+    chartWrapper.classList.remove('dragging');
+});
+
+chartWrapper.addEventListener('mouseleave', () => {
+    isDragging = false;
+    chartWrapper.classList.remove('dragging');
+});
+
+// Mouse move
+chartWrapper.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    const x = e.pageX - chartWrapper.offsetLeft;
+    const walk = (x - startX) * 2; // Adjust scroll speed
+    chartWrapper.scrollLeft = scrollLeft - walk;
+});
+
+
+function truncateText(text, maxLength) {
+    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+}
+
+
+
+/**
+ * Filter chart data based on the search query and redraw the chart.
+ * @param {string} query - The user's search query.
+ */
+function filterChartData(query) {
+    if (!chartData || chartData.getNumberOfRows() === 0) return;
+
+    // Create a new DataTable for filtered data
+    const filteredData = new google.visualization.DataTable();
+    filteredData.addColumn('string', 'Post');
+    filteredData.addColumn('number', 'Likes');
+    filteredData.addColumn('number', 'Views');
+
+    for (let i = 0; i < chartData.getNumberOfRows(); i++) {
+        const caption = chartData.getValue(i, 0).toLowerCase(); // Get the post caption
+        if (caption.includes(query)) {
+            filteredData.addRow([
+                chartData.getValue(i, 0), // Post
+                chartData.getValue(i, 1), // Likes
+                chartData.getValue(i, 2), // Views
+            ]);
+        }
+    }
+
+    // If no matching data, show a message
+    const chartContainer = document.getElementById('post-popularity-chart');
+    if (filteredData.getNumberOfRows() === 0) {
+        chartContainer.innerHTML = '<p>No matching posts found.</p>';
+        return;
+    }
+
+    // Redraw the chart with filtered data
+    chart.draw(filteredData, google.charts.Bar.convertOptions(chartOptions));
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

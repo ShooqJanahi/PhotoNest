@@ -409,6 +409,46 @@ main .container .left .profile {
 
 /* ============================= MIDDLE ================================ */
 
+/* Analytics Section */
+.analytics {
+  display: none; /* Hidden by default */
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.analytics-card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  text-align: center;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.analytics-placeholder h2 {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+
+.analytics-placeholder p {
+  font-size: 16px;
+  color: #666;
+}
+
+
+#post-popularity-chart {
+  width: 100%; /* Ensures the chart takes up the full width of the card */
+  height: 500px; /* Default chart height */
+  max-height: 500px; /* Prevents the chart from growing too tall */
+  overflow: hidden; /* Ensures content does not overflow the container */
+}
+
+
 /* Sort Container */
 .sort-container {
   display: flex;

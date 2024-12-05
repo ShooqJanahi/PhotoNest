@@ -1,3 +1,5 @@
+//View_Edit_Image.js
+
 // Importing necessary Firebase modules
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getFirestore, doc, getDoc, deleteDoc, collection, query, where, getDocs, addDoc, increment, updateDoc, orderBy, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
@@ -342,6 +344,10 @@ async function setupUIAndListeners() {
     }
 
     try {
+
+        // Increment the view count for the photo
+        await incrementViewCount(photoId);
+        
         const photoData = await getPhotoData(photoId);
         if (!photoData) {
             console.error("Photo data not found.");
@@ -1419,4 +1425,25 @@ async function logActivity(userId, category, targetId, additionalData = {}) {
     }
 }
 
+/**
+ * Increment the view count for a specific photo in Firestore.
+ * @param {string} photoId - The ID of the photo whose view count should be incremented.
+ */
+async function incrementViewCount(photoId) {
+    if (!photoId) {
+        console.error("Photo ID is required to increment the view count.");
+        return;
+    }
 
+    try {
+        // Reference to the photo document
+        const photoDocRef = doc(db, "Photos", photoId);
+
+        // Increment the viewCount field in Firestore
+        await updateDoc(photoDocRef, { viewCount: increment(1) });
+
+        console.log(`View count incremented for photoId: ${photoId}`);
+    } catch (error) {
+        console.error("Error incrementing view count:", error);
+    }
+}

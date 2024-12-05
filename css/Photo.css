@@ -1,3 +1,11 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    flex: 1; /* Allow it to stretch to fill remaining space */
+}
+
+
+
 /* Global Styles */
 html, body {
     height: 100%; /* Make sure the html and body take the full height of the viewport */
@@ -62,6 +70,20 @@ body {
     display: none;
     border-radius: 5px;
 }
+.profile-container img {
+    width: 50px; /* Adjust the size of the profile image */
+    height: 50px;
+    border-radius: 50%; /* Make it circular */
+    border: 2px solid hsl(252, 75%, 60%); /* Thin purple border */
+    padding: 2px; /* Space between the border and the image */
+    box-shadow: 0 0 8px rgba(128, 0, 255, 0.3); /* Optional glow effect */
+    transition: transform 0.2s ease-in-out; /* Smooth animation on hover */
+}
+
+.profile-container img:hover {
+    transform: scale(1.1); /* Slight enlargement on hover */
+}
+
 
 .profile-container:hover .profile-dropdown {
     display: block;
@@ -495,49 +517,105 @@ body {
     color: #6a0dad; /* Matches the branding color */
 }
 
-/* Responsive Adjustments */
+
+/* Media Queries for Responsiveness */
+
+/* Tablet View */
 @media (max-width: 1024px) {
-    .search-bar, .icons {
-        width: 100%;
+    .footer {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: center;
     }
+
     .search-bar {
-        margin-bottom: 10px;
+        width: 100%; /* Full width for the search bar */
+        margin-bottom: 15px;
         justify-content: center;
+    }
+
+    .main-content {
+        padding: 10px; /* Adjust padding for smaller screens */
+    }
+
+    .card {
+        width: 220px; /* Smaller card width */
+    }
+
+    .card img {
+        height: 150px; /* Adjust image height */
     }
 }
 
+/* Mobile View */
 @media (max-width: 768px) {
     .footer {
-        flex-direction: column;
+        flex-direction: column; /* Stack sections vertically */
         align-items: center;
         padding: 10px;
     }
-    .footer .links, .footer .social, .footer .copyright {
-        flex: none;
-        width: 100%;
-        text-align: center;
-        margin-top: 10px;
+
+    .footer div {
+        margin: 5px 0; /* Reduce margin between sections */
     }
-    .footer .links {
-        justify-content: center;
+
+    .header {
+        flex-direction: column; /* Stack header elements */
+        align-items: flex-start;
+        padding: 10px;
     }
-    .album-card {
-        max-width: 100%;
+
+    .search-bar {
+        width: 100%; /* Full width */
+        margin-bottom: 10px;
+    }
+
+    .icons {
+        justify-content: center; /* Center icons */
+        gap: 15px; /* Space between icons */
+    }
+
+    .main-content {
+        gap: 10px; /* Smaller gap between items */
+    }
+
+    .card {
+        width: 180px; /* Smaller cards */
+    }
+
+    .card img {
+        height: 120px; /* Smaller images */
     }
 }
 
+/* Extra Small Mobile View */
 @media (max-width: 480px) {
-    .search-bar button, .icons button {
-        padding: 8px 16px;
-        font-size: 14px;
-    }
-    .album-card .info h3 {
-        font-size: 16px;
-    }
-    .footer .links {
-        gap: 20px;
-    }
-    .footer {
+    .header {
+        flex-direction: column; /* Stack header elements */
+        text-align: center;
         padding: 10px;
+    }
+
+    .footer {
+        flex-direction: column;
+        text-align: center;
+        font-size: 12px; /* Reduce font size */
+    }
+
+    .card {
+        width: 100%; /* Full width cards */
+    }
+
+    .card img {
+        height: auto; /* Adjust height automatically */
+    }
+
+    .footer div {
+        width: 100%; /* Full width sections */
+        margin: 5px 0;
+    }
+
+    .social-icons i {
+        font-size: 18px; /* Smaller icons */
     }
 }

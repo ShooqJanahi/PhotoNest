@@ -12,6 +12,9 @@
 
     <!-- ICONSCOUT CDN for icons -->
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v2.1.6/css/unicons.css">
+    <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/solid.css" rel="stylesheet">
+
 
     <!-- Custom stylesheet -->
     <link rel="stylesheet" href="../css/UserDashboard.css">
@@ -20,6 +23,9 @@
     <!--font Awesome CDN-->
     <link rel="stylesheet" href= "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
     
+
+    <!--Google Chart-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
     <!-- Favicon -->
     <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png">
@@ -35,6 +41,7 @@
     <!-- Firebase Initialization and app scripts as modules -->
     <script type="module" src="../js/firebaseConfig.js"></script>
     <script type="module" src="../js/login.js"></script>
+    
     <script type="module" src="../js/UserDashboard.js"></script>
     <script type="module" src="../js/Notification.js"></script> <!-- notificatioion popup-->
     
@@ -106,14 +113,15 @@
                         <h3>Messages</h3>
                     </a>
                     <a class="menu-item" href="VaultPasscode.html">
-                        <span><i class="uil uil-bookmark"></i></span>
+                        <span><i class="uis uis-padlock"></i></span>
                         <h3>Vault</h3>
                     </a>
-                    <a class="menu-item">
-                        <span><i class="uil uil-chart-line"></i></span>
+                    <a class="menu-item" href="Album.html">
+                        <span><i class="uis uis-scenery"></i></span>
                         <h3>Album</h3>
                     </a>
-                    <a class="menu-item">
+                    
+                    <a class="menu-item" href="UserDashboard.html#analytics">
                         <span><i class="uil uil-chart-line"></i></span>
                         <h3>Analytics</h3>
                     </a>
@@ -149,9 +157,32 @@
     </form>
 
     <!------------------- FEEDS --------------------->
+    <!---------------------For home and explore --------------->
     <div class="feeds" data-photo-id="PHOTO_ID" data-owner-id="OWNER_ID">
         <!-- Dynamic feeds will be loaded here -->
     </div>
+
+ <!-------------------- Analytics Section --------------->
+ <div class="analytics hidden" id="analytics-section">
+    <div class="analytics-card">
+        <!-- Placeholder card for graphs and charts -->
+       
+       
+        <div id="post-popularity-chart-wrapper" style="overflow-x: auto; white-space: nowrap;">
+            <!-- Placeholder for Google Chart -->
+            <div id="post-popularity-chart" style="display: inline-block; width: 100%;"></div>
+        </div>
+        
+         <!-- Buttons for zoom control -->
+         <div class="zoom-controls">
+            <button id="zoom-in" class="btn btn-primary">+</button>
+            <button id="zoom-out" class="btn btn-primary">-</button>
+        </div>
+    
+    </div>
+    </div>
+</div>
+
 </div>
 <!------------------------ END OF MIDDLE ------------------------>
 

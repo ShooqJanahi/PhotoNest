@@ -9,7 +9,7 @@ const notificationsTab = document.getElementById("notifications");
 let notifications = []; // Global notifications array
 let usernames = {}; // Global map for senderId to username mapping
 
-function createNotificationPopup() {
+export function createNotificationPopup() {
     // Create overlay
     const overlay = document.createElement("div");
     overlay.id = "popup-overlay";
@@ -61,7 +61,7 @@ export function openPopup() {
 }
 
 // Function to close the popup
-function closePopup() {
+export function closePopup() {
     const overlay = document.getElementById("popup-overlay");
     const popup = document.getElementById("notification-popup");
 
@@ -72,7 +72,7 @@ function closePopup() {
 }
 
 // Fetch and render notifications
-async function fetchAndRenderNotifications() {
+export async function fetchAndRenderNotifications() {
     const user = JSON.parse(sessionStorage.getItem("user"));
     if (!user || !user.uid) {
         console.error("User not logged in or session data is missing required fields!");
@@ -142,7 +142,7 @@ async function fetchAndRenderNotifications() {
 }
 
 // Function to render notifications based on search and filter
-function renderNotifications() {
+export function renderNotifications() {
     const searchInput = document.getElementById("notification-search");
     const filterDropdown = document.getElementById("notification-filter");
     const notificationList = document.getElementById("notification-list");

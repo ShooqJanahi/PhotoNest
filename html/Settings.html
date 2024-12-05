@@ -8,11 +8,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
 
-    <!-- ICONSCOUT CDN for icons -->
-    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v2.1.6/css/unicons.css">
+   <!-- ICONSCOUT CDN for icons -->
+   <link rel="stylesheet" href="https://unicons.iconscout.com/release/v2.1.6/css/unicons.css">
+   <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
+<link href="https://unicons.iconscout.com/release/v4.0.0/css/solid.css" rel="stylesheet">
+
 
     <!-- Custom stylesheet -->
     <link rel="stylesheet" href="../css/Settings.css">
+    <link rel="stylesheet" href="../css/Notification.css">
 
 
     <!--font Awesome CDN-->
@@ -32,8 +36,10 @@
     <!-- Firebase Initialization and app scripts as modules -->
     <script type="module" src="../js/firebaseConfig.js"></script>
     <script type="module" src="../js/login.js"></script>
-    <script type="module" src="../js/Settings.js"></script>
+    <script type="module" src="../js/Notification.js"></script> <!-- notificatioion popup-->
     
+    <script type="module" src="../js/Settings.js"></script>
+   
 
 </head>
 
@@ -91,8 +97,9 @@
 
                 <!-------------------- SIDEBAR ------------------------->
                 
+                <!-------------------- SIDEBAR ------------------------->
                 <div class="sidebar">
-                    <a class="menu-item " href="UserDashboard.html#home">
+                    <a class="menu-item" href="UserDashboard.html#home">
                         <span><i class="uil uil-home"></i></span>
                         <h3>Home</h3>
                     </a>
@@ -108,23 +115,30 @@
                         <span><i class="uil uil-envelope-alt"><small class="notification-count">6</small></i></span>
                         <h3>Messages</h3>
                     </a>
-                    <a class="menu-item">
-                        <span><i class="uil uil-bookmark"></i></span>
+                    <a class="menu-item" href="VaultPasscode.html">
+                        <span><i class="uis uis-padlock"></i></span>
                         <h3>Vault</h3>
                     </a>
-                    <a class="menu-item">
-                        <span><i class="uil uil-chart-line"></i></span>
-                        <h3>ALbum</h3>
+                    <a class="menu-item" href="Album.html">
+                        <span><i class="uis uis-scenery"></i></span>
+                        <h3>Album</h3>
                     </a>
-                    <a class="menu-item">
+                    
+                    <a class="menu-item" href="UserDashboard.html#analytics">
                         <span><i class="uil uil-chart-line"></i></span>
                         <h3>Analytics</h3>
                     </a>
-                    
-                    <a class="menu-item active" href="Settings.html">
+                   
+                    <a class="menu-item" href="Settings.html">
                         <span><i class="uil uil-setting"></i></span>
                         <h3>Settings</h3>
                     </a>
+
+                    <a class="menu-item logout-button" href="#">
+                        <span><i class="uis uis-signout"></i></span>
+                        <h3>Logout</h3>
+                    </a>
+                    
                 </div>
                
                 <!------------------- END OF SIDEBAR -------------------->
