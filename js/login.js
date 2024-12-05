@@ -75,6 +75,9 @@ if (loginForm) {
                         // Log login activity
                         await logActivity(userId, "login", `${username} logged in.`);
                         try {
+
+                            sessionStorage.setItem("role", userRole.toLowerCase()); // Ensure role is set
+
                             // Save all user data to sessionStorage as a JSON string
                             sessionStorage.setItem("user", JSON.stringify({
                                 ...userData,          // All user data from Firestore

@@ -1,131 +1,70 @@
 import { auth } from './firebaseConfig.js';
 import { db } from './firebaseConfig.js'; 
-import { query, collection, where, getDocs, updateDoc, doc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+import { query, collection, where, getDocs } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
 
 // Function to check login status and user role
-export function checkLoginStatus() {
-    const username = sessionStorage.getItem("username");
-    const role = sessionStorage.getItem("role");
+async function checkLoginStatus() {
+    console.log("Checking login status...");
 
-    // Redirect to login if no username is found in session storage
-    if (!username) {
-        window.location.href = '../html/index.html'; 
-        return;
-    }
-
-    // Ensure the user has the correct role (admin)
-    if (role !== 'admin') {
-        window.location.href = '../html/Error.html'; // Redirect if not admin
-        return;
-    }
-}
-
-// Get references to the hamburger menu button and the mobile menu
-const hamburgerMenu = document.getElementById('hamburgerMenu');
-const mobileMenu = document.querySelector('.mobile-menu');
-
-// Function to toggle the mobile menu visibility
-function toggleMobileMenu() {
-    mobileMenu.classList.toggle('show');
-}
-
-// Function to close the mobile menu
-function closeMobileMenu() {
-    mobileMenu.classList.remove('show');
-}
-
-// Toggle the mobile menu when the hamburger menu button is clicked
-hamburgerMenu.addEventListener('click', (event) => {
-    event.stopPropagation(); // Prevent click from bubbling up to document
-    toggleMobileMenu();
-});
-
-// Close the menu when clicking outside of it
-document.addEventListener('click', (event) => {
-    if (!mobileMenu.contains(event.target) && !hamburgerMenu.contains(event.target)) {
-        closeMobileMenu();
-    }
-});
-
-// Close the menu if the window is resized to a desktop width
-window.addEventListener('resize', () => {
-    if (window.innerWidth > 768) { // Adjust this value to your breakpoint
-        closeMobileMenu();
-    }
-});
-
-
-
-// Function to log out the user and update Firestore
-export async function logout() {
-    console.log("Logout function called");
-
-    try {
-        const userId = auth.currentUser.uid;
-        const sessionRef = doc(db, "sessions", userId);
-        const logoutTimestamp = new Date().toISOString();
-
-        // Mark user as offline in Firestore
-        await updateDoc(sessionRef, {
-            status: "offline",
-            logoutTime: logoutTimestamp
+    // Wait for Firebase Authentication to resolve the current user
+    const currentUser = await new Promise((resolve) => {
+        const unsubscribe = auth.onAuthStateChanged((user) => {
+            unsubscribe(); // Unsubscribe after resolving
+            resolve(user);
         });
+    });
 
-        // Firebase Auth sign-out
-        await auth.signOut();
-        console.log("User signed out successfully");
-
-        // Clear session storage
-        sessionStorage.removeItem("username");
-        sessionStorage.removeItem("role");
-
-        // Redirect to login page
+    if (!currentUser) {
+        console.warn("No authenticated user. Redirecting to login.");
         window.location.href = '../html/index.html';
+        return;
+    }
+
+    // Assume the user is authenticated, verify their role
+    try {
+        const userDoc = await getDocs(
+            query(collection(db, "users"), where("email", "==", currentUser.email))
+        );
+
+        if (userDoc.empty) {
+            console.warn("No user data found. Redirecting to login.");
+            window.location.href = '../html/index.html';
+            return;
+        }
+
+        const userData = userDoc.docs[0].data();
+        console.log("User data fetched:", userData);
+
+        if (userData.role.toLowerCase() !== 'admin') {
+            console.warn("Unauthorized access attempt. Redirecting to error page.");
+            window.location.href = '../html/Error.html';
+            return;
+        }
+
+        console.log("Login status validated for admin:", userData.username);
     } catch (error) {
-        console.error("Error signing out: ", error);
+        console.error("Error validating login status:", error);
+        window.location.href = '../html/index.html';
     }
 }
 
-// Inactivity timeout logic
-let inactivityTime = 0;
-function resetInactivityTimer() {
-    inactivityTime = 0;
-}
-
-function checkInactivity() {
-    inactivityTime++;
-    if (inactivityTime >= 900) { // 15 minutes = 900 seconds
-        logout(); 
-    }
-}
-
-// Attach event listeners for user interactions to reset inactivity timer
-window.onload = function() {
-    resetInactivityTimer(); // Reset timer on page load
-    document.addEventListener('mousemove', resetInactivityTimer);
-    document.addEventListener('keypress', resetInactivityTimer);
-    document.addEventListener('click', resetInactivityTimer);
-    
-    setInterval(checkInactivity, 1000); // Check every second
-
-    // Attach the logout function to the logout button
-    const logoutButton = document.getElementById('logoutButton');
-    if (logoutButton) {
-        logoutButton.addEventListener('click', logout);
-    } else {
-        console.error('Logout button not found!');
-    }
-};
-
-// Ensure the user is logged in and has the right role when the DOM is fully loaded
-document.addEventListener('DOMContentLoaded', () => {
-    checkLoginStatus();
-    getOnlineUsers(); // Fetch online users once the page loads
+// Ensure the user is logged in and has the correct role when the DOM is ready
+document.addEventListener('DOMContentLoaded', async () => {
+    await checkLoginStatus();
+    initializeDashboard(); // Proceed to initialize the admin dashboard
 });
 
-// Function to get all online users and display their usernames
-async function getOnlineUsers() {
-    const sessionsRef = collection(db, "sessions");
+// Function to initialize the admin dashboard
+function initializeDashboard() {
+    console.log("Initializing admin dashboard...");
+    fetchOnlineUsers(); // Fetch and display online users
+    drawSpamReportsChart(); // Draw the spam report chart
+    drawActivityLogChart(); // Draw the activity log chart
+}
+
+// Function to fetch and display online users
+async function fetchOnlineUsers() {
+    const sessionsRef = collection(db, "sessions ");
     const q = query(sessionsRef, where("status", "==", "online"));
 
     try {
@@ -147,7 +86,6 @@ async function getOnlineUsers() {
         });
 
         if (querySnapshot.empty) {
-            // If no users are online, show a message
             const li = document.createElement('li');
             li.textContent = "No users are currently online.";
             onlineUsersList.appendChild(li);
@@ -157,66 +95,87 @@ async function getOnlineUsers() {
     }
 }
 
-// Call this function to display online users (for admin view)
-getOnlineUsers();
-
-
-
-//Spam report Chart
-// Load Google Charts
+// Spam report chart
 google.charts.load('current', { 'packages': ['bar'] });
 google.charts.setOnLoadCallback(drawSpamReportsChart);
 
 function drawSpamReportsChart() {
-    // Data for weekly spam reports
-    var data = new google.visualization.arrayToDataTable([
+    const data = google.visualization.arrayToDataTable([
         ['Week', 'Spam Reports'],
         ['Week 1', 5],
         ['Week 2', 8],
         ['Week 3', 12],
         ['Week 4', 4],
-        ['Week 5', 7]
+        ['Week 5', 7],
     ]);
 
-    // Chart options
-    var options = {
+    const options = {
         legend: { position: 'none' },
         chart: {
             title: 'Weekly Spam Reports',
-            subtitle: 'Number of spam reports recorded each Saturday'
+            subtitle: 'Number of spam reports recorded',
         },
         axes: {
             x: {
-                0: { side: 'top', label: 'Week Number' } // Top x-axis label
-            }
+                0: { side: 'top', label: 'Week Number' }, // Top x-axis label
+            },
         },
-        bar: { groupWidth: "90%" }
+        bar: { groupWidth: "90%" },
     };
 
-    // Draw the chart in the specified div
-    var chart = new google.charts.Bar(document.getElementById('spam_reports_chart'));
+    const chart = new google.charts.Bar(document.getElementById('spam_reports_chart'));
     chart.draw(data, google.charts.Bar.convertOptions(options));
 }
 
-//Activity log
-google.charts.load('current', {'packages':['corechart']});
-google.charts.setOnLoadCallback(drawChart);
+// Activity log chart
+google.charts.load('current', { packages: ['corechart'] });
+google.charts.setOnLoadCallback(drawActivityLogChart);
 
-function drawChart() {
-  var data = google.visualization.arrayToDataTable([
-    ['Year', 'Sales', 'Expenses'],
-    ['2004',  1000,      400],
-    ['2005',  1170,      460],
-    ['2006',  660,       1120],
-    ['2007',  1030,      540]
-  ]);
+function drawActivityLogChart() {
+    const data = google.visualization.arrayToDataTable([
+        ['Activity', 'Occurrences'],
+        ['Logins', 50],
+        ['Likes', 40],
+        ['Comments', 30],
+        ['Spam Reports', 10],
+    ]);
 
-  var options = {
-    title: 'Company Performance',
-    curveType: 'function',
-    legend: { position: 'bottom' }
-  };
+    const options = {
+        title: 'Admin Activity Log',
+        pieHole: 0.4,
+        legend: { position: 'right' },
+    };
 
-  var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
-  chart.draw(data, options);
+    const chart = new google.visualization.PieChart(document.getElementById('activity_log_chart'));
+    chart.draw(data, options);
 }
+
+// Sidebar menu toggle logic
+const hamburgerMenu = document.getElementById('hamburgerMenu');
+const mobileMenu = document.querySelector('.mobile-menu');
+
+function toggleMobileMenu() {
+    mobileMenu.classList.toggle('show');
+}
+
+function closeMobileMenu() {
+    mobileMenu.classList.remove('show');
+}
+
+hamburgerMenu.addEventListener('click', (event) => {
+    event.stopPropagation(); // Prevent event bubbling
+    toggleMobileMenu();
+});
+
+document.addEventListener('click', (event) => {
+    if (!mobileMenu.contains(event.target) && !hamburgerMenu.contains(event.target)) {
+        closeMobileMenu();
+    }
+});
+
+window.addEventListener('resize', () => {
+    if (window.innerWidth > 768) {
+        closeMobileMenu();
+    }
+});
+

@@ -1,90 +1,104 @@
+<!-- Album.html -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PhotoNest</title>
+    <title>Album</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
     <link rel="stylesheet" href="../css/Photo.css"> <!-- Link to the external CSS file -->
     <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png">
+    <link rel="stylesheet" href="../css/Notification.css">
+
+    <script type="module" src="../js/firebaseConfig.js"></script>
+    <script type="module" src="../js/login.js"></script>
+    <script type="module" src="../js/DisplayPhotos.js"></script>
+    <script type="module" src="../js/Notification.js"></script>
+    
 </head>
 <body>
     <div class="header">
         <div class="logo">
-            <i class="fas fa-camera-retro"></i> PhotoNest
+            <img src="../assets/PhotoNest_Transparent.png" alt="PhotoNest" id="logo-image"> <!-- Update the source path as needed -->
+    PhotoNest
         </div>
         <div class="search-bar">
-            <input type="text" placeholder="Search albums...">
-            <button>Sort</button>
-            <button>Enter</button>
+            <input type="text" id="album-search" placeholder="Search albums...">
+            <button id="search-button">Search</button>
         </div>
+        
         <div class="icons">
             <button>Create Album</button>
-            <i class="fas fa-bell"></i>
-            <i class="fas fa-user"></i>
-        </div>
+<!-- Create Album Modal -->
+<div id="createAlbumModal" class="modal hidden">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Create Album</h2>
+        <form id="createAlbumForm">
+            <label for="albumTitle">Title:</label>
+            <input type="text" id="albumTitle" name="albumTitle" required>
+            <button type="submit">Create</button>
+        </form>
     </div>
-    <div class="main-content">
-        <div class="album-card">
-            <div class="album-options"><i class="fas fa-ellipsis-v"></i></div>
-            <img src="https://placehold.co/250x150" alt="Summer Vacation">
-            <div class="info">
-                <h3>Summer Vacation</h3>
-                <p>15 photos</p>
+</div>
+            
+            <i class="fas fa-bell" id="notification-bell"></i>
+            <div class="profile-container">
+                <img src="" alt="User Profile" id="profile-image">
+                <div class="profile-dropdown hidden">
+                    <a href="Settings.html">Settings</a>
+                    <a href="#" id="logout-button">Logout</a>
+                </div>
             </div>
         </div>
-        <div class="album-card">
-            <div class="album-options"><i class="fas fa-ellipsis-v"></i></div>
-            <img src="https://placehold.co/250x150" alt="Spring Blossoms">
-            <div class="info">
-                <h3>Spring Blossoms</h3>
-                <p>20 photos</p>
-            </div>
-        </div>
-        <div class="album-card">
-            <div class="album-options"><i class="fas fa-ellipsis-v"></i></div>
-            <img src="https://placehold.co/250x150" alt="City Nights">
-            <div class="info">
-                <h3>City Nights</h3>
-                <p>30 photos</p>
-            </div>
-        </div>
-        <div class="album-card">
-            <div class="album-options"><i class="fas fa-ellipsis-v"></i></div>
-            <img src="https://placehold.co/250x150" alt="Beach Day">
-            <div class="info">
-                <h3>Beach Day</h3>
-                <p>10 photos</p>
-            </div>
-        </div>
+        
     </div>
-    <div class="footer">
-        <div class="links">
-            <div>
-                <a href="#">Home</a>
-                <a href="#">Explore</a>
-                <a href="#">Album</a>
-            </div>
-            <div>
-                <a href="#">Profile</a>
-                <a href="#">Vault</a>
-                <a href="#">Messages</a>
-            </div>
-            <div>
-                <a href="#">Settings</a>
-                <a href="#">Privacy Policy</a>
-                <a href="#">Terms of Service</a>
-            </div>
-        </div>
-        <div class="social">
-            <span>Follow us</span>
-            <i class="fab fa-instagram"></i>
-            <i class="fab fa-facebook"></i>
+    <div class="main-content" id="albums-container">
+        <!-- Album cards will be dynamically injected here -->
+    </div>
+
+    <!-- Edit Album Modal -->
+<div id="editAlbumModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3>Edit Album Title</h3>
+        <input type="text" id="editAlbumTitle" placeholder="Enter new title" required>
+        <button id="saveEdit">Save</button>
+    </div>
+</div>
+
+    
+   <!-- Footer Section -->
+   <div class="footer">
+    <div>
+        <h4>Quick Links</h4>
+        <a href="UserDashboard.html#Home">Home</a> <!-- Link to privacy policy -->
+        <a href="UserDashboard.html#Home">Explore</a>
+        <a href="Album.html">Album</a>
+        <a href="">Messages</a>
+
+    </div>
+    <div>
+        <h4>Follow Us</h4>
+        <div class="social-icons"> <!-- Social media icons -->
+            <a href="https://www.facebook.com/profile.php?id=61566861417599"><i class="fab fa-facebook-f"></i></a>
+
+            <a href="https://www.instagram.com/photonest.bh/"><i class="fab fa-instagram"></i></a>
         </div>
         <div class="copyright">
-            © 2024 PhotoNest
+            &copy; 2024 PhotoNest <!-- Copyright notice -->
         </div>
     </div>
+
+    <div>
+        <h4>Legal</h4>
+        <a href="terms.html#privacy-policy">Privacy Policy</a> <!-- Link to privacy policy -->
+        <a href="terms.html#TermsAndCondition">Terms and Conditions</a> <!-- Link to terms and conditions -->
+    </div>
+
+
+</div>
 </body>
 </html>

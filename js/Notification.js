@@ -1,3 +1,5 @@
+//Notification.js 
+
 // Import Firebase services
 import { collection, query, where, getDocs, orderBy, doc, deleteDoc, getDoc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
 import { db } from './firebaseConfig.js';
@@ -45,7 +47,9 @@ function createNotificationPopup() {
 }
 
 // Function to open the popup
-function openPopup() {
+export function openPopup() {
+    console.log("openPopup function triggered");
+    
     const overlay = document.getElementById("popup-overlay");
     const popup = document.getElementById("notification-popup");
 

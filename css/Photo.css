@@ -1,6 +1,10 @@
 /* Global Styles */
 html, body {
     height: 100%; /* Make sure the html and body take the full height of the viewport */
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* Include padding and border in the element's width and height */
+
 }
 
 
@@ -34,6 +38,84 @@ body {
     font-weight: 700;
     margin: 0;
 }
+
+#profile-image {
+    height: 24px;  /* Adjust the size to match your design */
+    width: 24px;   /* Ensure it's square if that fits your design */
+    border-radius: 50%; /* Makes the image circular */
+    cursor: pointer; /* Maintains the pointer cursor as with the icon */
+    margin-left: 10px; /* Adds space between the bell icon and the profile image */
+}
+
+.profile-container {
+    position: relative;
+    cursor: pointer;
+}
+
+.profile-dropdown {
+    position: absolute;
+    background-color: #fff;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    padding: 12px 16px;
+    z-index: 1;
+    right: 0;
+    display: none;
+    border-radius: 5px;
+}
+
+.profile-container:hover .profile-dropdown {
+    display: block;
+}
+
+.profile-dropdown a {
+    display: block;
+    color: black;
+    padding: 8px 16px;
+    text-decoration: none;
+}
+
+.profile-dropdown a:hover {
+    background-color: #f1f1f1;
+}
+
+
+/*create album button*/
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 10px;
+    width: 30%;
+    text-align: center;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
 .logo {
     font-size: 24px;
     font-weight: 700;
@@ -194,7 +276,13 @@ body {
 
 /* Album Card */
 .album-card {
+    position: relative; /* Ensure proper positioning for child elements */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+   
     background-color: #fff;
+    padding: 15px;
     border-radius: 10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     width: 100%;
@@ -202,6 +290,7 @@ body {
     overflow: hidden;
     text-align: center;
     transition: transform 0.2s, box-shadow 0.2s;
+    margin: 15px;
 }
 .album-card:hover {
     transform: translateY(-5px);
@@ -209,12 +298,45 @@ body {
 }
 .album-options {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    color: #666;
-    font-size: 18px;
+    top: 15px; /* Align with the top padding of the card */
+    right: 15px; /* Move it to the far-right */
+    z-index: 10;
     cursor: pointer;
 }
+
+.options-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    width: 150px;
+}
+
+.options-menu.hidden {
+    display: none;
+}
+
+.options-btn {
+    background: none;
+    border: none;
+    padding: 10px;
+    text-align: left;
+    font-size: 14px;
+    cursor: pointer;
+    width: 100%;
+}
+
+.options-btn:hover {
+    background: #f1f1f1;
+    color: #333;
+}
+
 .album-card img {
     width: 100%;
     height: 150px;
@@ -232,6 +354,65 @@ body {
     margin: 0;
     color: #666;
 }
+
+/*edit option*/
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    overflow: auto;
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border: none;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 5px;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: black;
+}
+
+#editAlbumTitle {
+    width: 100%;
+    padding: 10px;
+    margin-top: 8px;
+}
+
+#saveEdit {
+    width: 100%;
+    background-color: #6a0dad;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+#saveEdit:hover {
+    background-color: #5c00b3;
+}
+
+
+
+
 
 /* Gallery */
 .gallery {
@@ -270,64 +451,48 @@ body {
     cursor: pointer;
 }
 
-/* Footer */
+/* Footer styling */
 .footer {
-    background-color: #fff;
-    padding: 20px;
-    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    width: 100%;
-    box-sizing: border-box;
-    text-align: center;
-    margin-top: auto; /* Pushes footer to the bottom */
+    display: flex; /* Aligns footer elements horizontally */
+    justify-content: space-around; /* Spreads elements evenly across the footer */
+    align-items: center; /* Vertically centers footer content */
+    padding: 20px; /* Adds inner spacing */
+    background-color: #fff; /* Matches the header's background color */
+    color: #666; /* Light gray text for secondary emphasis */
+    font-size: 14px; /* Smaller font size for footer content */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Adds shadow for separation */
+    flex-wrap: wrap; /* Allows elements to wrap on smaller screens */
+    box-sizing: border-box; /* Includes padding in the element's width */
+    overflow-x: hidden; /* Prevents horizontal scrolling */
 }
-.footer nav {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
+
+/* Ensure the footer stays at the bottom */
+.footer {
+    margin-top: auto; /* Push the footer to the bottom */
 }
-.footer nav a {
-    margin: 0 15px;
-    color: #333;
-    text-decoration: none;
-    font-size: 14px;
+
+.footer div {
+    text-align: center; /* Centers text inside each footer section */
 }
-.footer .links {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
+
+.footer .social-icons {
+    display: flex; /* Aligns social icons horizontally */
+    justify-content: center; /* Centers the icons */
+    gap: 10px; /* Adds spacing between icons */
+    margin-top: 5px; /* Adds spacing above the icons */
 }
-.footer .links div {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    align-items: center;
+
+.footer a {
+    color: #6a0dad; /* Purple color for branding */
+    text-decoration: none; /* Removes underlines from links */
+    display: block; /* Ensures consistent block layout */
+    margin-bottom: 5px; /* Adds spacing between links */
 }
-.footer .links a {
-    text-decoration: none;
-    color: #333;
-    font-size: 14px;
-}
-.footer .social {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-.footer .social i {
-    font-size: 20px;
-    margin: 0 10px;
-    color: #333;
-}
-.footer .copyright {
-    font-size: 14px;
-    color: #666;
-    text-align: right;
-    width: 100%;
-    margin-top: 10px;
+
+.footer i {
+    margin: 0 5px; /* Adds spacing around icons */
+    font-size: 20px; /* Sets a standard size for icons */
+    color: #6a0dad; /* Matches the branding color */
 }
 
 /* Responsive Adjustments */

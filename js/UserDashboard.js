@@ -165,6 +165,9 @@ function filterAndDisplayFeeds(searchTerm) {
 
 
 async function checkUserAuthentication() {
+    console.log("Session storage on authentication check:", sessionStorage);
+
+
     document.body.style.display = "none"; // Hide the page content initially
 
     return new Promise((resolve) => {
@@ -172,7 +175,14 @@ async function checkUserAuthentication() {
             if (!user) {
                 redirectToLogin(); // Redirect to login if not authenticated
             } else {
-                const userRole = sessionStorage.getItem("role");
+                let userRole = sessionStorage.getItem("role");
+
+                // Reload session data if missing
+                if (!userRole) {
+                    console.warn("Session data missing. Reloading...");
+                    await reloadSessionData();
+                    userRole = sessionStorage.getItem("role");
+                }
 
                 if (userRole !== "user") {
                     redirectToLogin(); // Redirect if the role is not 'user'
@@ -221,6 +231,27 @@ function redirectToLogin() {
     window.location.href = '../html/Login.html'; // Redirect to the login page
 }
 
+async function reloadSessionData() {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+        console.error("No authenticated user found. Redirecting to login.");
+        redirectToLogin();
+        return;
+    }
+
+    const userRef = doc(db, "users", currentUser.uid);
+    const userDoc = await getDoc(userRef);
+
+    if (userDoc.exists()) {
+        const userData = userDoc.data();
+        sessionStorage.setItem("role", userData.role.toLowerCase());
+        sessionStorage.setItem("user", JSON.stringify(userData));
+        console.log("Session data reloaded:", userData);
+    } else {
+        console.error("User document not found. Redirecting to login.");
+        redirectToLogin();
+    }
+}
 
 
 
