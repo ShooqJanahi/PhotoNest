@@ -1,11 +1,11 @@
 // Import Firebase services
 import { collection, query, where, getDocs,addDoc, doc, getDoc, deleteDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
 import { db } from './firebaseConfig.js'; // Ensure this points to your Firebase config
-import { openPopup } from './Notification.js';
+import { createNotificationPopup, openPopup } from './Notification.js';
 import { logout } from './login.js';
 
 
-document.getElementById('notification-bell').addEventListener('click', openPopup);
+
 
 const albumsContainer = document.getElementById('albums-container');
 const searchInput = document.getElementById('album-search');
@@ -19,34 +19,54 @@ document.getElementById('logout-button').addEventListener('click', async (event)
     await logout();
 });
 
+// Attach an event listener to the bell icon
+document.querySelector('.fa-bell').addEventListener('click', () => {
+    let popup = document.getElementById('notification-popup');
+    let overlay = document.getElementById('popup-overlay');
+
+    // Create the popup if it doesn't exist
+    if (!popup || !overlay) {
+        createNotificationPopup();
+    }
+
+    // Open the popup
+    openPopup();
+});
+
 async function fetchUserProfileImage() {
     const user = JSON.parse(sessionStorage.getItem('user')); // Get the logged-in user from session storage
     if (!user || !user.uid) {
-        console.error("User not logged in.");
+        console.error("User not logged in or UID not found in session storage.");
         return;
     }
 
     try {
-        const userDoc = await getDoc(doc(db, "users", user.uid)); // Access the user's document from Firestore
+        // Fetch the user's document from Firestore
+        const userDoc = await getDoc(doc(db, "users", user.uid));
         if (userDoc.exists()) {
             const userData = userDoc.data();
+            console.log("User data fetched successfully:", userData); // Debugging step
+
+            // Check if the profilePic field exists
             if (userData.profilePic) {
                 const profileImageElement = document.getElementById('profile-image');
                 if (profileImageElement) {
-                    profileImageElement.src = userData.profilePic; // Set the source of the image element
+                    profileImageElement.src = userData.profilePic; // Set the profile picture
+                    console.log("Profile picture set:", userData.profilePic); // Debugging step
                 } else {
                     console.error("Profile image element not found in the DOM.");
                 }
             } else {
-                console.log("Profile picture is not set in user's data.");
+                console.log("Profile picture is not set for the user in Firestore.");
             }
         } else {
-            console.error("User document does not exist.");
+            console.error("User document does not exist in Firestore.");
         }
     } catch (error) {
-        console.error("Error fetching user data:", error);
+        console.error("Error fetching user profile data:", error);
     }
 }
+
 
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -54,12 +74,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Initialize the Create Album modal functionality
     setupCreateAlbumModal();
 
-    const notificationBell = document.getElementById('notification-bell');
-    if (notificationBell) {
-        notificationBell.addEventListener('click', openPopup);
-    } else {
-        console.error("Notification bell icon not found in the DOM.");
-    }
+   
 
     // Fetch and display the profile image
     await fetchUserProfileImage();

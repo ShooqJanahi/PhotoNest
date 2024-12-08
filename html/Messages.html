@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+    <link rel="stylesheet" href="../css/Messages.css"> <!-- Link to the external CSS file -->
+
+    <script type="module" src="../js/firebaseConfig.js"></script>
+    <script type="module" src="../js/login.js"></script>
+    <script type="module" src="../js/Messages.js"></script>
+
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h2><i class="fas fa-envelope"></i>Messages</h2>
+        </div>
+        <div class="content">
+            <div class="tabs">
+                <div class="tab active">Inbox</div>
+                <div class="tab">Sent</div>
+            </div>
+            <div class="recent-conversations">
+                <h3>Conversations with alex</h3>
+                <div class="conversation">
+                    <i class="fas fa-user-circle"></i>
+                    <div class="conversation-text">
+                        <strong>Alex</strong><br>
+                        Hey, are we still on for tomorrow ?
+                    </div>
+                    <div class="conversation-time">2 hours ago</div>
+                </div>
+                <div class="conversation">
+                    <i class="fas fa-user-circle"></i>
+                    <div class="conversation-text">
+                        <strong>alex</strong><br>
+                        Can you send over the files ?
+                    </div>
+                    <div class="conversation-time">Yesterday</div>
+                </div>
+                <div class="conversation">
+                    <i class="fas fa-user-circle"></i>
+                    <div class="conversation-text">
+                        <strong>alex</strong> <br>
+                        Meeting rescheduled to 3 PM .
+                    </div>
+                    <div class="conversation-time">2 days ago</div>
+                </div>
+            </div>
+            <div class="message-content">
+                <h3>Message Content</h3>
+                <div class="message-input">
+                    <input type="text" placeholder="Type your message ...">
+                    <button>Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+       <!-- Footer Section -->
+       <div class="footer">
+        <div>
+            <h4>Quick Links</h4>
+            <a href="UserDashboard.html#Home">Home</a> <!-- Link to privacy policy -->
+            <a href="UserDashboard.html#Home">Explore</a>
+            <a href="VaultPasscode.html">Vault</a>
+            <a href="">Messages</a>
+
+        </div>
+        <div>
+            <h4>Follow Us</h4>
+            <div class="social-icons"> <!-- Social media icons -->
+                <a href="https://www.facebook.com/profile.php?id=61566861417599"><i class="fab fa-facebook-f"></i></a>
+
+                <a href="https://www.instagram.com/photonest.bh/"><i class="fab fa-instagram"></i></a>
+            </div>
+            <div class="copyright">
+                &copy; 2024 PhotoNest <!-- Copyright notice -->
+            </div>
+        </div>
+
+        <div>
+            <h4>Legal</h4>
+            <a href="#privacy-policy">Privacy Policy</a> <!-- Link to privacy policy -->
+            <a href="#TermsAndCondition">Terms and Conditions</a> <!-- Link to terms and conditions -->
+        </div>
+
+
+    </div>
+</body>
+</html>

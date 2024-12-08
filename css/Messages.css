@@ -1,0 +1,144 @@
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8f9fc;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+.container {
+    display: flex;
+    flex: 1;
+    margin: 20px;
+    border-radius: 15px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.sidebar {
+    width: 20%;
+    background-color: #f8f9fc;
+    border-radius: 15px;
+    padding: 20px;
+}
+.sidebar h2 {
+    font-size: 18px;
+    color: #555;
+    display: flex;
+    align-items: center;
+}
+.sidebar h2 i {
+    margin-right: 10px;
+    color: #6c63ff;
+}
+.content {
+    width: 80%;
+    padding: 20px;
+}
+.tabs {
+    display: flex;
+    margin-bottom: 20px;
+}
+.tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px 0;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 600;
+}
+.tab.active {
+    background-color: #6c63ff;
+    color: #fff;
+}
+.tab:not(.active) {
+    background-color: #f1f1f1;
+    color: #888;
+}
+.recent-conversations, .message-content {
+    background-color: #f8f9fc;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+.recent-conversations h3, .message-content h3 {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 10px;
+}
+.conversation {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.conversation i {
+    color: #6c63ff;
+    margin-right: 10px;
+}
+.conversation-text {
+    flex: 1;
+}
+.conversation-time {
+    color: #888;
+    font-size: 12px;
+}
+.message-input {
+    display: flex;
+    align-items: center;
+}
+.message-input input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 15px;
+    border: 1px solid #ddd;
+    margin-right: 10px;
+    font-size: 14px;
+}
+.message-input button {
+    background-color: #6c63ff;
+    color: #fff;
+    border: none;
+    border-radius: 25px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* Footer styling */
+.footer {
+    display: flex; /* Aligns footer elements horizontally */
+    justify-content: space-around; /* Spreads elements evenly across the footer */
+    align-items: center; /* Vertically centers footer content */
+    padding: 20px; /* Adds inner spacing */
+    background-color: #fff; /* Matches the header's background color */
+    color: #666; /* Light gray text for secondary emphasis */
+    font-size: 14px; /* Smaller font size for footer content */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Adds shadow for separation */
+    flex-wrap: wrap; /* Allows elements to wrap on smaller screens */
+    box-sizing: border-box; /* Includes padding in the element's width */
+    overflow-x: hidden; /* Prevents horizontal scrolling */
+}
+
+.footer div {
+    text-align: center; /* Centers text inside each footer section */
+}
+
+.footer .social-icons {
+    display: flex; /* Aligns social icons horizontally */
+    justify-content: center; /* Centers the icons */
+    gap: 10px; /* Adds spacing between icons */
+    margin-top: 5px; /* Adds spacing above the icons */
+}
+
+.footer a {
+    color: #6a0dad; /* Purple color for branding */
+    text-decoration: none; /* Removes underlines from links */
+    display: block; /* Ensures consistent block layout */
+    margin-bottom: 5px; /* Adds spacing between links */
+}
+
+.footer i {
+    margin: 0 5px; /* Adds spacing around icons */
+    font-size: 20px; /* Sets a standard size for icons */
+    color: #6a0dad; /* Matches the branding color */
+}

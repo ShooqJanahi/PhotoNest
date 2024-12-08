@@ -174,6 +174,12 @@ document.querySelector('.upload-btn').addEventListener('click', async () => {
                     hashtags, // Save hashtags in the photo document
 
                 });
+
+
+                // Increment the user's posts count
+                await incrementUserPostsCount(userId);
+
+                // Log the activity
                 const username = sessionStorage.getItem("username") || "unknown user";
                 await logActivity(userId, "photoUploaded", `Photo uploaded with caption: ${caption}`);
 
@@ -495,5 +501,24 @@ async function logActivity(userId, category, message) {
 
     } catch (error) {
         console.error("Error logging activity:", error);
+    }
+}
+
+
+// Increment the user's postsCount in the users collection
+async function incrementUserPostsCount(userId) {
+    if (!userId) {
+        console.error("User ID is required to increment postsCount.");
+        return;
+    }
+
+    try {
+        const userDocRef = doc(db, "users", userId);
+        await updateDoc(userDocRef, {
+            postsCount: increment(1),
+        });
+        console.log(`Successfully incremented postsCount for userId: ${userId}`);
+    } catch (error) {
+        console.error("Error incrementing postsCount:", error);
     }
 }

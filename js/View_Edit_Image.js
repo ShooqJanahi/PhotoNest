@@ -1,14 +1,93 @@
 //View_Edit_Image.js
 
 // Importing necessary Firebase modules
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getFirestore, doc, getDoc, deleteDoc, collection, query, where, getDocs, addDoc, increment, updateDoc, orderBy, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import { auth, db } from './firebaseConfig.js';
+import { logout } from './login.js';
+import { createNotificationPopup, openPopup } from './Notification.js';
+
+console.log("Debugging - User ID:", sessionStorage.getItem("userId"));
+console.log("Debugging - Photo ID:", localStorage.getItem("photoId"));
+
+
+// Attach an event listener to the bell icon
+document.querySelector('.fa-bell').addEventListener('click', () => {
+    let popup = document.getElementById('notification-popup');
+    let overlay = document.getElementById('popup-overlay');
+
+    // Create the popup if it doesn't exist
+    if (!popup || !overlay) {
+        createNotificationPopup();
+    }
+
+    // Open the popup
+    openPopup();
+});
+
+// Attach an event listener to the logout button
+document.addEventListener('DOMContentLoaded', () => {
+    const logoutButton = document.getElementById('logout-button'); // Ensure this matches the ID in your HTML
+
+    if (logoutButton) {
+        logoutButton.addEventListener('click', () => {
+            logout(); // Call the logout function from login.js
+        });
+    } else {
+        console.error("Logout button not found in the DOM.");
+    }
+});
+
 
 /**
  * Load and display comments for a given photo
  * @param {string} photoId - The ID of the photo to fetch comments for
  */
+
+async function fetchUserProfileImage() {
+    try {
+        // Retrieve logged-in user's ID from sessionStorage
+        const userId = sessionStorage.getItem("userId");
+        if (!userId) {
+            console.error("User ID not found in sessionStorage.");
+            return;
+        }
+
+        // Fetch user document from Firestore
+        const userDocRef = doc(db, "users", userId);
+        const userDoc = await getDoc(userDocRef);
+
+        if (!userDoc.exists()) {
+            console.error(`User document does not exist for userId: ${userId}`);
+            return;
+        }
+
+        const userData = userDoc.data();
+
+        // Check if the profile image URL exists
+        const profilePicUrl = userData.profilePic || "../assets/Default_profile_icon.jpg";
+        console.log("Fetched profile picture URL:", profilePicUrl);
+
+        // Set the profile picture in the DOM
+        const profileImageElement = document.getElementById("profile-image");
+        if (profileImageElement) {
+            profileImageElement.src = profilePicUrl;
+            console.log("Profile picture updated successfully.");
+        } else {
+            console.error("Profile image element not found in the DOM.");
+        }
+    } catch (error) {
+        console.error("Error fetching or updating user profile picture:", error);
+    }
+}
+
+// Ensure the function is called after DOM is fully loaded
+document.addEventListener("DOMContentLoaded", fetchUserProfileImage);
+
+
+
+
 async function loadComments(photoId) {
     if (!photoId) {
         console.error("No photo ID provided for loading comments.");
@@ -110,6 +189,10 @@ async function deleteComment(commentId, photoId) {
         const commentDocRef = doc(db, "Comments", commentId);
         const commentSnapshot = await getDoc(commentDocRef);
 
+       
+   
+
+
         if (!commentSnapshot.exists()) {
             console.error("Comment not found.");
             alert("Comment does not exist.");
@@ -120,6 +203,7 @@ async function deleteComment(commentId, photoId) {
         const commentData = commentSnapshot.data();
         const loggedInUserId = sessionStorage.getItem("userId"); // Fetch logged-in user's ID
 
+        const senderId = commentData.userId; // User who made the comment
         if (commentData.userId !== loggedInUserId) {
             alert("You can only delete your own comments.");
             return;
@@ -131,6 +215,7 @@ async function deleteComment(commentId, photoId) {
         // Log the activity
         await logActivity(sessionStorage.getItem("userId"), "deleted_comment", commentId, { photoId });
 
+        await deleteNotification(senderId, photoId, "Comment"); // Delete notification
 
         // Decrement the comments count in the associated photo
         const photoDocRef = doc(db, "Photos", photoId);
@@ -181,6 +266,9 @@ function showCommentReportPopup(commentId) {
     });
 }
 
+
+
+
 /**
  * Submit a new comment to the database
  * @param {string} commentText - The comment text
@@ -189,42 +277,78 @@ function showCommentReportPopup(commentId) {
  */
 async function submitComment(commentText, userId, photoId) {
     try {
+        // Ensure required data is available
+        if (!userId || !photoId || !commentText) {
+            console.error("Missing data for submitComment:", { userId, photoId, commentText });
+            alert("Cannot submit an empty comment or missing photo details.");
+            return;
+        }
+
+        if (!photoData || !photoData.userId) {
+            console.error("photoData is not initialized or missing userId:", photoData);
+            alert("Unable to submit the comment due to missing photo details.");
+            return;
+        }
+
+        const receiverId = photoData.userId; // Photo owner's user ID
         const userData = await getUserData(userId);
+
+        if (!userData) {
+            console.error("Failed to retrieve user data for:", userId);
+            alert("Unable to retrieve your user details. Please try again.");
+            return;
+        }
+
         const newComment = {
             photoId,
             userId,
             username: userData?.username || "Anonymous",
             commentText,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
         };
 
-
-
         // Add the comment to Firestore
-        await addDoc(collection(db, "Comments"), newComment);
+        try {
+            await addDoc(collection(db, "Comments"), newComment);
+            console.log("Comment added to Firestore successfully.");
+        } catch (error) {
+            console.error("Error adding comment to Firestore:", error);
+            alert("Failed to submit the comment. Please try again.");
+            return;
+        }
 
         // Log the activity
         await logActivity(userId, "comment", photoId, { commentText });
 
-        console.log("Comment added successfully");
-
         // Increment the comment count for the photo
-        const photoDocRef = doc(db, "Photos", photoId);
-        await updateDoc(photoDocRef, { commentsCount: increment(1) });
+        try {
+            const photoDocRef = doc(db, "Photos", photoId);
+            await updateDoc(photoDocRef, { commentsCount: increment(1) });
+        } catch (error) {
+            console.error("Error updating photo comments count:", error);
+        }
+
+        // Add notification for the photo owner
+        try {
+            await createNotification(receiverId, userId, photoId, "Comment");
+        } catch (error) {
+            console.error("Error creating notification:", error);
+        }
 
         // Reload comments dynamically
         await loadComments(photoId);
 
         // Reload photo details (if necessary)
-        const photoData = await getPhotoData(photoId);
-        if (photoData) {
-            await updatePhotoDetails(photoData);
+        const updatedPhotoData = await getPhotoData(photoId);
+        if (updatedPhotoData) {
+            await updatePhotoDetails(updatedPhotoData);
         }
     } catch (error) {
         console.error("Failed to submit comment:", error);
         alert("Failed to add comment. Please try again.");
     }
 }
+
 
 
 /**
@@ -259,15 +383,16 @@ function handleCommentSubmission() {
     const commentInput = document.getElementById('comment-input');
     const submitButton = document.getElementById('submit-comment');
     const userId = sessionStorage.getItem("userId");
-    const photoId = localStorage.getItem('photoId');
+    const photoId = localStorage.getItem("photoId");
 
-    if (!commentInput || !submitButton || !userId || !photoId) {
-        console.error("Missing elements or IDs for handling comments.");
+    if (!commentInput || !submitButton) {
+        console.error("Comment input or submit button missing in DOM.");
         return;
     }
-
-    // Ensure only one event listener is assigned to the button
-    submitButton.onclick = null; // Clear any existing handler
+    if (!userId || !photoId) {
+        console.error("User ID or Photo ID missing.");
+        return;
+    }
 
     submitButton.onclick = () => {
         const commentText = commentInput.value.trim();
@@ -275,12 +400,51 @@ function handleCommentSubmission() {
             alert("Comment cannot be empty.");
             return;
         }
-
         submitComment(commentText, userId, photoId);
-
     };
 }
 
+/**
+ * Submit a report for a specific comment.
+ * @param {string} commentId - The ID of the comment being reported.
+ * @param {string} reportDetails - The details of the report.
+ */
+async function submitCommentReport(commentId, reportDetails) {
+    try {
+        const userId = sessionStorage.getItem("userId"); // Get the user ID of the person reporting
+
+        if (!userId || !commentId) {
+            alert("User or comment information is missing.");
+            return;
+        }
+
+        // Prepare the report data
+        const reportData = {
+            commentId: commentId, // ID of the comment being reported
+            reportedBy: userId, // ID of the user who made the report
+            reason: reportDetails, // Details or reason provided for reporting
+            category: "comment", // Category of the report (e.g., "comment")
+            status: "Pending Review", // Default status for new reports
+            timestamp: new Date().toISOString(), // Date and time of the report
+        };
+
+        // Add the report to Firestore's "Reports" collection
+        const reportRef = await addDoc(collection(db, "Reports"), reportData);
+
+        console.log(`Comment report added to Firestore with ID: ${reportRef.id}`);
+        
+        // Log the activity
+        await logActivity(userId, "reported_comment", commentId, { 
+            reason: reportDetails, 
+            reportId: reportRef.id 
+        });
+        
+        alert("Thank you for your report. We'll review it shortly.");
+    } catch (error) {
+        console.error("Error submitting the comment report:", error);
+        alert("Failed to submit the report. Please try again.");
+    }
+}
 
 
 
@@ -583,7 +747,15 @@ async function toggleLikeStatus(isLiked, userLikeRef, photoId, likeIcon, likesCo
         await updateDoc(doc(db, "Photos", photoId), { likesCount: increment(1) });
     }
 
+    const senderId = auth.currentUser.uid; // Logged-in user
+    const photoData = await getPhotoData(photoId);
+    const receiverId = photoData.userId; // Photo owner's user ID
     if (!isLiked) {
+         // Unlike the photo and delete the notification
+         await deleteDoc(userLikeRef);
+         await updateDoc(doc(db, "Photos", photoId), { likesCount: increment(-1) });
+         await deleteNotification(senderId, photoId, "Like");
+
         // Like the photo
         await setDoc(userLikeRef, { userId: auth.currentUser.uid, photoId, timestamp: new Date() });
         await logActivity(auth.currentUser.uid, "like", photoId);
@@ -591,6 +763,10 @@ async function toggleLikeStatus(isLiked, userLikeRef, photoId, likeIcon, likesCo
         // Unlike the photo
         await deleteDoc(userLikeRef);
         await logActivity(auth.currentUser.uid, "removed_like", photoId);
+         // Like the photo and create a notification
+         await setDoc(userLikeRef, { userId: senderId, photoId, timestamp: new Date() });
+         await updateDoc(doc(db, "Photos", photoId), { likesCount: increment(1) });
+         await createNotification(receiverId, senderId, photoId, "Like");
     }
 
     // Update the likes count display
@@ -891,6 +1067,14 @@ async function submitPhotoReport(photoId, details) {
         const reportRef = await addDoc(collection(db, "Reports"), reportData);
 
         console.log(`Photo report added to Firestore with ID: ${reportRef.id}`);
+        
+        // Log the activity in the "ActivityLogs" collection
+        await logActivity(userId, "reported_photo", photoId, {
+            reason: details,
+            reportId: reportRef.id, // Store the reference to the report
+        });
+        
+        
         alert("Thank you for your report. We'll review it shortly.");
     } catch (error) {
         console.error("Error submitting the photo report:", error);
@@ -906,12 +1090,12 @@ async function submitPhotoReport(photoId, details) {
  */
 function showMoveToAlbumPopup(photoId) {
     const popup = document.createElement('div');
-    popup.className = 'popup'; // Apply consistent style
+    popup.className = 'popup'; // Ensure the correct class is applied
 
     popup.innerHTML = `
         <h3>Move to Album</h3>
         <input type="text" id="album-search" placeholder="Search albums..." />
-        <div id="album-list" class="album-list"></div>
+        <div id="album-list" class="album-list"></div> <!-- This element must exist -->
         <button id="create-album-btn">Create New Album</button>
         <button id="close-album-popup">Close</button>
     `;
@@ -926,6 +1110,7 @@ function showMoveToAlbumPopup(photoId) {
         createNewAlbum(photoId);
     });
 
+    // Load albums after the popup is appended to the DOM
     loadUserAlbums(photoId);
 }
 
@@ -1070,7 +1255,7 @@ async function addPhotoToAlbum(photoId, albumId) {
         await logActivity(sessionStorage.getItem("userId"), "add_to_album", albumId, { photoId });
 
         alert("Photo added to the album successfully!");
-        document.body.removeChild(document.querySelector('.move-to-album-popup')); // Close the popup
+        document.body.removeChild(document.querySelector('.popup')); // Close the popup
     } catch (error) {
         console.error("Error adding photo to album:", error);
         alert("Failed to add the photo to the album. Please try again.");
@@ -1307,10 +1492,43 @@ async function sharePhoto(photoId, recipientUsername, messageText) {
 
 // Call loadComments when the page loads
 document.addEventListener('DOMContentLoaded', async () => {
+
+    const auth = getAuth();
+
+    // Check user authentication state
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            // Store userId in sessionStorage
+            sessionStorage.setItem("userId", user.uid);
+            console.log("User logged in. userId saved in sessionStorage.");
+
+            
+        } else {
+            console.error("User is not logged in. Redirecting to login page.");
+            window.location.href = "index.html"; // Redirect to login page
+        }
+    });
+
+    handleCommentSubmission();
+
+    const profileContainer = document.querySelector(".profile-container");
+    const profileDropdown = document.querySelector(".profile-dropdown");
+
+    if (profileContainer && profileDropdown) {
+        profileContainer.addEventListener("click", (event) => {
+            event.stopPropagation(); // Prevent click from propagating to the document
+            profileDropdown.classList.toggle("hidden");
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener("click", () => {
+            profileDropdown.classList.add("hidden");
+        });
+    }
+
     const photoId = localStorage.getItem('photoId');
 
-    // Load the logged-in user's profile picture
-    await loadUserProfilePic();
+   
 
 
     if (!photoId) {
@@ -1360,37 +1578,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 
-/**
- * Load the logged-in user's profile picture and update the top navigation bar.
- */
-async function loadUserProfilePic() {
-    const userId = sessionStorage.getItem("userId"); // Get the logged-in user's ID from session storage
-    if (!userId) {
-        console.error("User ID not found in session storage.");
-        return;
-    }
 
-    try {
-        // Fetch user data from Firestore
-        const userDoc = await getDoc(doc(db, "users", userId));
-        if (!userDoc.exists()) {
-            console.error("User not found in Firestore for userId:", userId);
-            return;
-        }
-
-        const userData = userDoc.data();
-
-        // Update the profile picture in the navigation bar dynamically
-        const profilePhotoContainer = document.querySelector('.profile-photo img#topnav-profile-image');
-        if (profilePhotoContainer) {
-            profilePhotoContainer.src = userData.profilePic || '../assets/Default_profile_icon.jpg';
-        } else {
-            console.error("Profile photo container not found in the DOM.");
-        }
-    } catch (error) {
-        console.error("Error loading user profile picture:", error);
-    }
-}
 
 
 
@@ -1445,5 +1633,98 @@ async function incrementViewCount(photoId) {
         console.log(`View count incremented for photoId: ${photoId}`);
     } catch (error) {
         console.error("Error incrementing view count:", error);
+    }
+}
+
+// Ensure photoId exists in localStorage before calling
+document.addEventListener('DOMContentLoaded', async () => {
+    photoData = await initializePhotoData(); // Ensure photoData is initialized before proceeding
+    const photoId = localStorage.getItem("photoId");
+    if (!photoId) {
+        console.error("Photo ID not found in localStorage.");
+        return;
+    }
+
+    await incrementViewCount(photoId);
+});
+
+let photoData; // Declare globally for shared access
+
+async function initializePhotoData() {
+    const photoId = localStorage.getItem('photoId'); // Get the photoId from localStorage
+    if (!photoId) {
+        console.error('Photo ID not found in localStorage.');
+        return null;
+    }
+
+    try {
+        const photoRef = doc(db, 'Photos', photoId); // Firestore document reference
+        const photoSnapshot = await getDoc(photoRef);
+
+        if (photoSnapshot.exists()) {
+            console.log('Photo data loaded:', photoSnapshot.data());
+            return photoSnapshot.data(); // Return the photo data
+        } else {
+            console.error('Photo does not exist in Firestore.');
+            return null;
+        }
+    } catch (error) {
+        console.error('Error loading photo data:', error);
+        return null;
+    }
+}
+
+
+
+
+
+
+/**
+ * Create a notification in the "Notifications" collection.
+ * @param {string} receiverId - The ID of the user to notify.
+ * @param {string} senderId - The ID of the user performing the action.
+ * @param {string} photoId - The ID of the photo being liked/commented.
+ * @param {string} category - The type of notification ("Like" or "Comment").
+ */
+async function createNotification(receiverId, senderId, photoId, category) {
+    try {
+        const newNotification = {
+            receiverId,
+            senderId,
+            photoId,
+            category,
+            timestamp: new Date().toISOString(),
+        };
+
+        await addDoc(collection(db, "Notifications"), newNotification);
+        console.log(`Notification created: ${category} by user ${senderId} for photo ${photoId}`);
+    } catch (error) {
+        console.error("Error creating notification:", error);
+    }
+}
+
+
+/**
+ * Delete a notification from the "Notifications" collection.
+ * @param {string} senderId - The ID of the user who created the action.
+ * @param {string} photoId - The ID of the photo related to the action.
+ * @param {string} category - The type of notification ("Like" or "Comment").
+ */
+async function deleteNotification(senderId, photoId, category) {
+    try {
+        const notificationsQuery = query(
+            collection(db, "Notifications"),
+            where("senderId", "==", senderId),
+            where("photoId", "==", photoId),
+            where("category", "==", category)
+        );
+
+        const querySnapshot = await getDocs(notificationsQuery);
+        querySnapshot.forEach(async (doc) => {
+            await deleteDoc(doc.ref);
+            console.log(`Notification deleted: ${category} by user ${senderId} for photo ${photoId}`);
+        });
+    } catch (error) {
+        console.error("Error deleting notification:", error);
     }
 }

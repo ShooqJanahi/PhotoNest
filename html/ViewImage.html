@@ -9,14 +9,20 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
     <link rel="stylesheet" href="../css/ViewImage.css"> <!-- Corrected the CSS file path -->
+    <link rel="stylesheet" href="../css/Notification.css">
+    
     <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png">
 
      <!-- jQuery -->
      <script type="module" src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-     
-     <script type="module" src="../js/login.js"></script> <!-- define the session storage-->
 
+     <script type="module" src="../js/Notification.js"></script>
+     
+  <script type="module" src="../js/login.js"></script> <!-- define the session storage-->
+
+     
+     
      <!-- View_Edit_Image.js -->
     <script type="module" src="../js/View_Edit_Image.js"></script>
 
@@ -28,9 +34,19 @@
             PhotoNest
         </div>
         
-        <div class="profile-photo">
-            <img src="../assets/Default_profile_icon.jpg" id="topnav-profile-image" alt="User Profile Picture">
+       <!-- Other header elements -->
+    <div class="profile-section">
+        <i class="fas fa-bell" id="notification-bell"></i>
+        <div class="profile-container">
+            <img src="../assets/Default_profile_icon.jpg" alt="User Profile" id="profile-image">
+            <div class="profile-dropdown hidden">
+                <a href="Settings.html">Settings</a>
+                <a href="#" id="logout-button">Logout</a>
+            </div>
         </div>
+    </div>
+
+        
     </div>
     
     <div class="container">

@@ -514,6 +514,80 @@ body {
     color: #6a0dad; /* Matches the branding color */
 }
 
+/* Style for the profile section containing the bell and profile picture */
+.profile-section {
+    display: flex; /* Align items in a row */
+    align-items: center; /* Vertically center the bell and profile image */
+    gap: 10px; /* Add 5px spacing between the bell and the profile image */
+}
+
+/* Style for the bell icon */
+#notification-bell {
+    font-size: 24px; /* Adjust size of the bell icon */
+    color: #000000; /* Optional: Use a matching color for the bell */
+    cursor: pointer; /* Change cursor to pointer for interactivity */
+    transition: transform 0.3s ease, color 0.3s ease; /* Smooth hover effect */
+}
+
+#notification-bell:hover {
+    transform: scale(1.1); /* Slightly enlarge on hover */
+    color: #8e3aad; /* Change color on hover */
+}
+
+
+
+
+
+/* Style the profile container and profile picture */
+.profile-container {
+    position: relative;
+    display: inline-block;
+    cursor: pointer; /* Adds a pointer cursor for interaction */
+}
+
+.profile-container img#profile-image {
+    width: 40px; /* Matches the size of user icons */
+    height: 40px; /* Ensure it's square */
+    border-radius: 50%; /* Make it circular */
+    object-fit: cover; /* Ensure the image fits well */
+    border: 2px solid #6a1b9a; /* Optional: adds a border */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover effect */
+}
+
+.profile-container img#profile-image:hover {
+    transform: scale(1.1); /* Slightly enlarge on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a shadow effect */
+}
+
+.profile-dropdown {
+    position: absolute;
+    top: calc(100% + 10px); /* Place the dropdown below the image */
+    right: 0;
+    background: #ffffff;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px; /* Rounded corners for the dropdown */
+    display: none; /* Hidden by default */
+    z-index: 1000;
+    min-width: 150px; /* Set a minimum width */
+}
+
+.profile-dropdown a {
+    display: block;
+    padding: 10px 15px;
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background 0.3s ease; /* Smooth hover effect */
+}
+
+.profile-dropdown a:hover {
+    background: #f3e7f8; /* Subtle hover effect */
+}
+
+.profile-container:hover .profile-dropdown {
+    display: block; /* Show dropdown on hover */
+}
 
 
 

@@ -6,7 +6,12 @@
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+   
+
+    
     <link rel="stylesheet" href="../css/AdminDashboard.css"> <!-- Link to external CSS file -->
+    
+    <script type="module" src="../js/login.js"></script>
     <script type="module" src="../js/AdminDashboard.js"></script>
 
     <!--Google Chart-->
@@ -23,17 +28,43 @@
         </div>
         
         <div class="actions">
-            <button class="notification"><i class="fas fa-bell"></i></button>
+        
             <button id="hamburgerMenu" class="hamburger-menu"><i class="fas fa-bars"></i></button>
 
-            <button class="settings" onclick="window.location.href='Settings.html'">
+            <button class="settings">
                 <i class="fa fa-cog" aria-hidden="true"></i>
             </button>
             
-        
-            <form id="logoutForm" onsubmit="event.preventDefault(); logout();">
-                <button id="logoutButton">Logout</button>
-            </form>
+
+            <div id="settingsPopup" class="popup hidden">
+                <div class="popup-content">
+                    <h3>Update Profile</h3>
+                    <form id="updateProfileForm">
+                        <label for="firstName">First Name:</label>
+                        <input type="text" id="firstName" name="firstName" placeholder="First Name" required>
+            
+                        <label for="lastName">Last Name:</label>
+                        <input type="text" id="lastName" name="lastName" placeholder="Last Name" required>
+            
+                        <label for="phone">Phone Number:</label>
+                        <input type="text" id="phone" name="phone" placeholder="Phone Number" required>
+            
+                        <label for="profilePic">Profile Picture:</label>
+<input type="file" id="profilePic" name="profilePic" accept="image/*">
+<div id="uploadProgress" class="hidden">Uploading...</div>
+
+            
+                        <button type="submit">Save Changes</button>
+                        <button type="button" id="closePopup">Cancel</button>
+                    </form>
+                </div>
+            </div>
+            
+
+
+            <a href="#" id="logout-button" class="logout-button">Logout</a>
+
+          
         </div>
         
     </div>
@@ -51,9 +82,7 @@
         <a href="#">Spam Reports</a>
         <a href="Settings.html">Settings</a>
 
-        <form id="logoutForm" onsubmit="event.preventDefault(); logout();">
-            <button type="submit">Logout</button>
-        </form>
+        <a href="#" id="logout-button" class="logout-button">Logout</a>
         
     </div>
 
@@ -72,20 +101,19 @@
         <div class="main-content">
             <div class="content-section">
                 <h3>User Management</h3>
+        
                 <!-- Currently Logged-in Users Section in AdminDashboard.html -->
-                    <!-- Currently Logged-in Users Section in AdminDashboard.html -->
-<section id="user-status-section"  class="user-status-section">
-    <div class="card">
-        <div class="card-header">
-            <h4>Currently Logged-in Users</h4>
-            <!-- Button with a URL parameter for online users -->
-            <a href="UserManagement.html?status=online">View All</a>
-        </div>
-        <ul id="onlineUsersList">
-            <!-- Online users will be populated here dynamically -->
-        </ul>
-    </div>
-</section>
+                <section id="user-status-section" class="user-status-section">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Currently Logged-in Users</h4>
+                        </div>
+                        <ul id="onlineUsersList">
+                            <!-- Online users will be populated here dynamically -->
+                        </ul>
+                    </div>
+                </section>
+                
 
 
                 
@@ -93,24 +121,32 @@
             <div class="content-section">
                 <h3>Reports</h3>
             
-                <!-- Spam Reports Section -->
+                <!-- Content Reports Graph -->
                 <section id="Spam-Report" class="report-section">
                     <div class="card" style="width: 100%; max-width: 100%;">
-                        <h4>Spam Reports</h4>
+                        <h4>Content Reports</h4>
                         <div id="spam_reports_chart" aria-label="Bar chart showing weekly spam reports recorded each Saturday"></div>
                     </div>
                 </section>
                 
                 <section class="report-section">
-                    <div class="card" style="width: 100%; max-width: 100%;">
+                    <div class="card activity-log-card" style="width: 100%; max-width: 100%;">
                         <h4>Activity Log</h4>
-                        <div id="curve_chart" aria-label="Line chart showing activity log"></div>
+                        <div id="curve_chart" aria-label="Bar chart showing activity log"></div>
                     </div>
                 </section>
+                
                 
             </div>
             
         </div>
     </div>
+
+
+
+
+
+
+    
 </body>
 </html>

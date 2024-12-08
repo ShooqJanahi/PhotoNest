@@ -7,27 +7,38 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
     <link rel="stylesheet" href="../css/Profile.css"> <!-- Link to the external CSS file -->
+    <link rel="stylesheet" href="../css/Notification.css">
+
+
+    <script type="module" src="../js/firebaseConfig.js"></script>
+    <script type="module" src="../js/login.js"></script>
+    <script type="module" src="../js/Notification.js"></script> <!-- notificatioion popup-->
+    <script type="module" src="../js/Settings.js"></script>
+    <script type="module" src="../js/Profile.js"></script>
 
     <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png">
 </head>
 <body>
     <header class="header">
         <div class="logo-section">
-            <img src="https://placehold.co/40x40" alt="Logo">
+            <img src="../assets/PhotoNest_Transparent.png" alt="Logo">
             <h1>PhotoNest</h1>
         </div>
         <div class="icons">
             <i class="fas fa-bell"></i>
-            <i class="fas fa-cog"></i>
+            <a href="../html/Settings.html">
+                <i class="fas fa-cog"></i>
+            </a>
+            
             <button class="login-btn">Logout</button>
         </div>
     </header>
     <section class="profile-section">
-        <img src="https://placehold.co/120x120" alt="Profile picture of Alexandra Smith">
-        <h2>Alexandra Smith</h2>
-        <p>@alexsmith</p>
+        <img src="https://placehold.co/120x120" alt="Profile picture">
+        <h2>PhotoNest</h2>
+        <p>@PhotoNest</p>
         <p>A passionate photographer capturing the beauty of everyday life. Love nature, travel, and candid moments.</p>
-        <a href="mailto:alexsmith@example.com">alexsmith@example.com</a>
+        <a href="">PhotoNest@example.com</a>
         <div class="stats">
             <div>Posts<br>200</div>
             <div>Followers<br>750</div>
@@ -45,20 +56,35 @@
         </div>
         <!-- Repeat other gallery items as needed -->
     </section>
-    <footer class="footer">
-        <div class="links">
-            <div><a href="#">Home</a><a href="#">Explore</a><a href="#">Album</a></div>
-            <div><a href="#">Profile</a><a href="#">Vault</a><a href="#">Messages</a></div>
-            <div><a href="#">Settings</a><a href="#">Privacy Policy</a><a href="#">Terms of Service</a></div>
+    <!-- Footer Section -->
+    <div class="footer">
+        <div>
+            <h4>Quick Links</h4>
+            <a href="UserDashboard.html#Home">Home</a> <!-- Link to privacy policy -->
+            <a href="UserDashboard.html#Home">Explore</a>
+            <a href="VaultPasscode.html">Vault</a>
+            <a href="">Messages</a>
+
         </div>
-        <div class="social">
-            <span>Follow us</span>
-            <i class="fab fa-instagram"></i>
-            <i class="fab fa-facebook"></i>
+        <div>
+            <h4>Follow Us</h4>
+            <div class="social-icons"> <!-- Social media icons -->
+                <a href="https://www.facebook.com/profile.php?id=61566861417599"><i class="fab fa-facebook-f"></i></a>
+
+                <a href="https://www.instagram.com/photonest.bh/"><i class="fab fa-instagram"></i></a>
+            </div>
+            <div class="copyright">
+                &copy; 2024 PhotoNest <!-- Copyright notice -->
+            </div>
         </div>
-        <div class="copyright">
-            © 2024 PhotoNest
+
+        <div>
+            <h4>Legal</h4>
+            <a href="#privacy-policy">Privacy Policy</a> <!-- Link to privacy policy -->
+            <a href="#TermsAndCondition">Terms and Conditions</a> <!-- Link to terms and conditions -->
         </div>
-    </footer>
+
+
+    </div>
 </body>
 </html>

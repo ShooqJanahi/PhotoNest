@@ -19,7 +19,30 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 
 
+<script type="module" src="../js/firebaseConfig.js"></script>
+<script type="module" src="../js/login.js"></script>
+    <script type="module" src="../js/UserManagement.js"></script>
 
+
+
+                <!-- In UserManagement.html -->
+                <script type="module">
+                    import { updateBanDuration } from '../js/UserManagement.js';
+                    window.updateBanDuration = updateBanDuration; // Attach to the global scope
+                
+                    import { deleteUser } from '../js/UserManagement.js';
+                    window.deleteUser = deleteUser; // Attach to the global scope
+                
+                    import { openBanUserModal } from '../js/UserManagement.js';
+                    window.openBanUserModal = openBanUserModal; // Attach to the global scope
+                
+                    import { unbanUser } from '../js/UserManagement.js';
+                    window.unbanUser = unbanUser; // Attach to the global scope
+                    
+                    import { viewUser } from '../js/UserManagement.js';
+                    window.viewUser = viewUser; // Attach to the global scope
+                </script>
+                
 
 
 </head>
@@ -30,16 +53,60 @@
         </div>
         
         <div class="actions">
-            <button class="notification"><i class="fas fa-bell"></i></button>
-            <button class="hamburger-menu"><i class="fas fa-bars"></i></button>
-            <button class="settings"><i class="fa fa-cog" aria-hidden="true"></i></button>
         
-            <form id="logoutForm" onsubmit="event.preventDefault(); logout();">
-                <button id="logoutButton">Logout</button>
-            </form>
+             <!-- Hamburger menu for smaller screens -->
+        <button id="hamburgerMenu" class="hamburger-menu">
+            <i class="fas fa-bars"></i>
+        </button>
+
+
+            <button class="settings">
+                <i class="fa fa-cog" aria-hidden="true"></i>
+            </button>
+            
+
+            <div id="settingsPopup" class="popup hidden">
+                <div class="popup-content">
+                    <h3>Update Profile</h3>
+                    <form id="updateProfileForm">
+                        <label for="firstName">First Name:</label>
+                        <input type="text" id="firstName" name="firstName" placeholder="First Name" required>
+            
+                        <label for="lastName">Last Name:</label>
+                        <input type="text" id="lastName" name="lastName" placeholder="Last Name" required>
+            
+                        <label for="phone">Phone Number:</label>
+                        <input type="text" id="phone" name="phone" placeholder="Phone Number" required>
+            
+                        <label for="profilePic">Profile Picture:</label>
+<input type="file" id="profilePic" name="profilePic" accept="image/*">
+<div id="uploadProgress" class="hidden">Uploading...</div>
+
+            
+                        <button type="submit">Save Changes</button>
+                        <button type="button" id="closePopup">Cancel</button>
+                    </form>
+                </div>
+            </div>
+            
+
+
+            <a href="#" id="logoutButton" class="logout-button">Logout</a>
+
+          
         </div>
         
     </div>
+
+    <!-- Mobile Menu -->
+<div id="mobileMenu" class="mobile-menu hidden">
+    <a href="AdminDashboard.html">Dashboard</a>
+    <a href="UserManagement.html">User Management</a>
+    <a href="Reports.html">Reports</a>
+    <a href="AdminDashboard.html#user-status-section">Currently Logged-in Users</a>
+    <a href="AdminDashboard.html#Spam-Report">Spam Reports</a>
+    <button id="logoutButton">Logout</button>
+</div>
 
         <aside class="sidebar">
             <h2>Navigation</h2>
@@ -71,13 +138,14 @@
 
             </div>
             
-            
+
+
             
             
 
             <section class="user-cards">
                 <div class="user-card">
-                    <img src="avatar1.png" alt="User avatar" class="user-avatar">
+                    <img src="" alt="User avatar" class="user-avatar">
                     <h3>Sarah Connor</h3>
                     <p>@Sarah.Connor</p>
                     <p>Role: Administrator</p>
@@ -87,19 +155,30 @@
                     <div class="card-buttons">
                         <button class="delete-button">Delete</button>
                         <button class="ban-button">Ban</button>
-                        <button class="edit-button">Edit</button>
+                        <button class="view-button">View</button>
                     </div>
                     <label for="ban-duration">Ban Duration (days):</label>
                     <input type="range" id="ban-duration" name="ban-duration" min="1" max="30">
                 </div>
             </section>
+
+<!-- Ban User Modal -->
+<div id="banUserModal" class="modal hidden">
+    <div class="modal-content">
+        <h2>Ban User</h2>
+        <p>Please provide a reason for banning the user:</p>
+        <textarea id="banReason" rows="4" placeholder="Enter the reason..."></textarea>
+        <div class="modal-actions">
+            <button id="confirmBanButton" class="confirm-button">Confirm</button>
+            <button id="cancelBanButton" class="cancel-button">Cancel</button>
+        </div>
+    </div>
+</div>
+
         </main>
 
-        <footer>
-            <p>PhotoNest © All Rights Reserved</p>
-        </footer>
+       
     </div>
-    <script type="module" src="../js/firebaseConfig.js"></script>
-    <script type="module" src="../js/UserManagement.js"></script>
+    
 </body>
 </html>

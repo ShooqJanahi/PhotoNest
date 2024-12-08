@@ -139,65 +139,45 @@ body {
     color: #666;
 }
 
-/* Footer */
+/* Footer styling */
 .footer {
-    background-color: #fff;
-    padding: 20px;
-    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    width: 100%;
-    box-sizing: border-box;
-    text-align: center;
-    margin-top: auto; /* Pushes footer to the bottom */
+    display: flex; /* Aligns footer elements horizontally */
+    justify-content: space-around; /* Spreads elements evenly across the footer */
+    align-items: center; /* Vertically centers footer content */
+    padding: 20px; /* Adds inner spacing */
+    background-color: #fff; /* Matches the header's background color */
+    color: #666; /* Light gray text for secondary emphasis */
+    font-size: 14px; /* Smaller font size for footer content */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Adds shadow for separation */
+    flex-wrap: wrap; /* Allows elements to wrap on smaller screens */
+    box-sizing: border-box; /* Includes padding in the element's width */
+    overflow-x: hidden; /* Prevents horizontal scrolling */
 }
-.footer nav {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
+
+.footer div {
+    text-align: center; /* Centers text inside each footer section */
 }
-.footer nav a {
-    margin: 0 15px;
-    color: #333;
-    text-decoration: none;
-    font-size: 14px;
+
+.footer .social-icons {
+    display: flex; /* Aligns social icons horizontally */
+    justify-content: center; /* Centers the icons */
+    gap: 10px; /* Adds spacing between icons */
+    margin-top: 5px; /* Adds spacing above the icons */
 }
-.footer .links {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
+
+.footer a {
+    color: #6a0dad; /* Purple color for branding */
+    text-decoration: none; /* Removes underlines from links */
+    display: block; /* Ensures consistent block layout */
+    margin-bottom: 5px; /* Adds spacing between links */
 }
-.footer .links div {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    align-items: center;
+
+.footer i {
+    margin: 0 5px; /* Adds spacing around icons */
+    font-size: 20px; /* Sets a standard size for icons */
+    color: #6a0dad; /* Matches the branding color */
 }
-.footer .links a {
-    text-decoration: none;
-    color: #333;
-    font-size: 14px;
-}
-.footer .social {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-.footer .social i {
-    font-size: 20px;
-    margin: 0 10px;
-    color: #333;
-}
-.footer .copyright {
-    font-size: 14px;
-    color: #666;
-    text-align: right;
-    width: 100%;
-    margin-top: 10px;
-}
+
 
 /* Responsive for tablets */
 @media (max-width: 768px) {

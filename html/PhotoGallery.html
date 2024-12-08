@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
     <link rel="stylesheet" href="../css/Photo.css">
+    <link rel="stylesheet" href="../css/Notification.css">
 
     <script type="module" src="../js/firebaseConfig.js"></script>
     <script type="module" src="../js/login.js"></script>
@@ -20,20 +21,30 @@
         <!-- Header -->
     <div class="header">
         <div class="logo">
-            <i class="fas fa-camera-retro"></i> PhotoNest
+            <img src="../assets/PhotoNest_Transparent.png" alt="PhotoNest Logo" class="logo-image">
+            PhotoNest
         </div>
+        
+
         <div class="search-bar">
-            <input type="text" placeholder="Search albums...">
-            <button>Sort</button>
-            <button>Enter</button>
+            <input type="text" id="search-input" placeholder="Search photos (username, date, location, hashtag, caption)...">
+            <select id="sort-select">
+                <option value="popularity">Most Popular</option>
+                <option value="latest">Latest</option>
+                <option value="oldest">Oldest</option>
+            </select>
+            <button id="search-button">Search</button>
         </div>
+        
+
         <div class="icons">
             
-            <i class="fas fa-bell"></i>
+            <i class="fas fa-bell" id="notification-bell"></i>
+
 
 
             <div class="profile-container">
-                <img src="" alt="User Profile" id="profile-image">
+                <img src="../assets/Default_profile_icon.jpg" alt="User Profile" id="profile-image">
                 <div class="profile-dropdown hidden">
                     <a href="Settings.html">Settings</a>
                     <a href="#" id="logout-button">Logout</a>
@@ -49,12 +60,13 @@
             <img src="https://placehold.co/300x200" alt="Beautiful landscape with green hills and a lake">
             <div class="card-footer">
                 <span>Photo Title</span>
-               <i class="fas fa-ellipsis-v options-icon"></i>
-            <div class="options-menu hidden">
-                <button class="options-btn remove-btn">Remove from Album</button>
+                <i class="fas fa-ellipsis-v options-icon"></i>
+                <div class="options-menu hidden">
+                    <button class="options-btn remove-btn">Remove from Album</button>
+                </div>
             </div>
         </div>
-        </div>
+        
     </div>
     </div>
     <!-- Footer Section -->

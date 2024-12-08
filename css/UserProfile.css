@@ -1,0 +1,178 @@
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f5f5ff;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    margin-top: 85px; /* Add margin to compensate for fixed header height plus space */
+    padding: 20px;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between; /* Ensure space between title and button */
+    align-items: center;
+    padding: 10px 20px; /* Adjust padding for compactness */
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    height: 60px; /* Set a fixed height */
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.header h1 {
+    font-size: 20px; /* Adjust font size */
+    color: #5a5a5a;
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Add space between the image and the title */
+}
+
+.header h1 img {
+    width: 24px; /* Adjust the size of the logo */
+    height: 24px;
+}
+
+.header .icons {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Add spacing between the bell icon and the button */
+}
+
+.header .logout {
+    background-color: #6c63ff;
+    color: #fff;
+    padding: 8px 15px; /* Reduce padding for a smaller button */
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 14px; /* Adjust font size */
+    font-weight: 600;
+    white-space: nowrap; /* Prevent text wrapping */
+    max-width: 100px; /* Restrict button width */
+    overflow: hidden; /* Prevent overflow text */
+    text-align: center; /* Center-align the text */
+}
+
+#chart_div {
+    background-color: #f3f3f3;
+    border: 1px solid #ddd;
+}
+
+.content {
+    display: flex;
+    width: 100%;
+    max-width: 1200px;
+    gap: 20px;
+}
+
+/* Profile card and right-panel styles remain the same */
+.profile-card {
+    background-color: #f9f9ff;
+    border-radius: 10px;
+    padding: 20px;
+    width: 25%;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.profile-card img {
+    border-radius: 50%;
+    margin-bottom: 15px;
+    width: 100px;
+    height: 100px;
+}
+
+.profile-card h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.profile-card p {
+    font-size: 14px;
+    color: #7a7a7a;
+    margin: 5px 0;
+}
+
+.right-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 75%;
+}
+
+.admin-actions,
+.admin-notes,
+.user-activity {
+    background-color: #f9f9ff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.admin-actions h3,
+.admin-notes h3,
+.user-activity h3 {
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.admin-actions .buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.admin-actions .buttons button {
+    background-color: #6c63ff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.admin-actions .slider {
+    width: 100%;
+}
+
+.admin-notes textarea {
+    width: 100%;
+    height: 100px;
+    border: 1px solid #6c63ff;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 14px;
+    color: #7a7a7a;
+}
+
+.user-activity .activity-item {
+    background-color: #fff;
+    border-radius: 5px;
+    padding: 10px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px;
+}
+
+.user-activity .activity-item p {
+    margin: 0;
+    font-size: 14px;
+    color: #7a7a7a;
+}
+
+.user-activity .activity-item span {
+    display: block;
+    font-size: 12px;
+    color: #b0b0b0;
+    margin-top: 5px;
+}
