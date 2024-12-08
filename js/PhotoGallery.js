@@ -96,6 +96,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
      // Fetch and display the profile image
      await fetchUserProfileImage();
+     await determinePhotoSource();  // Add this below existing logic
 
     gallery.addEventListener('click', (event) => {
         // Check if the click is on an ellipsis icon
@@ -117,7 +118,74 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 });
 
+async function determinePhotoSource() {
+    const isVault = sessionStorage.getItem('viewVault') === 'true'; // Check if Vault mode is active
 
+    if (isVault) {
+        console.log('Vault mode active, loading user-specific VaultPhoto collection...');
+        await loadUserVaultPhotos(); // Load only user's photos in VaultPhoto collection
+        return; // Stop further execution to prevent loading other collections
+    }
+
+    const albumId = localStorage.getItem('currentAlbumId'); // Check if an album is selected
+    if (albumId) {
+        console.log('Album selected, loading album photos...');
+        await loadPhotosForAlbum(albumId); // Load album photos
+    } else {
+        console.log('Default mode, loading public photos...');
+        await loadPhotosFromCollection('Photos'); // Load public photos
+    }
+}
+
+
+async function loadUserVaultPhotos() {
+    try {
+        const user = JSON.parse(sessionStorage.getItem('user')); // Get the logged-in user
+        if (!user || !user.uid) {
+            console.error('User is not logged in or UID is missing.');
+            galleryContainer.innerHTML = '<p>Error: Unable to load photos. Please log in again.</p>';
+            return;
+        }
+
+        // Query VaultPhoto collection for photos uploaded by the logged-in user
+        const photosRef = collection(db, 'VaultPhoto');
+        const userPhotosQuery = query(photosRef, where('userId', '==', user.uid));
+        const photosSnapshot = await getDocs(userPhotosQuery);
+
+        // Map through results and render photos
+        const photos = photosSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+        }));
+
+        if (photos.length === 0) {
+            galleryContainer.innerHTML = '<p>No photos found in your vault.</p>';
+        } else {
+            renderPhotos(photos); // Render user's vault photos
+        }
+    } catch (error) {
+        console.error('Error loading user vault photos:', error);
+        galleryContainer.innerHTML = '<p>Error loading photos. Please try again later.</p>';
+    }
+}
+
+
+
+async function loadPhotosFromCollection(collectionName) {
+    try {
+        const photosRef = collection(db, collectionName);
+        const photosSnapshot = await getDocs(photosRef);
+
+        const photos = photosSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+        }));
+        renderPhotos(photos);
+    } catch (error) {
+        console.error(`Error loading photos from ${collectionName}:`, error);
+        galleryContainer.innerHTML = `<p>Error loading photos. Please try again later.</p>`;
+    }
+}
 
 
 

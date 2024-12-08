@@ -697,26 +697,107 @@ async function deletePhoto(photoId) {
  * @param {string} photoId - The ID of the photo to handle likes for.
  */
 async function setupLikeButton(photoId) {
-    const userId = auth.currentUser.uid;  // Ensure the user is authenticated
-    const likeIcon = document.getElementById('like-icon');
-    const likesCount = document.getElementById('likes-count');
-
-    // Check if the user has already liked the photo
-    const userLikeRef = doc(db, "Likes", `${userId}_${photoId}`);
-    const userLikeSnap = await getDoc(userLikeRef);
-
-    if (userLikeSnap.exists()) {
-        likeIcon.classList.add('liked');
-    } else {
-        likeIcon.classList.remove('liked');
+    const userId = sessionStorage.getItem("userId"); // Ensure the user is logged in
+    if (!userId) {
+        console.error("User is not logged in. Redirecting to login.");
+        window.location.href = "../html/index.html";
+        return;
     }
 
-    // Add event listener to toggle like status on click
-    likeIcon.addEventListener('click', () => { // Using 'addEventListener' to ensure proper handling
-        const isLiked = likeIcon.classList.contains('liked');
-        toggleLikeStatus(isLiked, userLikeRef, photoId, likeIcon, likesCount);
-    });
+    const likeIcon = document.getElementById("like-icon");
+    const likesCountElement = document.getElementById("likes-count");
+
+    if (!likeIcon || !likesCountElement) {
+        console.error("Like icon or likes count element missing in DOM.");
+        return;
+    }
+
+    try {
+        // Check if the user has already liked the photo
+        const userLikeRef = doc(db, "Likes", `${userId}_${photoId}`);
+        const userLikeSnap = await getDoc(userLikeRef);
+
+        if (userLikeSnap.exists()) {
+            // User has liked the photo; update UI
+            likeIcon.classList.add("liked"); // Add CSS class to turn heart red
+        }
+
+        // Fetch the photo document to display the current like count
+        const photoRef = doc(db, "Photos", photoId);
+        const photoSnap = await getDoc(photoRef);
+        if (photoSnap.exists()) {
+            const likesCount = photoSnap.data().likesCount || 0;
+            likesCountElement.textContent = `${likesCount} Likes`;
+        } else {
+            console.error("Photo document not found.");
+        }
+
+        // Add event listener for toggling likes
+        likeIcon.addEventListener("click", async () => {
+            const isLiked = likeIcon.classList.contains("liked");
+
+            if (isLiked) {
+                // Unlike the photo
+                await unlikePhoto(userId, photoId, photoRef, userLikeRef);
+                likeIcon.classList.remove("liked");
+            } else {
+                // Like the photo
+                await likePhoto(userId, photoId, photoRef, userLikeRef);
+                likeIcon.classList.add("liked");
+            }
+
+            // Update the like count display dynamically
+            const updatedPhotoSnap = await getDoc(photoRef);
+            const updatedLikesCount = updatedPhotoSnap.data().likesCount || 0;
+            likesCountElement.textContent = `${updatedLikesCount} Likes`;
+        });
+    } catch (error) {
+        console.error("Error setting up like button:", error);
+    }
 }
+
+/**
+ * Like the photo by adding a record to Firestore and incrementing the like count.
+ */
+async function likePhoto(userId, photoId, photoRef, userLikeRef) {
+    try {
+        // Add like document to Likes collection
+        await setDoc(userLikeRef, {
+            userId,
+            photoId,
+            timestamp: new Date().toISOString(),
+        });
+
+        // Increment the like count in the Photos collection
+        await updateDoc(photoRef, {
+            likesCount: increment(1),
+        });
+
+        console.log(`Photo liked by userId: ${userId}`);
+    } catch (error) {
+        console.error("Error liking photo:", error);
+    }
+}
+
+/**
+ * Unlike the photo by removing the record from Firestore and decrementing the like count.
+ */
+async function unlikePhoto(userId, photoId, photoRef, userLikeRef) {
+    try {
+        // Delete the like document from Likes collection
+        await deleteDoc(userLikeRef);
+
+        // Decrement the like count in the Photos collection
+        await updateDoc(photoRef, {
+            likesCount: increment(-1),
+        });
+
+        console.log(`Photo unliked by userId: ${userId}`);
+    } catch (error) {
+        console.error("Error unliking photo:", error);
+    }
+}
+
 
 /**
  * Toggles the like status of a photo and updates UI accordingly.

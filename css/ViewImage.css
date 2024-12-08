@@ -133,9 +133,10 @@ body {
     margin-bottom: 20px;
 }
 
-.liked {
-    color: red;
+.details-section .likes i.liked {
+    color: red; /* Turns the heart icon red */
 }
+
 
 
 .details-section .likes i {

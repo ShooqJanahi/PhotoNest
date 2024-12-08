@@ -6,10 +6,17 @@
     <title>Passcode Vault</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+    
     <link rel="stylesheet" href="../css/VaultPasscode.css">
 
     <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png">
     
+    
+    <script type="module" src="../js/firebaseConfig.js"></script>
+    <script type="module" src="../js/login.js"></script> <!-- define the session storage-->
+    <script type="module" src="../js/VaultPasscode.js"></script>
+
+
 </head>
 <body>
     <div class="container">
@@ -18,13 +25,13 @@
             <h1>Passcode</h1>
             <p>Enter passcode to access vault</p>
             <div class="form-group">
-                <input type="password" id="passcodeInput" placeholder="Enter your passcode">
+                <input type="password" id="passcodeInput" placeholder="Enter your passcode" />
                 <i class="fas fa-key"></i>
             </div>
             <a href="forgotPasscode.html">Forgot passcode?</a>
 
-            <a href="Vault.html" class="button-link">
             <button id="unlockButton">Unlock</button>
+            
         </a>
             <a href="UserDashboard.html" class="button-link">
                 <button>Back to Home</button>
@@ -33,7 +40,5 @@
         </div>
     </div>
 
-    <!-- Import JavaScript file -->
-    <script type="module" src="../js/login.js"></script> <!-- Update path to login.js if necessary -->
 </body>
 </html>

@@ -51,6 +51,13 @@ if (loginForm) {
                 // Attempt to sign in the user with email and password
                 signInWithEmailAndPassword(auth, userEmail, password)
                     .then(async (userCredential) => {
+
+                        const userId = userCredential.user.uid;
+                         // Store the userId in sessionStorage after successful login
+        sessionStorage.setItem("userId", userId);
+        console.log("User ID saved in sessionStorage:", userId);
+
+
                         // Check if the account is not active
                         if (userStatus.toLowerCase() !== "active") {
                             window.location.href = '../html/verifyEmail.html'; // Redirect to the verify email page
@@ -69,7 +76,7 @@ if (loginForm) {
                             console.error("Error updating lastActive field:", error); // Log errors
                         }
 
-                        const userId = userCredential.user.uid; // Get the logged-in user's UID
+                       
                         const sessionRef = doc(db, "sessions", userId); // Reference the session document in Firestore
 
                         // Log login activity
