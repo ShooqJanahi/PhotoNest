@@ -6,11 +6,7 @@ import { getFirestore, doc, setDoc, query, where, getDocs, collection } from "ht
 import { getStorage } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 
 import { auth, db } from "./firebaseConfig.js"; // Import Firebase configuration
-// Import the functions from Notification.js
-import { openNotificationPopup } from './Notification.js';
 
-// Attach the event listener to the Notifications tab
-document.getElementById("notifications").addEventListener("click", openNotificationPopup);
 
 //Selects the sign-up form element to handle user interactions
 const signupForm = document.querySelector(".signup-form");
