@@ -63,24 +63,46 @@ function createUserCard(userId, userData, container) {
     // Use profilePic URL or fallback to a placeholder image
     const profilePicUrl = userData.profilePic || '../assets/Default_profile_icon.jpg';
 
-    userCard.innerHTML = `
-        <img src="${profilePicUrl}" alt="${fullName}'s profile picture" class="user-avatar">
-        <h3>${fullName}</h3>
-        <p>@${userData.username || 'unknown'}</p>
-        <p>Email: ${userData.email || 'N/A'}</p>
-        <p>Role: ${userData.role || 'unknown'}</p>
-        <p>Status: <span id="status-${userId}">${userData.status || 'Unknown'}</span></p>
-        <p>Last Active: ${lastActive}</p>
-        <p>Account Created: ${createdAt}</p>
-        <div class="card-buttons">
-            <button class="delete-button" onclick="deleteUser('${userId}')">Delete</button>
-            <button class="ban-button" onclick="openBanUserModal('${userId}')">Ban</button>
-           <button class="view-button" onclick="viewUser('${userId}')">View</button>
+// Determine if the user is banned
+const isBanned = userData.status === 'Banned';
 
-
-        </div>
-    `;
-
+userCard.innerHTML = `
+<img src="${profilePicUrl}" alt="${fullName}'s profile picture" class="user-avatar">
+<h3>${fullName}</h3>
+<p>@${userData.username || 'unknown'}</p>
+<p>Email: ${userData.email || 'N/A'}</p>
+<p>Role: ${userData.role || 'unknown'}</p>
+<p>Status: <span id="status-${userId}">${userData.status || 'Unknown'}</span></p>
+<p>Last Active: ${lastActive}</p>
+<p>Account Created: ${createdAt}</p>
+<div class="card-buttons">
+    <button class="delete-button" onclick="deleteUser('${userId}')">Delete</button>
+    ${
+        isBanned
+            ? `<button class="unban-button" onclick="unbanUser('${userId}')">Unban</button>`
+            : `<button class="ban-button" onclick="openBanUserModal('${userId}')">Ban</button>`
+    }
+    <button class="view-button" onclick="viewUser('${userId}')">View</button>
+</div>
+${
+    !isBanned
+        ? `
+    <div class="ban-slider">
+        <label for="ban-duration-${userId}">Ban Duration (days):</label>
+        <input 
+            type="range" 
+            id="ban-duration-${userId}" 
+            name="ban-duration-${userId}" 
+            min="1" 
+            max="30" 
+            value="1" 
+            onchange="updateBanDuration('${userId}')"
+        >
+        <span id="ban-duration-display-${userId}">1</span> day(s)
+    </div>`
+        : ''
+}
+`;
     container.appendChild(userCard);
 }
 
@@ -103,6 +125,38 @@ export function updateBanDuration(userId) {
     display.textContent = slider.value; // Update the displayed number of days
 }
 
+
+export async function unbanUser(userId) {
+    const statusElement = document.getElementById(`status-${userId}`);
+    try {
+        // Update Firestore `users` collection to reset the status
+        await updateDoc(doc(db, 'users', userId), {
+            status: 'active',
+        });
+
+        // Find and delete the related ban document in the `ban` collection
+        const banCollectionRef = collection(db, 'ban');
+        const querySnapshot = await getDocs(banCollectionRef);
+
+        for (const docSnapshot of querySnapshot.docs) {
+            const banData = docSnapshot.data();
+            if (banData.userId === userId) {
+                await deleteDoc(doc(db, 'ban', docSnapshot.id));
+                console.log(`Ban record for user ${userId} deleted.`);
+            }
+        }
+
+        // Update the UI to reflect the unbanned status
+        statusElement.textContent = 'active';
+        alert(`User ${userId} has been unbanned.`);
+
+        // Refresh the user list to update the button dynamically
+        displayUsers();
+    } catch (error) {
+        console.error('Error unbanning user:', error);
+        alert('Error unbanning user: ' + error.message);
+    }
+}
 
 
 
@@ -223,37 +277,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
 });
 
-export async function unbanUser(userId) {
-    const statusElement = document.getElementById(`status-${userId}`);
-    try {
-        // Update Firestore `users` collection to reset the status
-        await updateDoc(doc(db, 'users', userId), {
-            status: 'Active',
-        });
 
-        // Find and delete the related ban document in the `ban` collection
-        const banCollectionRef = collection(db, 'ban');
-        const querySnapshot = await getDocs(banCollectionRef);
-
-        querySnapshot.forEach(async (docSnapshot) => {
-            const banData = docSnapshot.data();
-            if (banData.userId === userId) {
-                await deleteDoc(doc(db, 'ban', docSnapshot.id));
-                console.log(`Ban record for user ${userId} deleted.`);
-            }
-        });
-
-        // Update the UI to reflect the unbanned status
-        statusElement.textContent = 'Active';
-        alert(`User ${userId} has been unbanned.`);
-
-        // Refresh the user list to update the button dynamically
-        displayUsers();
-    } catch (error) {
-        console.error('Error unbanning user:', error);
-        alert('Error unbanning user: ' + error.message);
-    }
-}
 
 
 // Function to open the ban user modal
@@ -264,15 +288,13 @@ export function openBanUserModal(userId) {
     const confirmButton = document.getElementById('confirmBanButton');
     const cancelButton = document.getElementById('cancelBanButton');
 
-    // Clear any previous event listeners
     confirmButton.onclick = null;
     cancelButton.onclick = null;
 
-    // Handle Confirm
     confirmButton.onclick = async () => {
         const banReason = document.getElementById('banReason').value.trim();
-        const banDurationSlider = document.getElementById(`ban-duration-${userId}`); // Get the slider outside the modal
-        const banDuration = parseInt(banDurationSlider.value, 10); // Get the duration
+        const banDurationSlider = document.getElementById(`ban-duration-${userId}`);
+        const banDuration = parseInt(banDurationSlider.value, 10);
 
         if (!banReason) {
             alert('Please enter a reason for banning the user.');
@@ -280,7 +302,7 @@ export function openBanUserModal(userId) {
         }
 
         try {
-            await banUser(userId, banReason, banDuration); // Call the banUser function
+            await banUser(userId, banReason, banDuration);
             closeBanUserModal();
         } catch (error) {
             console.error('Error banning user:', error);
@@ -288,11 +310,11 @@ export function openBanUserModal(userId) {
         }
     };
 
-    // Handle Cancel
     cancelButton.onclick = () => {
-        closeBanUserModal(); // Close the modal
+        closeBanUserModal();
     };
 }
+
 
 
 

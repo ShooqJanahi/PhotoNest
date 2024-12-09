@@ -397,7 +397,7 @@ main {
     margin-top: 1em;
 }
 
-.delete-button, .ban-button, .view-button {
+.delete-button, .ban-button, .view-button, .unban-button {
     padding: 0.5em 1em;
     border: none;
     color: white;
@@ -407,7 +407,59 @@ main {
 
 .delete-button { background-color: #ff5e5e; }
 .ban-button { background-color: #ff914d; }
+.unban-button { background-color: #ff914d; }
 .view-button { background-color: #6b4dff; }
+
+
+.ban-slider {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.ban-slider label {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.ban-slider input[type="range"] {
+    width: 100%;
+    max-width: 200px;
+    margin: 10px 0;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 5px;
+    background: #ddd;
+    border-radius: 5px;
+    outline: none;
+    transition: background 0.3s ease;
+}
+
+.ban-slider input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: #6c63ff;
+    cursor: pointer;
+}
+
+.ban-slider input[type="range"]::-moz-range-thumb {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: #6c63ff;
+    cursor: pointer;
+}
+
+.ban-slider span {
+    font-size: 14px;
+    color: #333;
+}
+
 
 .modal {
     display: flex;

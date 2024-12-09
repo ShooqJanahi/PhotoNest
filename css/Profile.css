@@ -111,6 +111,73 @@ body {
     font-weight: 600;
 }
 
+/* Options Menu Container */
+.options-menu-container {
+    margin-top: 10px;
+    position: relative;
+    text-align: center;
+}
+
+/* Options Menu Toggle Button */
+.options-menu-toggle {
+    background-color: #6c63ff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.options-menu-toggle:hover {
+    background-color: #4a42d1;
+}
+
+/* Options Menu Dropdown */
+.options-menu {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: white;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    width: 150px;
+    z-index: 10;
+    transition: opacity 0.3s ease;
+}
+
+.options-menu button {
+    background: none;
+    border: none;
+    padding: 10px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+    border-bottom: 1px solid #ddd;
+}
+
+.options-menu button:last-child {
+    border-bottom: none;
+}
+
+.options-menu button:hover {
+    background-color: #f5f5f5;
+}
+
+/* Hidden Menu */
+.options-menu.hidden {
+    display: none;
+}
+
+
+
+
+
 /* Gallery */
 .gallery {
     display: grid;

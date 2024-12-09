@@ -35,6 +35,49 @@ body {
     width: 80%;
     padding: 20px;
 }
+
+.profile-pic {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    border: 2px solid #6c63ff; /* Purple border */
+    display: inline-block;
+}
+
+
+/* Search Bar */
+.search-bar {
+    display: flex;
+    align-items: center;
+    background-color: #f1f1f1;
+    border-radius: 25px;
+    padding: 5px 15px;
+    margin-bottom: 20px;
+}
+
+.search-bar input {
+    flex: 1;
+    border: none;
+    background: none;
+    padding: 10px;
+    font-size: 14px;
+    outline: none;
+    color: #333;
+}
+
+.search-bar button {
+    background-color: #6c63ff;
+    border: none;
+    border-radius: 25px;
+    color: #fff;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
 .tabs {
     display: flex;
     margin-bottom: 20px;
@@ -82,27 +125,299 @@ body {
     color: #888;
     font-size: 12px;
 }
-.message-input {
-    display: flex;
-    align-items: center;
-}
-.message-input input {
-    flex: 1;
-    padding: 10px;
-    border-radius: 15px;
-    border: 1px solid #ddd;
-    margin-right: 10px;
-    font-size: 14px;
-}
-.message-input button {
+
+/* Create New Message Button */
+.content button {
     background-color: #6c63ff;
     color: #fff;
     border: none;
     border-radius: 25px;
     padding: 10px 20px;
+    margin-bottom: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    align-self: flex-end; /* Align button to the far-right */
+    display: block;
+}
+
+.content button:hover {
+    background-color: #5a54db;
+}
+
+
+/* Message Cards */
+.message-cards {
+    margin-top: 20px;
+}
+
+.message-card {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.message-card:hover {
+    background-color: #f8f9fc;
+}
+
+.message-card i {
+    font-size: 36px;
+    color: #6c63ff;
+    margin-right: 15px;
+}
+
+/* Message Info Styling */
+.message-info {
+    display: flex;
+    justify-content: space-between; /* Pushes timestamp to the far right */
+    align-items: center; /* Vertically align elements */
+    width: 100%; /* Ensure it spans the full width of the card */
+}
+
+/* Message Details (Username and Subject) */
+.message-details {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Message Timestamp Styling */
+.message-timestamp {
+    font-size: 12px; /* Make it slightly smaller */
+    color: #888; /* Use a lighter color for timestamp */
+    white-space: nowrap; /* Prevent wrapping of the timestamp */
+    margin-left: 10px; /* Add space between subject and timestamp */
+}
+
+
+.message-info strong {
+    display: block;
+    font-size: 16px;
+    color: #333;
+}
+
+.message-info .message-subject {
+    font-size: 14px;
+    color: #888;
+    margin-top: 5px;
+}
+
+/* Subject and Message Content Card Styling */
+.message-subject-card, .message-content-card {
+    background-color: #f8f9fc;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.message-subject-card h3, .message-content-card h3 {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.message-subject-card p, .message-content-card p {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.5;
+}
+
+.message-options {
+    position: relative;
+}
+
+/* Add this to your CSS file */
+.message-card.unread {
+    background-color: #f0f8ff; /* Light blue background for unread messages */
+}
+
+
+/* Three Dots Icon Styling */
+.options-icon {
+    font-size: 14px; /* Smaller size for the dots */
+    color: #6c63ff; /* Purple color to match the theme */
+    cursor: pointer; /* Indicates interactivity */
+    margin-left: 10px; /* Add spacing between the timestamp and dots */
+    transition: transform 0.2s ease; /* Add a smooth hover effect */
+}
+
+.options-icon:hover {
+    transform: scale(1.2); /* Slightly enlarge the dots on hover */
+}
+
+/* Dropdown Menu Styling */
+.options-menu {
+    position: absolute;
+    right: 10px; /* Aligns the menu with the right edge of the card */
+    top: 25px; /* Position the menu below the icon */
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: none; /* Initially hidden */
+    flex-direction: column;
+    z-index: 10;
+    padding: 5px 0;
+    min-width: 120px;
+}
+
+.options-menu button {
+    background: none;
+    border: none;
+    text-align: left;
+    padding: 10px 15px;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s ease;
+}
+
+.options-menu button:hover {
+    background-color: #f8f9fc;
+    color: #6c63ff;
+}
+
+/* Show the dropdown menu on icon click */
+.options-menu.show {
+    display: flex; /* Display the menu */
+}
+
+
+/* Popup styling */
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 20px 30px;
+    z-index: 1000;
+    width: 400px; /* Fixed width for better layout */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    box-sizing: border-box;
+}
+
+.popup.hidden {
+    display: none;
+}
+
+.popup-content h3 {
+    margin-bottom: 15px;
+    font-size: 18px;
+    color: #333;
+    text-align: center;
+}
+
+/* Form styling inside the popup */
+.popup-content form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.popup-content label {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+.popup-content input,
+.popup-content textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+.popup-content textarea {
+    resize: none; /* Disable resizing */
+    height: 100px;
+}
+
+.popup-buttons {
+    display: flex;
+    justify-content: flex-end; /* Align buttons to the right */
+    gap: 10px;
+}
+
+/* Button styling inside the popup */
+.popup-buttons button {
+    padding: 8px 15px;
+    font-size: 14px;
+    border: none;
+    border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
 }
+
+.popup-buttons button[type="submit"] {
+    background-color: #6c63ff;
+    color: #fff;
+}
+
+.popup-buttons button[type="submit"]:hover {
+    background-color: #5a54db;
+}
+
+.popup-buttons button#cancelCreateMessage {
+    background-color: #f1f1f1;
+    color: #333;
+}
+
+.popup-buttons button#cancelCreateMessage:hover {
+    background-color: #ddd;
+}
+
+/* Autocomplete styling */
+.autocomplete-list {
+    position: absolute;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    list-style: none;
+    margin-top: -5px; /* Adjust alignment */
+    padding: 5px 0;
+    width: 100%;
+    max-height: 150px;
+    overflow-y: auto;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 1001;
+}
+
+.autocomplete-list li {
+    display: flex;
+    align-items: center;
+    padding: 8px 10px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.autocomplete-list li:hover {
+    background: #f1f1f1;
+}
+
+.autocomplete-list img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+
 
 /* Footer styling */
 .footer {

@@ -1,235 +1,551 @@
-// Import Firebase modules
-import { db, auth } from './firebaseConfig.js';
-import { doc, collection, query, where, getDocs, addDoc, serverTimestamp, updateDoc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
-import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { collection, query, where, getDocs, doc, getDoc, addDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { db } from "./firebaseConfig.js"; // Firebase configuration import
 
-document.addEventListener('DOMContentLoaded', () => {
-    checkUserAuthentication();
+const auth = getAuth();
 
-    // Handle tab switching
-    const tabs = document.querySelectorAll('.tab');
-    tabs.forEach((tab) => {
-        tab.addEventListener('click', () => {
-            document.querySelector('.tab.active').classList.remove('active');
-            tab.classList.add('active');
+// Popup elements
+const createMessagePopup = document.getElementById("createMessagePopup");
+const createMessageForm = document.getElementById("createMessageForm");
+const receiverUsernameInput = document.getElementById("receiverUsername");
+const autocompleteList = document.getElementById("autocompleteList");
+const messageSubjectInput = document.getElementById("messageSubject");
+const messageTextInput = document.getElementById("messageText");
+const cancelCreateMessageButton = document.getElementById("cancelCreateMessage");
+const createMessageButton = document.getElementById("createNewMessage");
 
-            const selectedTab = tab.textContent.trim();
-            if (selectedTab === 'Inbox') {
-                loadInbox();
-            } else if (selectedTab === 'Sent') {
-                loadSentMessages();
-            }
+// Event listener for the "Create New Message" button
+createMessageButton.addEventListener("click", () => {
+    createMessagePopup.classList.remove("hidden"); // Show the popup
+});
+
+// Cancel button to hide the popup
+cancelCreateMessageButton.addEventListener("click", () => {
+    createMessagePopup.classList.add("hidden");
+});
+
+// Autocomplete logic for recipient username
+receiverUsernameInput.addEventListener("input", async () => {
+    const searchQuery = receiverUsernameInput.value.trim().toLowerCase();
+    if (!searchQuery) {
+        autocompleteList.innerHTML = "";
+        return;
+    }
+
+    const usersRef = collection(db, "users");
+    const q = query(usersRef, where("role", "==", "user")); // Only fetch users with role 'user'
+    const querySnapshot = await getDocs(q);
+
+    // Filter users by username
+    const matchingUsers = querySnapshot.docs
+        .map((doc) => ({ id: doc.id, ...doc.data() }))
+        .filter((user) => user.username?.toLowerCase().includes(searchQuery));
+
+    // Render autocomplete options
+    autocompleteList.innerHTML = matchingUsers
+        .map(
+            (user) =>
+                `<li data-user-id="${user.id}">
+                    <img src="${user.profilePic || "../assets/Default_profile_icon.jpg"}" alt="${user.username}">
+                    <span>${user.username}</span>
+                </li>`
+        )
+        .join("");
+
+    // Handle selection of username from autocomplete
+    autocompleteList.querySelectorAll("li").forEach((item) => {
+        item.addEventListener("click", () => {
+            receiverUsernameInput.value = item.querySelector("span").textContent; // Set the input value
+            receiverUsernameInput.dataset.userId = item.dataset.userId; // Save the userId for sending the message
+            autocompleteList.innerHTML = ""; // Clear the list
         });
-    });
-
-    // Handle message sending
-    const sendButton = document.querySelector('.message-input button');
-    const messageInput = document.querySelector('.message-input input');
-    sendButton.addEventListener('click', async () => {
-        const messageText = messageInput.value.trim();
-        if (!messageText) {
-            alert('Please type a message before sending.');
-            return;
-        }
-        await sendMessage(messageText);
-        messageInput.value = ''; // Clear the input field
     });
 });
 
-// Check user authentication
-function checkUserAuthentication() {
-    onAuthStateChanged(auth, async (user) => {
-        if (!user) {
-            window.location.href = '../html/Login.html'; // Redirect if not logged in
-        } else {
-            const loggedInUserId = user.uid;
-            localStorage.setItem('loggedInUserId', loggedInUserId); // Store user ID for later use
-            loadInbox(); // Load inbox messages by default
-        }
-    });
-}
+// Handle form submission
+createMessageForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
 
-// Load inbox messages
-async function loadInbox() {
-    const loggedInUserId = localStorage.getItem('loggedInUserId');
-    const inboxQuery = query(
-        collection(db, 'Messages'),
-        where('receiverId', '==', loggedInUserId)
-    );
+    const senderId = auth.currentUser?.uid; // Get the current logged-in user's ID
+    const receiverUsername = receiverUsernameInput.value.trim();
+    const receiverId = receiverUsernameInput.dataset.userId; // Retrieve the userId from the dataset
+    const subject = messageSubjectInput.value.trim();
+    const messageText = messageTextInput.value.trim();
 
-    const messagesSnapshot = await getDocs(inboxQuery);
-    const recentConversations = document.querySelector('.recent-conversations');
-    recentConversations.innerHTML = ''; // Clear previous messages
-
-    if (messagesSnapshot.empty) {
-        recentConversations.innerHTML = '<p>No messages in your inbox.</p>';
-        return;
-    }
-
-    for (const doc of messagesSnapshot.docs) { // Use a for...of loop
-        const messageData = doc.data();
-        const messageElement = await createMessageElement(messageData, 'inbox'); // Await the DOM element
-        recentConversations.appendChild(messageElement);
-    }
-}
-
-
-// Load sent messages
-async function loadSentMessages() {
-    const loggedInUserId = localStorage.getItem('loggedInUserId');
-    const sentQuery = query(
-        collection(db, 'Messages'),
-        where('senderId', '==', loggedInUserId)
-    );
-
-    const messagesSnapshot = await getDocs(sentQuery);
-    const recentConversations = document.querySelector('.recent-conversations');
-    recentConversations.innerHTML = ''; // Clear previous messages
-
-    if (messagesSnapshot.empty) {
-        recentConversations.innerHTML = '<p>No sent messages.</p>';
-        return;
-    }
-
-    const messageElements = await Promise.all(messagesSnapshot.docs.map(async (doc) => {
-        const messageData = doc.data();
-        return await createMessageElement(messageData, 'sent');
-    }));
-
-    messageElements.forEach((element) => recentConversations.appendChild(element));
-}
-
-
-
-const usernameCache = {}; // Cache for usernames
-
-async function fetchUsernameById(userId) {
-    if (usernameCache[userId]) {
-        return usernameCache[userId];
-    }
-    try {
-        const userDoc = await getDocs(query(collection(db, 'Users'), where('uid', '==', userId)));
-        if (!userDoc.empty) {
-            const username = userDoc.docs[0].data().username || 'Unknown User';
-            usernameCache[userId] = username; // Cache it
-            return username;
-        }
-        return 'Unknown User';
-    } catch (error) {
-        console.error('Error fetching username:', error);
-        return 'Unknown User';
-    }
-}
-
-
-// Create a message element for display
-async function createMessageElement(messageData, type) {
-    const messageElement = document.createElement('div');
-    messageElement.classList.add('conversation');
-
-    const userId = type === 'inbox' ? messageData.senderId : messageData.receiverId;
-    const username = await fetchUsernameById(userId); // Fetch username
-
-    const senderLabel = type === 'inbox' ? 'Sender' : 'To';
-
-    const isPhotoMessage = !!messageData.photoId; // Check if it's a photo message
-    const messageContent = isPhotoMessage
-        ? `<a href="../html/ViewImage.html" onclick="savePhotoIdToLocalStorage('${messageData.photoId}')">[Photo]</a>`
-        : messageData.messageText;
-
-    messageElement.innerHTML = `
-        <i class="fas fa-user-circle"></i>
-        <div class="conversation-text">
-            <strong>${senderLabel}: ${username}</strong><br>
-            ${messageContent}
-        </div>
-        <div class="conversation-time">${formatTimestamp(messageData.timestamp)}</div>
-    `;
-
-    return messageElement;
-}
-
-
-// Format timestamp to a readable format
-function formatTimestamp(timestamp) {
-    const date = new Date(timestamp);
-    return date.toLocaleString();
-}
-
-
-
-// Mark a message as read
-async function markMessageAsRead(messageId) {
-    try {
-        const messageRef = doc(db, 'Messages', messageId);
-        await updateDoc(messageRef, { status: 'Read' });
-    } catch (error) {
-        console.error('Error marking message as read:', error);
-    }
-}
-
-// Save the photoId to localStorage and redirect to ViewImage.html
-function savePhotoIdToLocalStorage(photoId) {
-    localStorage.setItem('photoId', photoId);
-}
-
-
-// Fetch user ID by username
-async function fetchUserIdByUsername(username) {
-    try {
-        // Query the Users collection for a matching username
-        const userQuery = query(collection(db, 'Users'), where('username', '==', username));
-        const userSnapshot = await getDocs(userQuery);
-
-        // Check if a matching user was found
-        if (!userSnapshot.empty) {
-            const userDoc = userSnapshot.docs[0]; // Take the first result (assuming usernames are unique)
-            return userDoc.data().uid; // Return the user ID
-        }
-
-        // If no user is found, display an alert
-        alert('Username not found. Please try again.');
-        return null;
-    } catch (error) {
-        console.error('Error fetching user ID by username:', error);
-        alert('Failed to resolve username. Please try again.');
-        return null;
-    }
-}
-
-
-// Send a new message
-async function sendMessage(messageText, receiverUsername = null, photoId = null) {
-    const loggedInUserId = localStorage.getItem('loggedInUserId');
-    const receiverUsernameInput = receiverUsername || prompt('Enter the receiver username:'); // Prompt for username if not provided
-
-    if (!receiverUsernameInput) {
-        alert('Receiver username is required.');
-        return;
-    }
-
-    // Resolve the username to a user ID
-    const receiverUserId = await fetchUserIdByUsername(receiverUsernameInput);
-
-    if (!receiverUserId) {
-        // Stop if the username couldn't be resolved
+    if (!senderId || !receiverId) {
+        alert("Please select a valid recipient.");
         return;
     }
 
     try {
-        // Add the message to the Messages collection
-        await addDoc(collection(db, 'Messages'), {
-            senderId: loggedInUserId,
-            receiverId: receiverUserId,
+        // Add the message to the Firestore "Messages" collection
+        const messageRef = await addDoc(collection(db, "Messages"), {
+            senderId,
+            receiverId,
+            subject,
             messageText,
-            photoId,
-            status: 'Unread',
-            timestamp: serverTimestamp(),
+            status: "Unread",
+            timestamp: new Date().toISOString(),
         });
 
-        alert('Message sent successfully!');
+        alert("Message sent successfully!");
+        createMessagePopup.classList.add("hidden"); // Close the popup
+        createMessageForm.reset(); // Reset the form
+
+        await sendNotification(receiverId, senderId, "message", {
+            messageId: messageRef.id,
+        });
+
+
+        location.reload(); // Reload the page after successfully sending the message
+
     } catch (error) {
-        console.error('Error sending message:', error);
-        alert('Failed to send the message.');
+        console.error("Error sending message:", error);
+        alert("Failed to send the message. Please try again.");
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    const auth = getAuth();
+    const inboxTab = document.querySelector(".tab:nth-child(1)");
+    const sentTab = document.querySelector(".tab:nth-child(2)");
+    const messageCardsContainer = document.querySelector(".message-cards");
+    const messageSubjectCard = document.querySelector(".message-subject-card");
+    const messageContentCard = document.querySelector(".message-content-card");
+    const searchBarInput = document.querySelector(".search-bar input");
+
+    let messages = []; // To store fetched messages
+    let activeTab = "inbox"; // Default tab
+
+    // Handle tab switching
+    inboxTab.addEventListener("click", () => {
+        activeTab = "inbox";
+        inboxTab.classList.add("active");
+        sentTab.classList.remove("active");
+        renderMessages();
+    });
+
+    sentTab.addEventListener("click", () => {
+        activeTab = "sent";
+        sentTab.classList.add("active");
+        inboxTab.classList.remove("active");
+        renderMessages();
+    });
+
+    // Fetch messages when user is logged in
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            try {
+                const userId = user.uid;
+                console.log("Logged in user ID:", userId);
+
+                // Fetch both Inbox and Sent messages
+                const inboxMessages = await fetchMessages("receiverId", userId);
+                const sentMessages = await fetchMessages("senderId", userId);
+
+                // Resolve usernames for senderId and receiverId
+                await resolveUsernames([...inboxMessages, ...sentMessages]);
+
+                // Combine and store messages locally
+                messages = { inbox: inboxMessages, sent: sentMessages };
+
+                // Render Inbox messages by default
+                renderMessages();
+            } catch (error) {
+                console.error("Error fetching messages:", error);
+            }
+        } else {
+            console.log("No user is logged in.");
+            // Redirect to login page
+            window.location.href = "../html/Login.html";
+        }
+    });
+
+    // Fetch messages based on field and user ID
+    async function fetchMessages(field, userId) {
+        try {
+            const messagesRef = collection(db, "Messages");
+            const q = query(messagesRef, where(field, "==", userId));
+            const querySnapshot = await getDocs(q);
+            return querySnapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+        } catch (error) {
+            console.error(`Error fetching ${field} messages:`, error);
+            return [];
+        }
+    }
+
+    // Resolve usernames for senderId and receiverId
+    async function resolveUsernames(messages) {
+        const userCache = new Map(); // Cache to avoid duplicate lookups
+
+        for (const message of messages) {
+            // Fetch sender's username and profile picture
+            if (message.senderId && !userCache.has(message.senderId)) {
+                const senderDoc = await getDoc(doc(db, "users", message.senderId));
+                if (senderDoc.exists()) {
+                    const senderData = senderDoc.data();
+                    userCache.set(message.senderId, {
+                        username: senderData.username || "Unknown",
+                        profilePic: senderData.profilePic || "../assets/Default_profile_icon.jpg",
+                    });
+                } else {
+                    userCache.set(message.senderId, {
+                        username: "Unknown",
+                        profilePic: "../assets/Default_profile_icon.jpg",
+                    });
+                }
+            }
+
+            // Fetch receiver's username and profile picture
+            if (message.receiverId && !userCache.has(message.receiverId)) {
+                const receiverDoc = await getDoc(doc(db, "users", message.receiverId));
+                if (receiverDoc.exists()) {
+                    const receiverData = receiverDoc.data();
+                    userCache.set(message.receiverId, {
+                        username: receiverData.username || "Unknown",
+                        profilePic: receiverData.profilePic || "../assets/Default_profile_icon.jpg",
+                    });
+                } else {
+                    userCache.set(message.receiverId, {
+                        username: "Unknown",
+                        profilePic: "../assets/Default_profile_icon.jpg",
+                    });
+                }
+            }
+
+            // Attach resolved usernames and profile pictures to the message object
+            message.senderUsername = userCache.get(message.senderId).username;
+            message.senderProfilePic = userCache.get(message.senderId).profilePic;
+            message.receiverUsername = userCache.get(message.receiverId).username;
+            message.receiverProfilePic = userCache.get(message.receiverId).profilePic;
+        }
+    }
+
+
+    // Render messages in the selected tab (Inbox or Sent)
+    function renderMessages() {
+        const tabMessages = messages[activeTab] || [];
+        const searchQuery = searchBarInput.value.trim().toLowerCase();
+        const userId = auth.currentUser?.uid;
+
+      // Filter messages by search query and deletion flags
+    const filteredMessages = tabMessages.filter((msg) => {
+        const isDeleted =
+            (msg.senderId === userId && msg.deletedBySender) ||
+            (msg.receiverId === userId && msg.deletedByReceiver);
+
+        return (
+            !isDeleted &&
+            (msg.subject?.toLowerCase().includes(searchQuery) ||
+                msg.messageText?.toLowerCase().includes(searchQuery))
+        );
+    });
+
+        // Clear previous messages
+        messageCardsContainer.innerHTML = "";
+
+        if (filteredMessages.length === 0) {
+            messageCardsContainer.innerHTML = `<p>No messages found.</p>`;
+            return;
+        }
+
+       // Render message cards
+    filteredMessages.forEach((msg) => {
+        const messageCard = document.createElement("div");
+        messageCard.classList.add("message-card");
+
+        // Highlight unread messages only in the Inbox tab
+        if (activeTab === "inbox" && msg.status === "Unread") {
+            messageCard.classList.add("unread");
+        }
+
+            // Determine which username and profile picture to display
+            const isInbox = activeTab === "inbox";
+            const displayUsername = isInbox ? msg.senderUsername : msg.receiverUsername;
+            const displayProfilePic = isInbox
+                ? msg.senderProfilePic || "../assets/Default_profile_icon.jpg"
+                : msg.receiverProfilePic || "../assets/Default_profile_icon.jpg";
+
+            // Render the message card
+            messageCard.innerHTML = `
+
+            <i 
+                class="profile-pic" 
+                style="background-image: url('${displayProfilePic}');"
+            ></i>
+            <div class="message-info">
+                <div class="message-details">
+                    <strong>${displayUsername || "Unknown"}</strong>
+                    <span class="message-subject">${msg.subject || "No Subject"}</span>
+                </div>
+                <div class="message-timestamp">
+                    ${getRelativeTime(msg.timestamp)}
+                </div>
+                
+            </div>
+            <div class="message-options">
+                <i class="fas fa-ellipsis-v options-icon"></i>
+                <div class="options-menu">
+                    <button class="option-reply">Reply</button>
+                    <button class="option-delete">Delete</button>
+                    <button class="option-report">Report</button>
+                </div>
+            </div>
+        </div>
+
+        `;
+
+        //Mark as read only in the Inbox tab
+        if (activeTab === "inbox") {
+            messageCard.addEventListener("click", async () => {
+                await markMessageAsRead(msg.id); // Mark the message as read in Firestore
+                messageCard.classList.remove("unread"); // Update UI dynamically
+                displayMessage(msg); // Display the full message
+            });
+        } else {
+            // For Sent tab, just display the message details without updating status
+            messageCard.addEventListener("click", () => {
+                displayMessage(msg);
+            });
+        }
+
+        messageCardsContainer.appendChild(messageCard);
+
+            // Toggle the options menu visibility on icon click
+            const optionsIcon = messageCard.querySelector(".options-icon");
+            const optionsMenu = messageCard.querySelector(".options-menu");
+
+            optionsIcon.addEventListener("click", (event) => {
+                event.stopPropagation(); // Prevent event from propagating to the card
+                optionsMenu.classList.toggle("show");
+            });
+
+            // Close the options menu if clicked outside
+            document.addEventListener("click", () => {
+                optionsMenu.classList.remove("show");
+            });
+
+            // Add specific functionality for each menu option
+            optionsMenu.querySelector(".option-reply").addEventListener("click", () => {
+                receiverUsernameInput.value = displayUsername; // Prefill recipient username
+                createMessagePopup.classList.remove("hidden"); // Show create message popup
+            });
+
+            // Report Message
+            optionsMenu.querySelector(".option-report").addEventListener("click", async () => {
+                try {
+                    // Add the reported message to the Reports collection
+                    await addDoc(collection(db, "Reports"), {
+                        category: "message",
+                        messageId: msg.id, // Message ID
+                        reportedBy: auth.currentUser?.uid, // User reporting the message
+                        reason: "User-reported issue", // Add specific reason if available
+                        status: "Pending Review",
+                        timestamp: new Date().toISOString(),
+                    });
+
+                    alert("Message reported successfully. Thank you for your feedback.");
+                } catch (error) {
+                    console.error("Error reporting message:", error);
+                    alert("Failed to report the message. Please try again.");
+                }
+
+                optionsMenu.classList.remove("show"); // Hide the options menu
+            });
+
+            // Delete Message
+            optionsMenu.querySelector(".option-delete").addEventListener("click", async () => {
+                if (confirm("Are you sure you want to delete this message?")) {
+                    try {
+                        // Soft delete: Add a flag for the logged-in user to hide the message
+                        const userId = auth.currentUser?.uid;
+                        const messageRef = doc(db, "Messages", msg.id);
+                        const messageSnap = await getDoc(messageRef);
+
+                        if (messageSnap.exists()) {
+                            const messageData = messageSnap.data();
+
+                            // Determine which "deleted" field to update based on user role (sender or receiver)
+                            const updateField =
+                                messageData.senderId === userId ? { deletedBySender: true } : { deletedByReceiver: true };
+
+                            // Update the Firestore document
+                            await updateDoc(messageRef, updateField);
+
+                            alert("Message deleted successfully.");
+                            renderMessages(); // Re-render messages
+                            location.reload(); // Reload the page after deleting the message
+                        } else {
+                            alert("Message not found.");
+                        }
+                    } catch (error) {
+                        console.error("Error deleting message:", error);
+                        alert("Failed to delete the message. Please try again.");
+                    }
+                }
+
+                optionsMenu.classList.remove("show"); // Hide the options menu
+            });
+
+
+
+
+
+
+            // Add click event to show full message
+            messageCard.addEventListener("click", () => {
+                displayMessage(msg);
+            });
+
+            messageCardsContainer.appendChild(messageCard);
+        });
+    }
+
+    function getRelativeTime(timestamp) {
+        const now = new Date();
+        const messageTime = new Date(timestamp);
+        const diffInSeconds = Math.floor((now - messageTime) / 1000);
+
+        if (diffInSeconds < 60) {
+            return `${diffInSeconds} seconds ago`;
+        } else if (diffInSeconds < 3600) {
+            const minutes = Math.floor(diffInSeconds / 60);
+            return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
+        } else if (diffInSeconds < 86400) {
+            const hours = Math.floor(diffInSeconds / 3600);
+            return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+        } else if (diffInSeconds < 604800) {
+            const days = Math.floor(diffInSeconds / 86400);
+            return `${days} day${days > 1 ? "s" : ""} ago`;
+        } else if (diffInSeconds < 2592000) {
+            const weeks = Math.floor(diffInSeconds / 604800);
+            return `${weeks} week${weeks > 1 ? "s" : ""} ago`;
+        } else {
+            const months = Math.floor(diffInSeconds / 2592000);
+            return `${months} month${months > 1 ? "s" : ""} ago`;
+        }
+    }
+
+
+    async function markMessageAsRead(messageId) {
+        try {
+            const messageRef = doc(db, "Messages", messageId);
+            await updateDoc(messageRef, { status: "Read" });
+            console.log(`Message ${messageId} marked as read.`);
+        } catch (error) {
+            console.error("Error marking message as read:", error);
+        }
+    }
+    
+
+
+
+
+    // Display full message details
+    function displayMessage(message) {
+        // Format the timestamp
+        const formattedTimestamp = message.timestamp
+            ? new Date(message.timestamp).toLocaleString()
+            : "Unknown Date";
+
+        // Update Subject Card
+        messageSubjectCard.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3>Subject</h3>
+            <span style="font-size: 12px; color: #888;">${formattedTimestamp}</span> <!-- Date and Time -->
+        </div>
+        <p>${message.subject || "No Subject"}</p>
+    `;
+
+        // Update Content Card
+        let photoLink = "";
+        if (message.photoId) {
+            photoLink = `
+            <p>
+                <a href="ViewImage.html" id="viewPhotoLink">View this photo</a>
+            </p>
+        `;
+        }
+
+        messageContentCard.innerHTML = `
+        <h3>Message</h3>
+        <p>${message.messageText || "No message content available."}</p>
+        ${photoLink}
+    `;
+
+        // Add event listener to the photo link (if it exists)
+        const viewPhotoLink = document.getElementById("viewPhotoLink");
+        if (viewPhotoLink) {
+            viewPhotoLink.addEventListener("click", (event) => {
+                event.preventDefault(); // Prevent default link behavior
+                localStorage.setItem("photoId", message.photoId); // Store photoId in localStorage
+                window.location.href = "ViewImage.html"; // Redirect to ViewImage.html
+            });
+        }
+    }
+
+
+
+    // Handle search functionality
+    searchBarInput.addEventListener("input", () => {
+        renderMessages();
+    });
+});
+
+
+
+/**
+ * Sends a notification to the specified user.
+ * @param {string} receiverId - The ID of the user receiving the notification.
+ * @param {string} senderId - The ID of the user sending the notification.
+ * @param {string} category - The type of notification (e.g., "message").
+ * @param {string} additionalData - Additional data related to the notification.
+ */
+async function sendNotification(receiverId, senderId, category, additionalData) {
+    try {
+        console.log("Sending notification with data:", {
+            receiverId,
+            senderId,
+            category,
+            ...additionalData,
+        });
+
+        // Add a notification document to Firestore
+        await addDoc(collection(db, "Notifications"), {
+            receiverId,
+            senderId,
+            category,
+            timestamp: new Date().toISOString(),
+            ...additionalData, // Include additional data dynamically
+        });
+
+        console.log("Notification sent successfully.");
+    } catch (error) {
+        console.error("Error sending notification:", error);
     }
 }
+

@@ -68,78 +68,51 @@ document.addEventListener('DOMContentLoaded', displayUserProfile);
 
 
 
+// Function to fetch and display user activity logs
+async function displayUserActivity(userId) {
+    try {
+        const activityLogsRef = collection(db, 'ActivityLogs');
+        const q = query(activityLogsRef, where('userId', '==', userId)); // Query for logs by the user
+        const querySnapshot = await getDocs(q);
 
-// Fetch activity logs and group them by week
-async function fetchActivityLogs() {
-    const activityLogsRef = collection(db, 'ActivityLogs');
-    const querySnapshot = await getDocs(activityLogsRef);
+        const activityList = document.querySelector('.user-activity');
+        activityList.innerHTML = '<h3>User Activity</h3>'; // Reset the activity list
 
-    const activityData = [];
-
-    querySnapshot.forEach((docSnapshot) => {
-        const data = docSnapshot.data();
-        if (data.timestamp && data.userId) {
-            const timestamp = data.timestamp instanceof Timestamp
-                ? data.timestamp.toDate()
-                : new Date(data.timestamp);
-
-            activityData.push({
-                date: timestamp,
-                category: data.category,
-            });
-        }
-    });
-
-    return activityData;
-}
-
-function groupDataByWeek(activityData) {
-    const weeks = {};
-
-    activityData.forEach(({ date }) => {
-        // Get the week number and year
-        const week = getWeekNumber(date);
-
-        if (!weeks[week]) {
-            weeks[week] = 0;
+        if (querySnapshot.empty) {
+            activityList.innerHTML += '<p>No activity found for this user.</p>';
+            return;
         }
 
-        weeks[week]++;
-    });
+        querySnapshot.forEach((docSnapshot) => {
+            const activity = docSnapshot.data();
 
-    // Convert the grouped data into Google Charts format
-    const chartData = [['Week', 'Activity Count']];
-    for (const [week, count] of Object.entries(weeks)) {
-        chartData.push([week, count]);
+            // Convert Firestore Timestamp to a readable date
+            const timestamp = activity.timestamp instanceof Timestamp
+                ? activity.timestamp.toDate().toLocaleString()
+                : 'Unknown Time';
+
+            activityList.innerHTML += `
+                <div class="activity-item">
+                    <p>${activity.message || 'No message available'}</p>
+                    <span>${timestamp}</span>
+                </div>
+            `;
+        });
+    } catch (error) {
+        console.error('Error fetching user activity:', error);
+        const activityList = document.querySelector('.user-activity');
+        activityList.innerHTML = '<p>Error loading user activity logs.</p>';
     }
-
-    return chartData;
 }
 
-// Helper function to get the week number
-function getWeekNumber(date) {
-    const startOfYear = new Date(date.getFullYear(), 0, 1);
-    const pastDaysOfYear = (date - startOfYear) / 86400000;
-    return Math.ceil((pastDaysOfYear + startOfYear.getDay() + 1) / 7);
-}
+// Initialize the page
+document.addEventListener('DOMContentLoaded', displayUserProfile);
 
 
-google.charts.load('current', { packages: ['corechart', 'line'] });
-google.charts.setOnLoadCallback(drawChart);
-
-async function drawChart() {
-    // Fetch and process activity logs
-    const activityData = await fetchActivityLogs();
-    const chartData = groupDataByWeek(activityData);
-
-    const data = google.visualization.arrayToDataTable(chartData);
-
-    const options = {
-        hAxis: { title: 'Week' },
-        vAxis: { title: 'Activity Count' },
-        backgroundColor: '#f1f8e9',
-    };
-
-    const chart = new google.visualization.LineChart(document.getElementById('chart_div'));
-    chart.draw(data, options);
-}
+document.addEventListener('DOMContentLoaded', async () => {
+    await displayUserProfile();
+    const userId = localStorage.getItem('selectedUserId'); // Ensure we pass the correct userId
+    if (userId) {
+        await displayUserActivity(userId); // Call the activity display function
+    }
+});

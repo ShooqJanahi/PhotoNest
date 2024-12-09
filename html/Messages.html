@@ -17,47 +17,108 @@
     <div class="container">
         <div class="sidebar">
             <h2><i class="fas fa-envelope"></i>Messages</h2>
-        </div>
-        <div class="content">
+
             <div class="tabs">
                 <div class="tab active">Inbox</div>
                 <div class="tab">Sent</div>
             </div>
-            <div class="recent-conversations">
-                <h3>Conversations with alex</h3>
-                <div class="conversation">
-                    <i class="fas fa-user-circle"></i>
-                    <div class="conversation-text">
-                        <strong>Alex</strong><br>
-                        Hey, are we still on for tomorrow ?
-                    </div>
-                    <div class="conversation-time">2 hours ago</div>
-                </div>
-                <div class="conversation">
-                    <i class="fas fa-user-circle"></i>
-                    <div class="conversation-text">
-                        <strong>alex</strong><br>
-                        Can you send over the files ?
-                    </div>
-                    <div class="conversation-time">Yesterday</div>
-                </div>
-                <div class="conversation">
-                    <i class="fas fa-user-circle"></i>
-                    <div class="conversation-text">
-                        <strong>alex</strong> <br>
-                        Meeting rescheduled to 3 PM .
-                    </div>
-                    <div class="conversation-time">2 days ago</div>
-                </div>
-            </div>
-            <div class="message-content">
-                <h3>Message Content</h3>
-                <div class="message-input">
-                    <input type="text" placeholder="Type your message ...">
-                    <button>Send</button>
-                </div>
-            </div>
+
+           <!-- Search Bar -->
+           <div class="search-bar">
+            <input type="text" placeholder="Search messages..." />
+            <button><i class="fas fa-search"></i></button>
         </div>
+
+
+            <!-- Messages Cards -->
+            <div class="message-cards">
+                <div class="message-card">
+                    <i class="profile-pic"></i> <!-- Sender Profile Picture -->
+                    <div class="message-info">
+                        <strong>John Doe</strong> <!-- Username -->
+                        <span class="message-subject">Meeting Tomorrow</span> <!-- Message Subject -->
+                    </div>
+                </div>
+                <div class="message-card">
+                    <i class="profile-pic"></i> <!-- Sender Profile Picture -->
+                    <div class="message-info">
+                        <strong>Jane Smith</strong> <!-- Username -->
+                        <span class="message-subject">Invoice Update</span> <!-- Message Subject -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+       <!-- Content Section -->
+<div class="content">
+    <button id="createNewMessage">Create New Message</button> <!-- Updated with an id -->
+
+
+    <!-- Card for the Subject -->
+    <div class="message-subject-card">
+        <h3>Subject</h3>
+        <p></p> <!-- Display the subject of the message -->
+    </div>
+
+    <!-- Card for the Message Content -->
+    <div class="message-content-card">
+        <h3>Message</h3>
+        <p>
+            <br>
+            <br>
+        </p>
+    </div>
+</div>
+
+<!-- Message Creation Popup -->
+<div id="createMessagePopup" class="popup hidden">
+    <div class="popup-content">
+        <h3>Create New Message</h3>
+        <form id="createMessageForm">
+            <!-- Username Input with Autocomplete -->
+            <div>
+                <label for="receiverUsername">To:</label>
+                <input
+                    type="text"
+                    id="receiverUsername"
+                    placeholder="Enter recipient's username"
+                    autocomplete="off"
+                    required
+                />
+                <ul id="autocompleteList" class="autocomplete-list"></ul>
+            </div>
+
+            <!-- Subject Input -->
+            <div>
+                <label for="messageSubject">Subject:</label>
+                <input
+                    type="text"
+                    id="messageSubject"
+                    placeholder="Enter message subject"
+                    required
+                />
+            </div>
+
+            <!-- Message Input -->
+            <div>
+                <label for="messageText">Message:</label>
+                <textarea
+                    id="messageText"
+                    placeholder="Enter your message"
+                    required
+                ></textarea>
+            </div>
+
+            <!-- Submit and Cancel Buttons -->
+            <div class="popup-buttons">
+                <button type="submit">Send</button>
+                <button type="button" id="cancelCreateMessage">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
     </div>
        <!-- Footer Section -->
        <div class="footer">
