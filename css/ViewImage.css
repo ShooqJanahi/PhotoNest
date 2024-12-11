@@ -208,120 +208,103 @@ body {
 .hidden {
     display: none;
 }
-
-.dropdown-menu {
-    position: absolute;
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 10px;
-    z-index: 1000;
-}
-
-.dropdown-menu button {
+/* Style for the dropdown container */
+#image-options-dropdown {
+    position: absolute; /* Position it relative to the parent */
+    top: 40px; /* Adjust distance from the top of the trigger icon */
+    right: 0; /* Align it to the right */
+    background-color: #fff; /* White background for the dropdown */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); /* Add a shadow for depth */
+    border-radius: 8px; /* Smooth corners */
+    padding: 10px; /* Add padding inside the dropdown */
+    z-index: 1100; /* Ensure it appears above other elements */
+    display: none; /* Hidden by default */
+  }
+  
+  /* Style for each dropdown option */
+  .dropdown-option {
+    padding: 10px 15px;
+    color: #333; /* Text color */
+    cursor: pointer; /* Change cursor to indicate clickability */
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease-in-out;
+  }
+  
+  .dropdown-option:hover {
+    background-color: #f5f5f5; /* Highlight the option on hover */
+  }
+  
+  /* Show the dropdown when visible */
+  #image-options-dropdown.active {
     display: block;
-    background: none;
-    border: none;
-    color: black;
-    padding: 5px 10px;
-    text-align: left;
-    width: 100%;
-    cursor: pointer;
-}
-
-.dropdown-menu button:hover {
-    background-color: #f1f1f1;
-}
-
+  }
 
 /* General popup styles for consistency */
+/* Popup container */
 .popup {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 1000;
-    background: #f8f0fa; /* Soft purple background */
-    border: 2px solid #a74fcb; /* Purple border */
-    border-radius: 12px; /* Rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
-    width: 90%;
-    max-width: 400px;
+    background: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     padding: 20px;
-    font-family: 'Inter', sans-serif;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-sizing: border-box;
 }
 
-/* Popup header styles */
-.popup h3 {
-    font-size: 20px;
-    margin: 0 0 10px;
-    text-align: center;
-    color: #5a2368; /* Darker purple for text */
-    font-weight: 700;
+/* Overlay for dimming the background */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
 }
 
-/* Text area and input styles */
+/* Close button */
+.popup .popup-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 15px;
+}
+
+.popup .popup-actions button {
+    margin-left: 10px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.popup .popup-actions button:hover {
+    background: #ddd;
+}
+
+/* Prevent overflow of content */
 .popup textarea,
 .popup input {
-    width: calc(100% - 20px);
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.no-suggestions {
+    font-size: 14px;
+    color: gray;
+    text-align: center;
     margin: 10px 0;
-    padding: 8px;
-    font-size: 14px;
-    border: 1px solid #d9c0e7;
-    border-radius: 6px;
-    outline: none;
-    background-color: #fffdfd; /* Subtle contrast */
-    color: #4c2956;
 }
 
-/* Add focus effect */
-.popup textarea:focus,
-.popup input:focus {
-    border-color: #a74fcb;
-    box-shadow: 0 0 4px rgba(167, 79, 203, 0.6);
-}
-
-/* Popup button styles */
-.popup button {
-    padding: 10px 15px;
-    margin: 5px;
-    font-size: 14px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-    text-transform: uppercase;
-    transition: background-color 0.3s ease;
-}
-
-/* Primary button */
-.popup button#save-edit,
-.popup button#report-submit,
-.popup button#create-album-btn {
-    background-color: #a74fcb;
-    color: white;
-}
-
-.popup button#save-edit:hover,
-.popup button#report-submit:hover,
-.popup button#create-album-btn:hover {
-    background-color: #8e3aad;
-}
-
-/* Secondary button */
-.popup button#cancel-edit,
-.popup button#report-cancel,
-.popup button#close-album-popup {
-    background-color: #d9c0e7;
-    color: #4c2956;
-}
-
-.popup button#cancel-edit:hover,
-.popup button#report-cancel:hover,
-.popup button#close-album-popup:hover {
-    background-color: #b59cc5;
-}
 
 /* Album list container */
 .album-list {

@@ -1,3 +1,5 @@
+<!--Report.html-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,7 +19,7 @@
             <img src="../assets/PhotoNest_Transparent.png" alt="PhotoNest Logo"> PhotoNest
         </div>
         <div class="actions">
-            <button class="notification"><i class="fas fa-bell"></i></button>
+           
             <button id="hamburgerMenu" class="hamburger-menu"><i class="fas fa-bars"></i></button>
     
             <button class="settings" onclick="window.location.href='Settings.html'">
@@ -54,10 +56,32 @@
 
         <div class="reports">
             <h2>Reports</h2>
+
             <div class="search-bar">
-                <input type="text" placeholder="Search Reports">
-                <button><i class="fas fa-filter"></i> Enter</button>
+                <input type="text" id="searchInput" placeholder="Search Reports">
+                <div class="dropdown-container">
+                    <button id="sortFilterButton" class="dropdown-box">Sort/Filter ▼</button>
+                    <div id="sortFilterDropdown" class="dropdown-content">
+                        <div class="dropdown-section">
+                            <strong>Sort Options</strong>
+                            <button class="dropdown-item" data-value="timestamp-desc">Sort by Date (Newest)</button>
+                            <button class="dropdown-item" data-value="timestamp-asc">Sort by Date (Oldest)</button>
+                            <button class="dropdown-item" data-value="status">Sort by Status</button>
+                        </div>
+                        <div class="dropdown-section">
+                            <strong>Filter Options</strong>
+                            <button class="dropdown-item" data-value="filter-Pending Review">Filter: Pending Review</button>
+                            <button class="dropdown-item" data-value="filter-Resolved">Filter: Resolved</button>
+                            <button class="dropdown-item" data-value="filter-Rejected">Filter: Rejected</button>
+                        </div>
+                    </div>
+                </div>
+                <button id="searchButton">Enter</button>
             </div>
+            
+            
+            
+            
             <div class="report-card">
                 <table>
                     <thead>

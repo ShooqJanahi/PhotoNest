@@ -458,7 +458,10 @@ body {
     max-width: 1200px;
     margin: 0 auto;
 }
+
+/* Position the options menu icon in the top-right corner */
 .card {
+    position: relative; /* Ensure child elements like options-icon are positioned relative to the card */
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -476,39 +479,77 @@ body {
 /* User Info (Profile Picture and Username) */
 .user-info {
     display: flex;
-    flex-direction: column; /* Stack profile picture and username */
-    align-items: center; /* Center them horizontally */
-    margin-bottom: 10px; /* Add space below the user info */
+    align-items: center;
+    margin: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ddd; /* Add a subtle divider */
 }
 
 .profile-circle {
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     overflow: hidden;
-    border: 2px solid #6a0dad; /* Add a border for visibility */
-    margin-bottom: 5px; /* Add space below the profile picture */
+    border: 2px solid #6a0dad; /* Purple border for the profile picture */
+    margin-right: 10px;
 }
 
 .profile-circle img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Maintain aspect ratio */
+    object-fit: cover; /* Ensure the image scales correctly */
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column; /* Stack location and timestamp vertically */
+    margin-left: 10px; /* Add spacing between profile picture and details */
 }
 
 .username {
     font-size: 14px;
     font-weight: bold;
     color: #333;
-    margin-top: 5px;
 }
 
-/* Photo Caption */
-.photo-caption {
-    margin-top: 15px; /* Space above the caption */
+.location {
     font-size: 14px;
-    color: #666;
-    line-height: 1.4;
+    color: #666; /* Light gray for location text */
+}
+
+.timestamp {
+    font-size: 12px;
+    color: #999; /* Lighter gray for timestamp */
+    margin-top: 2px; /* Add slight spacing between location and timestamp */
+}
+
+.location-time {
+    display: flex;
+    flex-direction: column; /* Stack location and time */
+    margin-top: 5px; /* Add spacing between username and location */
+}
+
+/* Photo Details (Caption and Hashtags) */
+.photo-details {
+    padding: 10px;
+}
+
+.photo-caption {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #333;
+}
+
+.photo-hashtags {
+    margin-top: 5px;
+    font-size: 12px;
+    color: #6a0dad;
+}
+
+.hashtag {
+    margin-right: 5px;
+    color: #6a0dad;
+    font-weight: bold;
 }
 
 .card img {
@@ -530,6 +571,146 @@ body {
     color: #6c63ff;
     cursor: pointer;
 }
+
+/* Position dropdown relative to the container */
+.dropdown-container {
+    position: relative; /* Makes dropdown menu relative to this container */
+}
+
+.options-icon {
+    position: absolute;
+    top: 10px; /* Aligns icon 10px from the top */
+    right: 10px; /* Aligns icon 10px from the right */
+    font-size: 18px;
+    color: #6a0dad;
+    cursor: pointer;
+    z-index: 10; /* Ensure it appears above other elements in the card */
+}
+
+/* Dropdown menu */
+.options-menu {
+    position: absolute;
+    top: 40px; /* Dropdown starts below the icon */
+    right: 10px; /* Aligns with the icon's right edge */
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    display: none; /* Initially hidden */
+    flex-direction: column;
+    width: 150px;
+    padding: 5px 0;
+}
+
+/* Show dropdown when the menu is toggled */
+.options-menu.show {
+    display: flex;
+}
+
+.options-btn {
+    padding: 10px 15px;
+    text-align: left;
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+    transition: background-color 0.3s;
+}
+
+.options-btn:hover {
+    background-color: #f4f4f4;
+}
+
+/* Edit Popup */
+.edit-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+}
+
+.edit-popup .popup-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.edit-popup .popup-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    width: 90%;
+}
+
+.edit-popup .popup-content h2 {
+    margin-top: 0;
+    font-size: 1.5em;
+    color: #333;
+}
+
+.edit-popup .popup-content label {
+    display: block;
+    margin: 10px 0 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+.edit-popup .popup-content input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+.edit-popup .popup-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.edit-popup .popup-buttons button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.edit-popup .popup-buttons button#save-edit {
+    background-color: #6a0dad;
+    color: #fff;
+}
+
+.edit-popup .popup-buttons button#save-edit:hover {
+    background-color: #5c00b3;
+}
+
+.edit-popup .popup-buttons button#cancel-edit {
+    background-color: #ccc;
+    color: #333;
+}
+
+.edit-popup .popup-buttons button#cancel-edit:hover {
+    background-color: #aaa;
+}
+
 
 /* Footer styling */
 .footer {

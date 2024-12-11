@@ -1,70 +1,144 @@
-import { auth, db } from './firebaseConfig.js'; // Adjust the path if needed
-import { updateDoc, doc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
-import { signOut } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
 
-document.addEventListener('DOMContentLoaded', function () {
-    const hamburgerMenu = document.getElementById('hamburgerMenu');
-    const mobileMenu = document.querySelector('.mobile-menu');
-    const logoutButtons = document.querySelectorAll('#logoutButton'); // Select all logout buttons
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getFirestore, collection, query, orderBy, limit, startAfter, getDocs, getDoc, doc  } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { db } from './firebaseConfig.js';
 
-    // Toggle mobile menu visibility on hamburger menu click
-    if (hamburgerMenu && mobileMenu) {
-        hamburgerMenu.addEventListener('click', function () {
-            mobileMenu.classList.toggle('show');
-        });
-    } else {
-        console.error("Hamburger menu or mobile menu element not found.");
+
+// DOM elements
+const reportTableBody = document.querySelector(".reports table tbody");
+const loadMoreButton = document.createElement("button");
+loadMoreButton.textContent = "Load More";
+loadMoreButton.classList.add("load-more");
+document.querySelector(".reports").appendChild(loadMoreButton);
+
+// Pagination variables
+let lastVisible = null;
+const pageSize = 5; // Number of documents to fetch per page
+
+// Fetch reports from Firestore
+async function fetchReports() {
+    try {
+      const reportsRef = collection(db, "Reports");
+      let q;
+  
+      // If this is the first fetch, order by timestamp and limit results
+      if (!lastVisible) {
+        q = query(reportsRef, orderBy("timestamp", "desc"), limit(pageSize));
+      } else {
+        // For subsequent fetches, start after the last visible document
+        q = query(
+          reportsRef,
+          orderBy("timestamp", "desc"),
+          startAfter(lastVisible),
+          limit(pageSize)
+        );
+      }
+  
+      const querySnapshot = await getDocs(q);
+      const reports = querySnapshot.docs.map((doc) => doc.data());
+  
+      // For each report, fetch the usernames for both `reportedBy` and `reported`
+      for (const report of reports) {
+  const reportedByUsername = report.reportedBy ? await getUsername(report.reportedBy) : "Unknown Reporter";
+  const reportedUsername = report.reported ? await getUsername(report.reported) : "Unknown User";
+
+  displayReport({ 
+    ...report, 
+    reportedBy: reportedByUsername, 
+    reported: reportedUsername 
+  });
+}
+
+      
+  
+      // Update the last visible document for pagination
+      lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
+  
+      // Hide the "Load More" button if there are no more documents
+      if (querySnapshot.size < pageSize) {
+        loadMoreButton.style.display = "none";
+      }
+    } catch (error) {
+      console.error("Error fetching reports:", error);
     }
+  }
+  
 
-    // Attach logout function to each logout button
-    logoutButtons.forEach(button => {
-        button.addEventListener('click', (event) => {
-            event.preventDefault();
-            logout();
-        });
-    });
+// Fetch username by user ID from the "users" collection
+async function getUsername(userId) {
+    try {
+      const userDoc = await getDoc(doc(db, "users", userId)); // Assuming "users" collection stores user details
+      if (userDoc.exists()) {
+        return userDoc.data().username; // Replace "username" with the actual field in your Firestore
+      } else {
+        console.warn(`User with ID ${userId} not found.`);
+        return null;
+      }
+    } catch (error) {
+      console.error(`Error fetching username for user ID ${userId}:`, error);
+      return null;
+    }
+  }
 
-    // Set up inactivity timer to log out after 15 minutes (900 seconds)
-    let inactivityTime = 0;
-    setInterval(() => {
-        inactivityTime++;
-        if (inactivityTime >= 900) { // 15 minutes
-            logout();
-        }
-    }, 1000);
+  
+// Display a single report in the table
+function displayReport(report) {
+  const row = document.createElement("tr");
+  row.innerHTML = `
+    <td>${report.reportedBy || "N/A"}</td>
+    <td>${report.reported || "N/A"}</td>
+    <td>${new Date(report.timestamp).toLocaleString() || "N/A"}</td>
+    <td>${report.status || "N/A"}</td>
+    <td>${report.reviewedBy || "N/A"}</td>
+    <td>
+      <a href="#">View</a>
+      <a href="#">Close</a>
+    </td>
+  `;
+  reportTableBody.appendChild(row);
+}
 
-    // Reset inactivity timer on user actions
-    function resetInactivityTimer() { inactivityTime = 0; }
-    window.addEventListener('mousemove', resetInactivityTimer);
-    window.addEventListener('keypress', resetInactivityTimer);
+// Load initial reports and set up "Load More" button
+loadMoreButton.addEventListener("click", fetchReports);
+fetchReports();
+
+
+const sortFilterButton = document.getElementById("sortFilterButton");
+const sortFilterDropdown = document.getElementById("sortFilterDropdown");
+const searchButton = document.getElementById("searchButton");
+const searchInput = document.getElementById("searchInput");
+
+let selectedOption = ""; // Store the selected option (sort/filter)
+
+// Toggle dropdown visibility
+sortFilterButton.addEventListener("click", () => {
+    const dropdownContainer = sortFilterButton.parentElement;
+    dropdownContainer.classList.toggle("active");
 });
 
-// Logout function with Firebase Auth and Firestore session update
-async function logout() {
-    try {
-        if (!auth.currentUser) {
-            console.error("No user is currently signed in.");
-            return;
-        }
-
-        const userId = auth.currentUser.uid;
-        const sessionRef = doc(db, "sessions", userId);
-        const logoutTimestamp = new Date().toISOString();
-
-        // Mark user as offline in Firestore
-        await updateDoc(sessionRef, {
-            status: "offline",
-            logoutTime: logoutTimestamp
-        });
-
-        // Sign out from Firebase Auth
-        await signOut(auth);
-
-        // Clear session data and redirect to login page
-        sessionStorage.clear();
-        window.location.href = '../html/index.html';
-        console.log("User signed out successfully");
-    } catch (error) {
-        console.error("Error signing out: ", error);
+// Handle dropdown item selection
+sortFilterDropdown.addEventListener("click", (e) => {
+    if (e.target.classList.contains("dropdown-item")) {
+        selectedOption = e.target.getAttribute("data-value");
+        sortFilterButton.textContent = e.target.textContent; // Update button text
+        sortFilterButton.parentElement.classList.remove("active");
     }
-}
+});
+
+// Handle search and fetch reports
+searchButton.addEventListener("click", async () => {
+    const searchTerm = searchInput.value.trim().toLowerCase();
+
+    // Check if selected option is a sort or filter
+    let sortOption = null;
+    let filterOption = null;
+
+    if (selectedOption.startsWith("filter-")) {
+        filterOption = selectedOption.replace("filter-", "");
+    } else {
+        sortOption = selectedOption;
+    }
+
+    // Fetch and display reports
+    await fetchReports(searchTerm, sortOption, filterOption);
+});
