@@ -93,11 +93,50 @@ export async function fetchAndRenderNotifications() {
         );
 
         const snapshot = await getDocs(notificationsQuery);
-        notifications = snapshot.docs.map(doc => ({
+        const fiveDaysAgo = new Date();
+        fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5); // Calculate the date 5 days ago
+
+        notifications = snapshot.docs
+    .map(doc => {
+        let normalizedTimestamp;
+
+        // Normalize the timestamp format
+        if (doc.data().timestamp && typeof doc.data().timestamp.toDate === "function") {
+            normalizedTimestamp = doc.data().timestamp.toDate(); // Firestore Timestamp
+        } else if (typeof doc.data().timestamp === "string") {
+            normalizedTimestamp = new Date(doc.data().timestamp); // ISO string
+        } else {
+            console.warn(`Invalid or missing timestamp for notification ${doc.id}`);
+            normalizedTimestamp = null; // Fallback for invalid timestamps
+        }
+
+        return {
             id: doc.id,
-            ...doc.data(), // Ensure Firestore document contains `photoId`
-        }));
+            ...doc.data(),
+            normalizedTimestamp, // Add normalized timestamp for sorting
+        };
+    })
         
+    .filter(notification => {
+        // Filter notifications based on normalized timestamp
+        const { normalizedTimestamp, status } = notification;
+        const fiveDaysAgo = new Date();
+        fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
+
+        return (
+            status === "unopen" || // Include unopen notifications
+            (normalizedTimestamp && normalizedTimestamp >= fiveDaysAgo) // Last 5 days
+        );
+    })
+    .sort((a, b) => {
+        // Sort notifications in descending order of normalized timestamp
+        return b.normalizedTimestamp - a.normalizedTimestamp;
+    });
+        
+        
+        
+        
+
 
         if (!notifications.length) {
             notificationList.innerHTML = "<p>No notifications found.</p>";
@@ -163,10 +202,28 @@ export function renderNotifications() {
     }
 
     // Update notification list in DOM
-    notificationList.innerHTML = filteredNotifications.map(notification => {
+    notificationList.innerHTML = filteredNotifications
+    .map(notification => {
         const senderUsername = usernames[notification.senderId] || "Unknown";
-        const timeAgo = getRelativeTime(notification.timestamp);
+    
+        let timeAgo = "Unknown time"; // Default fallback
+        if (notification.timestamp) {
+            try {
+                let timestamp;
+                if (typeof notification.timestamp.toDate === "function") {
+                    timestamp = notification.timestamp.toDate(); // Firestore Timestamp
+                } else if (typeof notification.timestamp === "string") {
+                    timestamp = new Date(notification.timestamp); // ISO string
+                }
+                timeAgo = getRelativeTime(timestamp); // Calculate relative time
+            } catch (error) {
+                console.error(`Error calculating time for notification ${notification.id}:`, error);
+            }
+        }
+    
         const message = getMessage(notification, senderUsername);
+        // Format the timestamp to be readable
+        const readableTimestamp = new Date(notification.timestamp).toLocaleString();
 
         return `
             <div class="notification-item" data-id="${notification.id}">
@@ -183,7 +240,14 @@ notificationList.querySelectorAll(".notification-item").forEach(item => {
         const notificationId = item.dataset.id;
         const clickedNotification = notifications.find(n => n.id === notificationId);
 
-        if (clickedNotification && ["Like", "Comment"].includes(clickedNotification.category)) {
+        if (clickedNotification) {
+            // Check if the category is 'message'
+            if (clickedNotification.category === "message") {
+                window.location.href = "Messages.html"; // Redirect to Messages.html
+                return; // Exit further execution for 'message' category
+            }
+
+        if (clickedNotification && ["Like", "Comment", "Share"].includes(clickedNotification.category)) {
             const { photoId } = clickedNotification;
             if (photoId) {
                 try {
@@ -200,6 +264,8 @@ notificationList.querySelectorAll(".notification-item").forEach(item => {
                 }
             }
         }
+        }
+        
     });
 });
 
@@ -215,12 +281,15 @@ function getMessage(notification, senderUsername) {
             return `${senderUsername} commented on your photo!`;
         case "Follow":
             return `${senderUsername} started following you!`;
-        case "Message":
+        case "message":
             return `${senderUsername} sent you a message!`;
+        case "Share":
+            return `${senderUsername} shared your photo!`;
         default:
             return `${senderUsername} performed an action.`;
     }
 }
+
 
 // Utility function to calculate relative time
 function getRelativeTime(timestamp) {

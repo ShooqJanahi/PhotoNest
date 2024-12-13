@@ -1,6 +1,6 @@
 // Import Firebase services
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js'; // Firebase Auth import
-import { collection, doc, getDoc, getDocs, query, where, deleteDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+import { collection, doc, getDoc, getDocs, query, where, deleteDoc, updateDoc, setDoc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
 import { db } from './firebaseConfig.js'; // Firebase configuration import
 import { logout } from './login.js';
 import { createNotificationPopup, openPopup } from './Notification.js';
@@ -414,7 +414,7 @@ let displayedPhotos = [];
 async function fetchPhotos() {
     try {
         // Fetch all photos from Firestore
-        const photosRef = collection(db, "Photos");
+        const photosRef = collection(db, "VaultPhoto");
         const photosSnapshot = await getDocs(photosRef);
 
         displayedPhotos = photosSnapshot.docs.map(doc => ({
@@ -423,7 +423,9 @@ async function fetchPhotos() {
         }));
 
         // Initially render all photos
-        renderPhotos(displayedPhotos);
+        const sortOption = sortSelect.value; // Get current sort option
+        const sortedPhotos = sortPhotos(displayedPhotos, sortOption); // Apply sorting
+        renderPhotos(sortedPhotos);
     } catch (error) {
         console.error("Error fetching photos:", error);
         galleryContainer.innerHTML = `<p>Error loading photos. Please try again later.</p>`;
@@ -443,23 +445,23 @@ async function filterPhotos(searchQuery) {
 
     for (const photo of displayedPhotos) {
         // Check if hashtags, city, country, or caption match the query
-        const matchesCaption = photo.caption && photo.caption.toLowerCase().includes(searchQuery);
-        const matchesCity = photo.city && photo.city.toLowerCase().includes(searchQuery);
-        const matchesCountry = photo.country && photo.country.toLowerCase().includes(searchQuery);
-        const matchesHashtags = photo.hashtags && photo.hashtags.some(tag => tag.toLowerCase().includes(searchQuery));
+        const matchesCaption = photo.caption?.toLowerCase().includes(searchQuery);
+        const matchesCity = photo.city?.toLowerCase().includes(searchQuery);
+        const matchesCountry = photo.country?.toLowerCase().includes(searchQuery);
+        const matchesHashtags = photo.hashtags?.some(tag => tag.toLowerCase().includes(searchQuery));
 
         // Fetch user document to check username, using cache to avoid redundant fetches
         let matchesUsername = false;
         if (photo.userId) {
             if (userCache.has(photo.userId)) {
                 const userData = userCache.get(photo.userId);
-                matchesUsername = userData.username && userData.username.toLowerCase().includes(searchQuery);
+                matchesUsername = userData.username?.toLowerCase().includes(searchQuery);
             } else {
                 const userDoc = await getDoc(doc(db, "users", photo.userId));
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
                     userCache.set(photo.userId, userData); // Cache the user data
-                    matchesUsername = userData.username && userData.username.toLowerCase().includes(searchQuery);
+                    matchesUsername = userData.username?.toLowerCase().includes(searchQuery);
                 }
             }
         }
@@ -476,11 +478,20 @@ async function filterPhotos(searchQuery) {
 
 
 
-
-// Trigger search when the search button is clicked
+// Trigger search and sort when the user interacts with input
 searchButton.addEventListener('click', async () => {
     const searchQuery = searchInput.value.trim().toLowerCase();
-    await filterPhotos(searchQuery);
+    const sortOption = sortSelect.value;
+    const sortedPhotos = sortPhotos(displayedPhotos, sortOption); // Apply sort to all photos
+    await filterPhotos(searchQuery, sortedPhotos); // Filter the sorted photos
+});
+
+// Apply sorting when sort option changes
+sortSelect.addEventListener('change', async () => {
+    const searchQuery = searchInput.value.trim().toLowerCase();
+    const sortOption = sortSelect.value;
+    const sortedPhotos = sortPhotos(displayedPhotos, sortOption); // Sort photos
+    await filterPhotos(searchQuery, sortedPhotos); // Filter sorted photos
 });
 
 // Trigger search when the user presses 'Enter' in the search input
@@ -491,24 +502,16 @@ searchInput.addEventListener('keypress', async (event) => {
     }
 });
 
-
-
-
-
-
-
-
 // Helper function to sort photos
 function sortPhotos(photos, sortOption) {
-    if (sortOption === "popularity") {
-        return photos.sort((a, b) => (b.likesCount || 0) - (a.likesCount || 0)); // Most likes first
-    } else if (sortOption === "latest") {
+    if (sortOption === "latest") {
         return photos.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate)); // Newest first
     } else if (sortOption === "oldest") {
         return photos.sort((a, b) => new Date(a.uploadDate) - new Date(b.uploadDate)); // Oldest first
     }
-    return photos;
+    return photos; // Default: no sorting
 }
+
 
 
 
@@ -554,3 +557,54 @@ async function deletePhoto(photoId) {
 //====================== END of Delete Photo option =============
 
 
+//====================== Make Photo Public option ==============
+
+
+// Function to make a photo public
+async function turnPhotoPublic(photoId) {
+    if (!photoId) {
+        console.error("Photo ID is required to make the photo public.");
+        return;
+    }
+
+    try {
+        // Confirm the action with the user
+        const confirmPublic = confirm("Are you sure you want to make this photo public?");
+        if (!confirmPublic) return;
+
+        // Fetch the photo data from the VaultPhoto collection
+        const photoDoc = await getDoc(doc(db, "VaultPhoto", photoId));
+        if (!photoDoc.exists()) {
+            console.error("Photo not found in VaultPhoto collection.");
+            alert("Photo not found.");
+            return;
+        }
+
+        const photoData = photoDoc.data();
+
+        // Move the photo to the Photos collection using setDoc
+        await setDoc(doc(db, "Photos", photoId), {
+            ...photoData, // Copy all the data from the photo
+            status: "Public", // Set status to public
+            publicDate: new Date().toISOString() // Optionally, add a timestamp for when it was made public
+        });
+        console.log(`Photo with ID: ${photoId} moved to Photos collection.`);
+
+        // Delete the photo from the VaultPhoto collection
+        await deleteDoc(doc(db, "VaultPhoto", photoId));
+        console.log(`Photo with ID: ${photoId} deleted from VaultPhoto collection.`);
+
+        // Notify the user
+        alert("Photo has been successfully made public.");
+
+        // Redirect the user to VaultPhotoGallery.html
+        window.location.href = "VaultPhotoGallery.html";
+    } catch (error) {
+        console.error("Error making photo public:", error);
+        alert("An error occurred while making the photo public. Please try again.");
+    }
+}
+
+
+
+//====================== END of Make Photo Public option ==============

@@ -148,7 +148,23 @@ body {
 
 /* Message Cards */
 .message-cards {
-    margin-top: 20px;
+    max-height: 480px; /* Limit the height of the message list */
+    overflow-y: auto; /* Enable vertical scrolling */
+    padding-right: 10px; /* Add padding to accommodate scroll bar */
+}
+
+/* Style the scrollbar (optional, for better aesthetics) */
+.message-cards::-webkit-scrollbar {
+    width: 8px; /* Scrollbar width */
+}
+
+.message-cards::-webkit-scrollbar-thumb {
+    background-color: #ccc; /* Scrollbar color */
+    border-radius: 4px; /* Round scrollbar edges */
+}
+
+.message-cards::-webkit-scrollbar-thumb:hover {
+    background-color: #aaa; /* Scrollbar hover color */
 }
 
 .message-card {

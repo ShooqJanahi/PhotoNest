@@ -264,7 +264,7 @@ body {
     width: 100vw;
     height: 100vh;
     background: rgba(0, 0, 0, 0.5);
-    z-index: 999;
+    z-index: 1500; /* Increase if dropdown conflicts */
 }
 
 /* Close button */

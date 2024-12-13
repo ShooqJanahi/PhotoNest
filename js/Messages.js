@@ -1,5 +1,5 @@
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { collection, query, where, getDocs, doc, getDoc, addDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { serverTimestamp, orderBy, collection, query, where, getDocs, doc, getDoc, addDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import { db } from "./firebaseConfig.js"; // Firebase configuration import
 
 const auth = getAuth();
@@ -85,7 +85,7 @@ createMessageForm.addEventListener("submit", async (event) => {
             subject,
             messageText,
             status: "Unread",
-            timestamp: new Date().toISOString(),
+            timestamp: serverTimestamp(), // Use server-generated timestamp
         });
 
         alert("Message sent successfully!");
@@ -182,21 +182,26 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Fetch messages based on field and user ID
-    async function fetchMessages(field, userId) {
-        try {
-            const messagesRef = collection(db, "Messages");
-            const q = query(messagesRef, where(field, "==", userId));
-            const querySnapshot = await getDocs(q);
-            return querySnapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            }));
-        } catch (error) {
-            console.error(`Error fetching ${field} messages:`, error);
-            return [];
-        }
+ // Fetch messages based on field and user ID
+async function fetchMessages(field, userId) {
+    try {
+        const messagesRef = collection(db, "Messages");
+        const q = query(
+            messagesRef,
+            where(field, "==", userId),
+            orderBy("timestamp", "desc") // Fetch messages in descending order
+        );
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+        }));
+    } catch (error) {
+        console.error(`Error fetching ${field} messages:`, error);
+        return [];
     }
+}
+
 
     // Resolve usernames for senderId and receiverId
     async function resolveUsernames(messages) {
@@ -263,6 +268,12 @@ document.addEventListener("DOMContentLoaded", () => {
             (msg.subject?.toLowerCase().includes(searchQuery) ||
                 msg.messageText?.toLowerCase().includes(searchQuery))
         );
+    })
+    .sort((a, b) => {
+        // Sort by timestamp in descending order
+        const timeA = new Date(a.timestamp?.toDate ? a.timestamp.toDate() : a.timestamp);
+        const timeB = new Date(b.timestamp?.toDate ? b.timestamp.toDate() : b.timestamp);
+        return timeB - timeA;
     });
 
         // Clear previous messages
@@ -398,7 +409,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                             alert("Message deleted successfully.");
                             renderMessages(); // Re-render messages
-                            location.reload(); // Reload the page after deleting the message
+                          
                         } else {
                             alert("Message not found.");
                         }
@@ -427,7 +438,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function getRelativeTime(timestamp) {
         const now = new Date();
-        const messageTime = new Date(timestamp);
+        let messageTime;
+
+         // Normalize Firestore Timestamp or ISO string
+    if (typeof timestamp?.toDate === "function") {
+        messageTime = timestamp.toDate(); // Firestore Timestamp
+    } else if (typeof timestamp === "string") {
+        messageTime = new Date(timestamp); // ISO string
+    } else {
+        console.warn("Invalid timestamp format:", timestamp);
+        return "Unknown time";
+    }
+
         const diffInSeconds = Math.floor((now - messageTime) / 1000);
 
         if (diffInSeconds < 60) {
@@ -539,7 +561,8 @@ async function sendNotification(receiverId, senderId, category, additionalData) 
             receiverId,
             senderId,
             category,
-            timestamp: new Date().toISOString(),
+            status: "unopen",
+            timestamp: serverTimestamp(), // Use server-generated timestamp
             ...additionalData, // Include additional data dynamically
         });
 

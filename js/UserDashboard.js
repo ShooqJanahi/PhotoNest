@@ -1,7 +1,7 @@
 //UserDashboard.js
 
 // Import Firebase services
-import { collection, query, where, getDocs, orderBy, doc, getDoc, addDoc, updateDoc, deleteDoc, increment  } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+import { writeBatch, collection, query, where, getDocs, orderBy, doc, getDoc, addDoc, updateDoc, deleteDoc, increment  } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
 import { db } from './firebaseConfig.js';
 
@@ -15,6 +15,8 @@ google.charts.setOnLoadCallback(() => console.log("Google Charts Loaded"));
 const suggestionsContainer = document.getElementById("search-suggestions");
 
 document.addEventListener('DOMContentLoaded', async function () {
+    await checkUserAuthentication(); // Ensure the user is authenticated
+    updateNotificationCounts(); // Fetch and update counts
 
     const searchBar = document.getElementById("search-bar");
    
@@ -78,36 +80,6 @@ searchInput.addEventListener("keydown", (event) => {
 
 
 
-
-    const photoContainer = document.querySelector('.feeds'); // Assuming '.feeds' contains photo elements
-
-    // Event listener for photo clicks
-    photoContainer.addEventListener('click', (event) => {
-        const photoElement = event.target.closest('.feed'); // Get the closest photo container element
-
-        if (photoElement) {
-            const photoId = photoElement.getAttribute('data-photo-id');
-            const photoUrl = photoElement.querySelector('.photo img').src;
-            const caption = photoElement.querySelector('.caption p').textContent;
-            const location = photoElement.querySelector('.info small').textContent;
-            const ownerId = photoElement.getAttribute('data-owner-id');
-
-            // Store photo details in localStorage
-            localStorage.setItem('photoId', photoId);
-            localStorage.setItem('photoUrl', photoUrl);
-            localStorage.setItem('caption', caption);
-            localStorage.setItem('location', location);
-            localStorage.setItem('ownerId', ownerId);
-
-            // Redirect to ViewImage.html
-            window.location.href = 'ViewImage.html';
-
-        }
-    });
-
-
-    // Ensure user authentication is verified first
-    await checkUserAuthentication();
 
     // Get the hash value (e.g., #explore or #home) and navigate
     const currentHash = window.location.hash || '#home';
@@ -517,33 +489,29 @@ function getRelativeTime(dateString) {
     return `${diffInYears} years ago`;
 }
 
+let fetchInProgress = false;
+
 async function fetchPhotos(isHome) {
+    if (fetchInProgress) return; // Prevent duplicate calls
+    fetchInProgress = true;
+
     const photosContainer = document.querySelector('.feeds');
-
-    photosContainer.addEventListener('click', (event) => {
-        const photoElement = event.target.closest('.feed');
-        if (photoElement) {
-            const photoId = photoElement.getAttribute('data-photo-id');
-            // More attributes can be retrieved similarly
-            localStorage.setItem('photoId', photoId);
-            window.location.href = 'ViewImage.html'; // Redirect to detail view
-        }
-
-});
-
     if (!photosContainer) {
         console.error("Element with class 'feeds' not found in the DOM.");
-        return; // Exit the function if not found
+        fetchInProgress = false;
+        return;
     }
-    
+
     // Ensure user is authenticated
     const currentUserId = auth.currentUser?.uid;
     if (!currentUserId) {
         console.error("User is not authenticated. Cannot fetch photos.");
-        return; // Exit if no user is authenticated
+        fetchInProgress = false;
+        return;
     }
 
-    photosContainer.innerHTML = ''; // Clear existing feeds
+    // Clear the container before appending new photos
+    photosContainer.innerHTML = '';
 
 
    
@@ -574,8 +542,8 @@ async function fetchPhotos(isHome) {
 
     const snapshot = await getDocs(photosRef);
     for (let docSnapshot of snapshot.docs) {
-        const photo = docSnapshot.data();
-        if (photo.status === 'Public') {
+            const photo = docSnapshot.data();
+        
             const userRef = doc(db, 'users', photo.userId); // Reference to the user document
             const userDoc = await getDoc(userRef); // Fetch the user document
             const user = userDoc.data() || {}; // Extract user data
@@ -666,7 +634,7 @@ async function fetchPhotos(isHome) {
             `;
             photosContainer.innerHTML += photoHTML;
             
-        }
+        
     }
 }
 
@@ -1081,6 +1049,157 @@ function filterChartData(query) {
 }
 
 
+
+
+// Function to fetch unread counts from Firestore and update the HTML
+async function updateNotificationCounts() {
+    try {
+        const userId = auth.currentUser?.uid; // Check if a user is logged in
+        if (!userId) {
+            console.error("User not logged in.");
+            return;
+        }
+
+        // Fetch unread notifications count
+        const notificationsRef = collection(db, "Notifications");
+        const notificationsQuery = query(
+            notificationsRef,
+            where("receiverId", "==", userId),
+            where("status", "==", "unopen")
+        );
+        const notificationsSnapshot = await getDocs(notificationsQuery);
+        const unreadNotificationsCount = notificationsSnapshot.size;
+
+        // Fetch unread messages count
+        const messagesRef = collection(db, "Messages");
+        const messagesQuery = query(
+            messagesRef,
+            where("receiverId", "==", userId),
+            where("status", "==", "Unread")
+        );
+        const messagesSnapshot = await getDocs(messagesQuery);
+        const unreadMessagesCount = messagesSnapshot.size;
+
+        // Update notification count UI
+        const notificationCountElement = document.getElementById("notification-count");
+        if (notificationCountElement) {
+            notificationCountElement.textContent = unreadNotificationsCount > 0 ? unreadNotificationsCount : "";
+            notificationCountElement.style.display = unreadNotificationsCount > 0 ? "inline-block" : "none";
+        } else {
+            console.error("Notification count element not found.");
+        }
+
+        // Update message count UI
+        const messageCountElement = document.getElementById("message-count");
+        if (messageCountElement) {
+            messageCountElement.textContent = unreadMessagesCount > 0 ? unreadMessagesCount : "";
+            messageCountElement.style.display = unreadMessagesCount > 0 ? "inline-block" : "none";
+        } else {
+            console.error("Message count element not found.");
+        }
+    } catch (error) {
+        console.error("Error updating notification counts:", error);
+    }
+}
+
+
+function updateCountUI(element, count) {
+    if (element) {
+        element.textContent = count > 0 ? count : ""; // Show the count or empty text
+        element.style.display = count > 0 ? "inline-block" : "none"; // Show or hide
+    }
+}
+
+
+document.getElementById("notifications").addEventListener("click", async () => {
+    try {
+        const userId = auth.currentUser?.uid;
+        if (!userId) return;
+
+        const notificationsRef = collection(db, "Notifications");
+
+      // Query to get notifications with status 'unopen'
+      const unopenNotificationsQuery = query(
+        notificationsRef,
+        where("receiverId", "==", userId),
+        where("status", "==", "unopen")
+    );
+
+    const notificationsSnapshot = await getDocs(unopenNotificationsQuery);
+
+
+    if (notificationsSnapshot.empty) {
+        console.log("No 'unopen' notifications found.");
+        return;
+    }
+
+    // Batch update: Mark all notifications as "open"
+    const batch = writeBatch(db); // Correct batch initialization
+    notificationsSnapshot.forEach((doc) => {
+        const notificationRef = doc.ref;
+        batch.update(notificationRef, { status: "open" });
+    });
+
+    await batch.commit(); // Commit the batch operation
+    console.log("All 'unopen' notifications marked as 'open'.");
+
+    // Refresh the notification count after the update
+    updateNotificationCounts();
+
+
+       // Display the notifications in the popup or UI
+       const notificationList = document.getElementById("notification-list");
+       if (notificationList) {
+           notificationList.innerHTML = ""; // Clear previous notifications
+
+           if (notificationsSnapshot.empty) {
+               notificationList.innerHTML = `<p>No new notifications.</p>`;
+           } else {
+               notificationsSnapshot.forEach((doc) => {
+                   const notificationData = doc.data();
+                   const notificationItem = document.createElement("div");
+                   notificationItem.className = "notification-item";
+                   notificationItem.innerHTML = `
+                       <p><strong>${notificationData.category}</strong>: Related to photo ID ${notificationData.photoId}</p>
+                       <p>${new Date(notificationData.timestamp.toDate()).toLocaleString()}</p>
+                   `;
+                   notificationList.appendChild(notificationItem);
+               });
+           }
+       }
+
+      
+   } catch (error) {
+       console.error("Error handling notifications:", error);
+   }
+});
+
+
+document.getElementById("messages-notification").addEventListener("click", async () => {
+    try {
+        const userId = auth.currentUser?.uid;
+        if (!userId) return;
+
+        const messagesRef = collection(db, "Messages");
+        const messagesQuery = query(
+            messagesRef,
+            where("receiverId", "==", userId),
+            where("status", "==", "Unread")
+        );
+        const messagesSnapshot = await getDocs(messagesQuery);
+
+        const batch = db.batch();
+        messagesSnapshot.forEach((doc) => {
+            batch.update(doc.ref, { status: "Read" });
+        });
+        await batch.commit();
+
+        console.log("Messages marked as read.");
+        updateNotificationCounts(); // Refresh counts
+    } catch (error) {
+        console.error("Error marking messages as read:", error);
+    }
+});
 
 
 

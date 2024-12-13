@@ -161,12 +161,26 @@ document.querySelector('.upload-btn').addEventListener('click', async () => {
                 // Retrieve hashtags from the input
                 const hashtags = getHashtagsFromInput(); // Extract hashtags from the input
 
-                await addDoc(collection(db, 'Photos'), {
+
+                if (isPrivate) {
+                    // Add the photo to VaultPhoto collection if marked as private
+                    await addDoc(collection(db, 'VaultPhoto'), {
+                        caption,
+                        city,
+                        country,
+                        imageUrl: downloadURL,
+                        userId,
+                        uploadDate: new Date().toISOString(),
+                        hashtags, // Save hashtags in the VaultPhoto document
+                    });
+                    console.log("Photo added to VaultPhoto collection.");
+                } else { 
+                    await addDoc(collection(db, 'Photos'), {
                     caption,
                     city,
                     country,
                     imageUrl: downloadURL,
-                    status,
+                    
                     userId,
                     uploadDate: new Date().toISOString(),
                     likesCount: 0,
@@ -174,7 +188,8 @@ document.querySelector('.upload-btn').addEventListener('click', async () => {
                     hashtags, // Save hashtags in the photo document
 
                 });
-
+                console.log("Photo added to Photos collection.");
+                }
 
                 // Increment the user's posts count
                 await incrementUserPostsCount(userId);

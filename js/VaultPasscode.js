@@ -45,7 +45,7 @@ unlockButton.addEventListener("click", async () => {
         if (passcodeDoc.data().passcode === passcode) {
             alert("Access granted! Redirecting to Vault...");
             sessionStorage.setItem("viewVault", "true");
-            window.location.href = "../html/PhotoGallery.html";
+            window.location.href = "../html/VaultPhotoGallery.html";
         } else {
             alert("Error: Invalid passcode. Please try again.");
             console.error("Incorrect passcode entered for user:", currentUser.uid);
@@ -178,8 +178,8 @@ function showCreatePasscodePopup() {
             // Set Vault mode in session storage
             sessionStorage.setItem("viewVault", "true");
 
-            // Redirect to PhotoGallery page
-            window.location.href = "../html/PhotoGallery.html";
+            // Redirect to VaultPhotoGallery page
+            window.location.href = "../html/VaultPhotoGallery.html";
         } catch (error) {
             console.error("Error creating passcode:", error.message);
             alert("Failed to create passcode. Please try again.");

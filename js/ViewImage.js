@@ -1,8 +1,9 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getFirestore, doc, getDoc, collection, query, where, deleteDoc, addDoc, getDocs, serverTimestamp, updateDoc, increment, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, collection, query, where, orderBy, deleteDoc, addDoc, getDocs, serverTimestamp, updateDoc, increment, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import { createNotificationPopup, openPopup } from './Notification.js';
 import { db } from './firebaseConfig.js';
 import { logout } from './login.js';
+
 
 
 
@@ -31,7 +32,7 @@ async function fetchPhotoData(photoId) {
     try {
         const photoRef = doc(db, "Photos", photoId);
         const photoDoc = await getDoc(photoRef);
-        
+
 
         if (photoDoc.exists()) {
             const photoData = photoDoc.data();
@@ -152,7 +153,12 @@ async function fetchAndDisplayComments(photoId) {
     try {
         // Reference the Comments collection and query by photoId
         const commentsRef = collection(db, "Comments");
-        const commentsQuery = query(commentsRef, where("photoId", "==", photoId));
+        const commentsQuery = query(
+            commentsRef, 
+            where("photoId", "==", photoId),
+            orderBy("timestamp", "desc") // Order comments by timestamp in descending order
+        );
+        
         const querySnapshot = await getDocs(commentsQuery);
 
         // Get the comments container
@@ -166,7 +172,7 @@ async function fetchAndDisplayComments(photoId) {
                 const commentElement = createCommentElement(commentData);
                 commentsContainer.appendChild(commentElement);
             });
-            
+
         } else {
             commentsContainer.innerHTML = "<p>No comments yet. Be the first to comment!</p>";
         }
@@ -231,7 +237,7 @@ function createCommentElement(commentData) {
         console.log("Comment ID passed to deleteComment:", commentData.commentId); // Debugging log
         deleteComment(commentData.commentId);
     };
-    
+
 
     const reportOption = document.createElement("div");
     reportOption.classList.add("dropdown-option");
@@ -275,8 +281,15 @@ function createCommentElement(commentData) {
 
 
 // Function to handle adding a new comment
-async function addComment(photoId, userId, username, commentText) {
+async function addComment(photoId, userId, username, commentText, photoData) {
     try {
+
+        if (!photoData || !photoData.userId) {
+            console.error("Invalid photoData or missing userId:", photoData);
+            alert("Unable to add comment due to missing photo details.");
+            return;
+        }
+        
         if (!commentText.trim()) {
             alert("Comment cannot be empty.");
             return;
@@ -285,7 +298,7 @@ async function addComment(photoId, userId, username, commentText) {
         const commentsRef = collection(db, "Comments");
 
         // Add the new comment to the Comments collection
-        await addDoc(commentsRef, {
+        const newComment = await addDoc(commentsRef, {
             photoId: photoId,
             userId: userId,
             username: username,
@@ -299,14 +312,13 @@ async function addComment(photoId, userId, username, commentText) {
             commentsCount: increment(1),
         });
 
+        // Send a notification to the photo owner
         await sendNotification(
-            photoData.userId,           // Receiver: Photo owner
-            currentUser.uid,            // Sender: Current user
-            "Comment",                  // Category: Comment
-            photoId,                    // Photo ID
-            
+            photoData.userId,   // Receiver: Photo owner
+            userId,             // Sender: Current user
+            "Comment",          // Category: Comment
+            photoId             // Photo ID
         );
-        
 
         // Log the comment action
         await logActivity(userId, photoId, "commented", `Comment ID: ${newComment.id}`);
@@ -320,8 +332,9 @@ async function addComment(photoId, userId, username, commentText) {
     }
 }
 
+
 // Add event listener for submitting a comment
-document.getElementById("submit-comment").addEventListener("click", () => {
+document.getElementById("submit-comment").addEventListener("click", async () => {
     const photoId = localStorage.getItem("photoId");
     const currentUser = JSON.parse(sessionStorage.getItem("user"));
 
@@ -330,9 +343,23 @@ document.getElementById("submit-comment").addEventListener("click", () => {
         return;
     }
 
+    // Fetch photo data
+    const photoRef = doc(db, "Photos", photoId);
+    const photoDoc = await getDoc(photoRef);
+
+    if (!photoDoc.exists()) {
+        console.error("Photo not found!");
+        alert("Photo not found. Cannot add comment.");
+        return;
+    }
+
+    const photoData = photoDoc.data(); // Extract the photo data
     const commentText = document.getElementById("comment-input").value;
-    addComment(photoId, currentUser.uid, currentUser.username, commentText);
+
+    // Pass `photoData` to `addComment`
+    await addComment(photoId, currentUser.uid, currentUser.username, commentText, photoData);
 });
+
 
 
 
@@ -428,14 +455,14 @@ async function initializeLikeButton(photoId) {
 
 async function addLike(photoId, currentUser, photoRef) {
     try {
-         // Fetch the photo data to get the owner's userId
-         const photoDoc = await getDoc(photoRef);
-         if (!photoDoc.exists()) {
-             console.error("Photo not found!");
-             alert("Photo not found!");
-             return;
-         }
-         const photoData = photoDoc.data(); // Get photo data from Firestore
+        // Fetch the photo data to get the owner's userId
+        const photoDoc = await getDoc(photoRef);
+        if (!photoDoc.exists()) {
+            console.error("Photo not found!");
+            alert("Photo not found!");
+            return;
+        }
+        const photoData = photoDoc.data(); // Get photo data from Firestore
 
 
         // Add the like to the Likes collection
@@ -456,12 +483,12 @@ async function addLike(photoId, currentUser, photoRef) {
             currentUser.uid,            // Sender: Current user
             "Like",                     // Category: Like
             photoId,                    // Photo ID
-           
+
         );
 
-        
-         // Log the like action
-         await logActivity(currentUser.uid, photoId, "liked_photo");
+
+        // Log the like action
+        await logActivity(currentUser.uid, photoId, "liked_photo");
 
         console.log("Photo liked successfully.");
     } catch (error) {
@@ -642,6 +669,9 @@ function handleDropdownAction(actionId) {
 }
 
 
+
+
+
 //================== END of Dropdown Menu ==================
 
 
@@ -746,6 +776,7 @@ function createViewImagePopup(content, title = "Popup", onCloseCallback = null) 
 
 // Function to handle editing photo
 function createEditPhotoPopup(photoId, currentCaption, currentHashtags) {
+    
     const popupContent = `
       <form id="edit-photo-form">
         <label for="edit-caption">Caption:</label>
@@ -768,23 +799,43 @@ function createEditPhotoPopup(photoId, currentCaption, currentHashtags) {
         const newCaption = document.getElementById("edit-caption").value.trim();
         const newHashtags = document.getElementById("edit-hashtags").value
             .split(",")
-            .map(tag => tag.trim())
+            .map(tag => tag.trim().toLowerCase()) // Normalize hashtags
             .filter(tag => tag.length > 0); // Remove empty tags
 
         // Ask for confirmation
         const confirmation = confirm("Are you sure you want to save these changes?");
         if (confirmation) {
             try {
-                // Update Firestore
                 const photoRef = doc(db, "Photos", photoId);
+                const photoDoc = await getDoc(photoRef);
+
+                if (photoDoc.exists()) {
+                    const photoData = photoDoc.data();
+                    const oldHashtags = photoData.hashtags || [];
+
+                     // Decrement counts for old hashtags
+                     const hashtagsToRemove = oldHashtags.filter(tag => !newHashtags.includes(tag));
+                     for (const hashtag of hashtagsToRemove) {
+                         await reduceHashtagCount(hashtag);
+                     }
+
+
                 await updateDoc(photoRef, {
                     caption: newCaption,
                     hashtags: newHashtags,
                 });
 
+                 // Increment counts for new hashtags
+                 const hashtagsToAdd = newHashtags.filter(tag => !oldHashtags.includes(tag));
+                 await processHashtags(hashtagsToAdd);
+
                 alert("Photo updated successfully!");
                 document.getElementById("view-image-popup").remove(); // Close popup
                 fetchPhotoData(photoId); // Refresh photo details on the page
+            } else {
+                console.error("Photo does not exist.");
+                alert("Photo not found.");
+            }
             } catch (error) {
                 console.error("Error updating photo:", error);
                 alert("Failed to update the photo. Please try again.");
@@ -798,6 +849,24 @@ async function deletePhoto(photoId) {
     try {
         // Reference the photo document in the Photos collection
         const photoRef = doc(db, "Photos", photoId);
+        const photoDoc = await getDoc(photoRef);
+
+        if (!photoDoc.exists()) {
+            console.error("Photo does not exist.");
+            alert("Photo not found. Please try again.");
+            return;
+        }
+
+        // Get the userId (owner of the photo) from the photo document
+        const photoData = photoDoc.data();
+        const userId = photoData.userId;
+
+        // Reduce hashtag counts
+        if (photoData.hashtags && photoData.hashtags.length > 0) {
+            for (const hashtag of photoData.hashtags) {
+                await reduceHashtagCount(hashtag);
+            }
+        }
 
         // Delete the photo document
         await deleteDoc(photoRef);
@@ -806,14 +875,21 @@ async function deletePhoto(photoId) {
         // Delete all references to the photo in other collections
         await deletePhotoReferences(photoId);
 
+        // Decrement the postsCount in the users collection
+        const userRef = doc(db, "users", userId);
+        await updateDoc(userRef, {
+            postsCount: increment(-1), // Decrease postsCount by 1
+        });
+        console.log(`postsCount decremented for user ${userId}`);
+
         // Log the delete action
         await logActivity(sessionStorage.getItem("userId"), photoId, "deleted_photo");
 
         // Display success system message
         alert("Photo deleted successfully!");
 
-        // Optionally, refresh the page or navigate elsewhere
-        location.reload();
+        // Redirect the user to the UserDashboard.html
+        window.location.href = "UserDashboard.html";
     } catch (error) {
         console.error("Error deleting photo:", error);
 
@@ -821,6 +897,35 @@ async function deletePhoto(photoId) {
         alert("Failed to delete the photo. Please try again.");
     }
 }
+
+// Function to decrement hashtag photoCount or remove the hashtag if the count reaches 0
+async function reduceHashtagCount(hashtag) {
+    try {
+        // Query the database for the hashtag in the "hashtag" field
+        const hashtagRef = collection(db, "Hashtag");
+        const hashtagQuery = query(hashtagRef, where("hashtag", "==", hashtag));
+        const querySnapshot = await getDocs(hashtagQuery);
+
+        querySnapshot.forEach(async (docSnapshot) => {
+            const hashtagDocRef = doc(db, "Hashtag", docSnapshot.id);
+            const hashtagData = docSnapshot.data();
+
+            if (hashtagData.photoCount > 1) {
+                // Decrement photoCount if it's greater than 1
+                await updateDoc(hashtagDocRef, { photoCount: increment(-1) });
+                console.log(`Decremented photoCount for hashtag: ${hashtag}`);
+            } else {
+                // Remove the hashtag document if photoCount becomes 0
+                await deleteDoc(hashtagDocRef);
+                console.log(`Deleted hashtag: ${hashtag} (no photos remaining)`);
+            }
+        });
+    } catch (error) {
+        console.error("Error reducing hashtag count:", error);
+    }
+}
+
+
 
 //This function ensures that all references to the photo in other collections (except ActivityLogs) are removed
 
@@ -871,8 +976,8 @@ async function moveToVault(photoId) {
 
         alert("Photo moved to the vault successfully!");
 
-         // Log the delete action
-         await logActivity(sessionStorage.getItem("userId"), photoId, "move_to_vault");
+        // Log the delete action
+        await logActivity(sessionStorage.getItem("userId"), photoId, "move_to_vault");
 
         // Redirect to UserDashboard.html
         window.location.href = "UserDashboard.html";
@@ -1109,10 +1214,10 @@ async function addPhotoToAlbum(albumId, photoId) {
                 currentUser.uid,            // Sender: Current user
                 "Move to Album",            // Category: Move to Album
                 photoId,                    // Photo ID
-                
+
             );
 
-            
+
             console.log(`Photo ${photoId} added to album ${albumId}`);
             alert("Photo added to album successfully!");
         } else {
@@ -1145,8 +1250,8 @@ async function removePhotoFromAlbum(albumId, photoId) {
             // Update the album in Firestore
             await updateDoc(albumRef, { photoIds: updatedPhotoIds });
 
-             // Log the remove from album action
-             await logActivity(sessionStorage.getItem("userId"), photoId, "removed_from_album", `Removed from Album ID: ${albumId}`);
+            // Log the remove from album action
+            await logActivity(sessionStorage.getItem("userId"), photoId, "removed_from_album", `Removed from Album ID: ${albumId}`);
 
 
             console.log(`Photo ${photoId} removed from album ${albumId}`);
@@ -1239,8 +1344,8 @@ async function createReportPhotoPopup(photoId) {
 
                 alert("Report submitted successfully.");
 
-                 // Log the delete action
-        await logActivity(sessionStorage.getItem("userId"), photoId, "report_photo");
+                // Log the delete action
+                await logActivity(sessionStorage.getItem("userId"), photoId, "report_photo");
 
                 document.getElementById("view-image-popup").remove(); // Close the popup
             } catch (error) {
@@ -1294,8 +1399,8 @@ async function deleteComment(commentId) {
         // Delete the notification for this comment
         await deleteNotification(commentData.userId, photoId, "Comment");
 
-         // Log the delete action
-         await logActivity(sessionStorage.getItem("userId"), photoId, "deleted_comment");
+        // Log the delete action
+        await logActivity(sessionStorage.getItem("userId"), photoId, "deleted_comment");
 
         // Refresh the comments section
         fetchAndDisplayComments(photoId);
@@ -1386,8 +1491,8 @@ async function reportComment(commentId) {
 
                 alert("Comment reported successfully.");
 
-                 // Log 
-        await logActivity(sessionStorage.getItem("userId"), photoId, "report_comment");
+                // Log 
+                await logActivity(sessionStorage.getItem("userId"), photoId, "report_comment");
 
 
                 document.getElementById("view-image-popup").remove(); // Close popup
@@ -1443,109 +1548,109 @@ async function createSharePopup(photoId) {
 
     createViewImagePopup(popupContent, "Share Photo");
 
- // Add event listener to search input
-document.getElementById("user-search").addEventListener("input", async (e) => {
-    const queryText = e.target.value.trim().toLowerCase();
-    const userResults = document.getElementById("user-results");
-    userResults.innerHTML = ""; // Clear previous results
+    // Add event listener to search input
+    document.getElementById("user-search").addEventListener("input", async (e) => {
+        const queryText = e.target.value.trim().toLowerCase();
+        const userResults = document.getElementById("user-results");
+        userResults.innerHTML = ""; // Clear previous results
 
-    if (queryText) {
-        const usersRef = collection(db, "users");
-        const usersQuery = query(
-            usersRef,
-            where("role", "==", "user"), // Filter by "user" role
-            where("username", ">=", queryText),
-            where("username", "<=", queryText + "\uf8ff")
-        );
-        const userSnapshots = await getDocs(usersQuery);
+        if (queryText) {
+            const usersRef = collection(db, "users");
+            const usersQuery = query(
+                usersRef,
+                where("role", "==", "user"), // Filter by "user" role
+                where("username", ">=", queryText),
+                where("username", "<=", queryText + "\uf8ff")
+            );
+            const userSnapshots = await getDocs(usersQuery);
 
-        if (!userSnapshots.empty) {
-            userSnapshots.forEach((doc) => {
-                const user = doc.data();
-                const userId = doc.id;
+            if (!userSnapshots.empty) {
+                userSnapshots.forEach((doc) => {
+                    const user = doc.data();
+                    const userId = doc.id;
 
-                // Create user suggestion item
-                const listItem = document.createElement("li");
-                listItem.style.display = "flex";
-                listItem.style.alignItems = "center";
-                listItem.style.padding = "5px";
-                listItem.style.borderBottom = "1px solid #ddd";
-                listItem.style.cursor = "pointer";
-                listItem.setAttribute("data-user-id", userId); // Ensure the ID is set here
+                    // Create user suggestion item
+                    const listItem = document.createElement("li");
+                    listItem.style.display = "flex";
+                    listItem.style.alignItems = "center";
+                    listItem.style.padding = "5px";
+                    listItem.style.borderBottom = "1px solid #ddd";
+                    listItem.style.cursor = "pointer";
+                    listItem.setAttribute("data-user-id", userId); // Ensure the ID is set here
 
-                // Add profile picture
-                const profilePic = document.createElement("img");
-                profilePic.src = user.profilePic || "../assets/Default_profile_icon.jpg";
-                profilePic.alt = "Profile Picture";
-                profilePic.style.width = "40px";
-                profilePic.style.height = "40px";
-                profilePic.style.borderRadius = "50%";
-                profilePic.style.marginRight = "10px";
+                    // Add profile picture
+                    const profilePic = document.createElement("img");
+                    profilePic.src = user.profilePic || "../assets/Default_profile_icon.jpg";
+                    profilePic.alt = "Profile Picture";
+                    profilePic.style.width = "40px";
+                    profilePic.style.height = "40px";
+                    profilePic.style.borderRadius = "50%";
+                    profilePic.style.marginRight = "10px";
 
-                // Add username
-                const username = document.createElement("span");
-                username.textContent = user.username || "Unknown";
+                    // Add username
+                    const username = document.createElement("span");
+                    username.textContent = user.username || "Unknown";
 
-                listItem.appendChild(profilePic);
-                listItem.appendChild(username);
+                    listItem.appendChild(profilePic);
+                    listItem.appendChild(username);
 
-                listItem.addEventListener("click", () => {
-                    // Set the selected user details
-                    document.getElementById("user-search").value = user.username;
-                    userResults.innerHTML = ""; // Clear results
-                    userResults.setAttribute("data-selected-user-id", userId); // Correctly set the selected ID
+                    listItem.addEventListener("click", () => {
+                        // Set the selected user details
+                        document.getElementById("user-search").value = user.username;
+                        userResults.innerHTML = ""; // Clear results
+                        userResults.setAttribute("data-selected-user-id", userId); // Correctly set the selected ID
+                    });
+
+                    userResults.appendChild(listItem);
                 });
-
-                userResults.appendChild(listItem);
-            });
-        } else {
-            userResults.innerHTML = `<li style="padding: 5px;">No users found</li>`;
+            } else {
+                userResults.innerHTML = `<li style="padding: 5px;">No users found</li>`;
+            }
         }
-    }
-});
+    });
 
-// Add event listener to send button
-document.getElementById("send-share").addEventListener("click", async () => {
-    const receiverUsername = document.getElementById("user-search").value.trim();
-    const message = document.getElementById("message-input").value.trim();
-    const selectedUserId = document.getElementById("user-results").getAttribute("data-selected-user-id");
+    // Add event listener to send button
+    document.getElementById("send-share").addEventListener("click", async () => {
+        const receiverUsername = document.getElementById("user-search").value.trim();
+        const message = document.getElementById("message-input").value.trim();
+        const selectedUserId = document.getElementById("user-results").getAttribute("data-selected-user-id");
 
-    if (!receiverUsername || !selectedUserId) {
-        alert("Please select a valid user to share with.");
-        return;
-    }
+        if (!receiverUsername || !selectedUserId) {
+            alert("Please select a valid user to share with.");
+            return;
+        }
 
-    try {
-        // Add message to the Messages collection
-        await addDoc(collection(db, "Messages"), {
-            senderId: currentUser.uid,
-            receiverId: selectedUserId,
-            messageText: message,
-            photoId: photoId,
-            subject: "Shared Photo",
-            status: "Unread",
-            timestamp: serverTimestamp(),
-        });
+        try {
+            // Add message to the Messages collection
+            await addDoc(collection(db, "Messages"), {
+                senderId: currentUser.uid,
+                receiverId: selectedUserId,
+                messageText: message,
+                photoId: photoId,
+                subject: "Shared Photo",
+                status: "Unread",
+                timestamp: serverTimestamp(),
+            });
 
-        await sendNotification(
-            selectedUserId,             // Receiver: Selected user to share with
-            currentUser.uid,            // Sender: Current user
-            "Share",                    // Category: Share
-            photoId,                    // Photo ID
-           
-        );
+            await sendNotification(
+                selectedUserId,             // Receiver: Selected user to share with
+                currentUser.uid,            // Sender: Current user
+                "Share",                    // Category: Share
+                photoId,                    // Photo ID
 
-        
-        // Log the share action
-        await logActivity(currentUser.uid, photoId, "shared_photo", `Shared with ${receiverUsername}`);
+            );
 
-        alert("Photo shared successfully!");
-        document.getElementById("view-image-popup").remove(); // Close popup
-    } catch (error) {
-        console.error("Error sharing photo:", error);
-        alert("Failed to share the photo. Please try again.");
-    }
-});
+
+            // Log the share action
+            await logActivity(currentUser.uid, photoId, "shared_photo", `Shared with ${receiverUsername}`);
+
+            alert("Photo shared successfully!");
+            document.getElementById("view-image-popup").remove(); // Close popup
+        } catch (error) {
+            console.error("Error sharing photo:", error);
+            alert("Failed to share the photo. Please try again.");
+        }
+    });
 
 }
 
@@ -1708,7 +1813,8 @@ async function sendNotification(receiverId, senderId, category, photoId, message
             senderId: senderId,           // User performing the action
             category: category,           // Type of notification: "Like", "Comment", "Share", "Move to Album"
             photoId: photoId,             // Related photo ID
-            
+            status: "unopen",
+
             timestamp: serverTimestamp()  // Firestore server timestamp
         });
         console.log(`Notification sent: ${category}`);
@@ -1750,3 +1856,60 @@ async function deleteNotification(senderId, photoId, category) {
 
 
 //=========== END of Notification function =====================
+
+
+
+
+//========== check if a hashtag exists, increment its photoCount by 1 if it does, or create it with an initial photoCount of 1 if it doesn't=========================
+
+// Function to manage hashtags
+async function handleHashtag(hashtag) {
+    try {
+        // Query the database for the hashtag in the "hashtag" field
+        const hashtagRef = collection(db, "Hashtag");
+        const hashtagQuery = query(hashtagRef, where("hashtag", "==", hashtag));
+        const querySnapshot = await getDocs(hashtagQuery);
+
+        if (!querySnapshot.empty) {
+            // If hashtag exists, increment its photoCount
+            querySnapshot.forEach(async (docSnapshot) => {
+                const hashtagDocRef = doc(db, "Hashtag", docSnapshot.id);
+                await updateDoc(hashtagDocRef, { photoCount: increment(1) });
+                console.log(`Hashtag '${hashtag}' exists. Incremented photoCount.`);
+            });
+        } else {
+            // If hashtag doesn't exist, create it with photoCount = 1
+            await addDoc(hashtagRef, { hashtag: hashtag, photoCount: 1 });
+            console.log(`Hashtag '${hashtag}' created with photoCount = 1.`);
+        }
+    } catch (error) {
+        console.error("Error handling hashtag:", error);
+    }
+}
+
+
+
+// Process multiple hashtags in bulk
+async function processHashtags(hashtags) {
+    const uniqueHashtags = [...new Set(hashtags)]; // Remove duplicates
+    try {
+        for (const hashtag of uniqueHashtags) {
+            await handleHashtag(hashtag);
+        }
+    } catch (error) {
+        console.error("Error processing hashtags:", error);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+//=========== END of the hashtag section ===============
