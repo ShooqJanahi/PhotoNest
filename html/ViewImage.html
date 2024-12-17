@@ -1,148 +1,173 @@
 <!-- ViewImage.html -->
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"> <!-- Sets the document type and language for the webpage -->
+
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8"> <!-- Defines the character set for the webpage -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Image</title>
+    <!-- Enables responsive design for mobile devices -->
+    <title>View Image</title> <!-- Title of the webpage -->
+
+    <!-- Linking external Font Awesome stylesheet for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
-    <link rel="stylesheet" href="../css/ViewImage.css"> <!-- Corrected the CSS file path -->
+
+    <!-- Linking Google Fonts for typography -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+
+    <!-- Linking external custom CSS for the View Image page -->
+    <link rel="stylesheet" href="../css/ViewImage.css">
+
+    <!-- Linking external custom CSS for notifications -->
     <link rel="stylesheet" href="../css/Notification.css">
-    
+
+    <!-- Favicon for the webpage -->
     <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png">
 
-     <!-- jQuery -->
-     <script type="module" src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- jQuery library for DOM manipulation and AJAX -->
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
+    <!-- Linking external JavaScript for handling notifications -->
+    <script type="module" src="../js/Notification.js"></script>
 
-     <script type="module" src="../js/Notification.js"></script>
-     
-  <script type="module" src="../js/login.js"></script> <!-- define the session storage-->
+    <!-- Linking external JavaScript to handle session storage -->
+    <script type="module" src="../js/login.js"></script> <!-- define the session storage-->
 
-     
-     
-     <!-- View_Edit_Image.js -->
+    <!-- Linking external JavaScript for View and Edit Image functionality -->
     <script type="module" src="../js/ViewImage.js"></script>
 
 </head>
+
 <body>
+    <!-- Header section containing the logo and profile-related elements -->
     <div class="header">
+
+        <!-- Logo for PhotoNest -->
         <div class="logo">
             <img src="../assets/PhotoNest_Transparent.png" alt="PhotoNest Logo" />
             PhotoNest
         </div>
-        
-       <!-- Other header elements -->
-    <div class="profile-section">
-        <i class="fas fa-bell" id="notification-bell"></i>
-        <div class="profile-container">
-            <img src="../assets/Default_profile_icon.jpg" alt="User Profile" id="profile-image">
-            <div class="profile-dropdown hidden">
-                <a href="Settings.html">Settings</a>
-                <a href="#" id="logout-button">Logout</a>
-            </div>
-        </div>
-    </div>
 
-        
-    </div>
-    
-    <div class="container">
-        <div class="image-section">
-            <!-- The image will be updated dynamically here -->
-            <img id="photo-display" src="https://placehold.co/600x400" alt="Beautiful sunset over a lake with vibrant colors">
-        </div>
-        <div class="details-section">
-            <div class="details-options">
-                <i class="fas fa-ellipsis-v" id="image-options-icon"></i>
-                <div class="dropdown-menu hidden" id="image-options-dropdown">
-                    
+        <!-- Profile section with a notification bell and user profile dropdown -->
+        <div class="profile-section">
+            <i class="fas fa-bell" id="notification-bell"></i> <!-- Notification bell icon -->
+            <div class="profile-container">
+                <img src="../assets/Default_profile_icon.jpg" alt="User Profile" id="profile-image"> <!-- Profile image -->
+                <div class="profile-dropdown hidden"> <!-- Hidden dropdown menu for user profile options -->
+                    <a href="Settings.html">Settings</a> <!-- Link to settings page -->
+                    <a href="#" id="logout-button">Logout</a> <!-- Logout option -->
                 </div>
             </div>
+        </div>
+    </div>
 
+    <!-- Main container for the image and its details -->
+    <div class="container">
+
+        <!-- Section to display the image -->
+        <div class="image-section">
+
+           <!-- Placeholder image; this will be dynamically updated -->
+            <img id="photo-display" src="https://placehold.co/600x400"
+                alt="Beautiful sunset over a lake with vibrant colors">
+        </div>
+
+        <!-- Section to display image details -->
+        <div class="details-section">
+            <!-- Dropdown menu for image-related options -->
+            <div class="details-options">
+                <i class="fas fa-ellipsis-v" id="image-options-icon"></i> <!-- Icon for options -->
+                <div class="dropdown-menu hidden" id="image-options-dropdown"></div> <!-- Hidden dropdown for options -->
+            </div>
+
+            <!-- User details for the photo -->
             <p id="photo-user-details">
-                <img id="photo-user-profile-pic" src="../assets/Default_profile_icon.jpg" alt="User Profile Picture" class="user-profile-pic">
-                <strong id="photo-username">Loading username...</strong>
-                
+                <img id="photo-user-profile-pic" src="../assets/Default_profile_icon.jpg" alt="User Profile Picture" class="user-profile-pic"> <!-- Default User profile picture -->
+                <strong id="photo-username">Loading username...</strong> <!-- Placeholder for the username -->
             </p>
 
+            <!-- Caption of the photo -->
+            <p id="photo-caption">{{ Loading caption... }}</p> <!-- Placeholder for the photo caption -->
+           
+           <!-- Section for hashtags -->
+            <div id="photo-hashtags"></div> <!-- Placeholder for dynamically loaded hashtags -->
 
-            <p id="photo-caption">{{ Loading caption... }}</p>
-            <div id="photo-hashtags"></div>
-
-
+             <!-- Section to display likes -->
             <div class="likes">
-                <i class="fas fa-heart" id="like-icon"></i> 
-                <span id="likes-count">0 Likes</span>
+                <i class="fas fa-heart" id="like-icon"></i> <!-- Like icon -->
+                <span id="likes-count">0 Likes</span> <!-- Counter for likes -->
             </div>
-            
-            
-            
+
+            <!-- Location of the photo -->
             <p id="photo-location">
-                <strong>Location:</strong><br>
-                <span id="photo-location-text">Loading location...</span>
+                <strong>Location:</strong><br> <!-- Label for location -->
+                <span id="photo-location-text">Loading location...</span> <!-- Placeholder for location -->
             </p>
+
+            <!-- Date when the photo was posted -->
             <p id="photo-date-posted">
-                <strong>Date Posted:</strong><br>
-                <span id="photo-date-text">Loading date...</span>
+                <strong>Date Posted:</strong><br> <!-- Label for date posted -->
+                <span id="photo-date-text">Loading date...</span> <!-- Placeholder for date -->
             </p>
-            
-            
+
+            <!-- Share button -->
             <div class="buttons">
-                <button id="share-button"><i class="fas fa-share"></i> Share</button>
+                <button id="share-button"><i class="fas fa-share"></i> Share</button> <!-- Button to share the photo -->
             </div>
-            
 
+            <!-- Section to add a comment -->
             <div class="add-comment">
-                <input type="text" id="comment-input" placeholder="Add a comment...">
-                <button id="submit-comment">Enter</button>
+                <input type="text" id="comment-input" placeholder="Add a comment..."> <!-- Input for adding comments -->
+                <button id="submit-comment">Enter</button> <!-- Button to submit the comment -->
             </div>
 
+            <!-- Section to display comments -->
             <div class="comments-section">
-                <h3>Comments</h3>
-                <div id="comments-container">
+                <h3>Comments</h3> <!-- Title for comments section -->
+                <div id="comments-container"> <!-- Container for dynamically loaded comments -->
                     <!-- Comments will be dynamically loaded here -->
                 </div>
             </div>
-            
-            
-            
-            
+
+
+
+
 
         </div>
     </div>
-     <!-- Footer Section -->
-     <div class="footer">
+    <!-- Footer Section -->
+    <div class="footer">
+         <!-- Quick Links section -->
         <div>
             <h4>Quick Links</h4>
-            <a href="UserDashboard.html#Home">Home</a> <!-- Link to privacy policy -->
-            <a href="UserDashboard.html#Home">Explore</a>
-            <a href="VaultPasscode.html">Vault</a>
-            <a href="">Messages</a>
+            <a href="UserDashboard.html#Home">Home</a>  <!-- Link to Home -->
+            <a href="UserDashboard.html#explore">Explore</a> <!-- Link to Explore -->
+            <a href="VaultPasscode.html">Vault</a> <!-- Link to Vault -->
+            <a href="Messages.html">Messages</a><!-- Link to Messages -->
 
         </div>
+        <!-- Social Media Links section -->
         <div>
             <h4>Follow Us</h4>
             <div class="social-icons"> <!-- Social media icons -->
-                <a href="https://www.facebook.com/profile.php?id=61566861417599"><i class="fab fa-facebook-f"></i></a>
-
-                <a href="https://www.instagram.com/photonest.bh/"><i class="fab fa-instagram"></i></a>
+                <a href="https://www.facebook.com/profile.php?id=61566861417599"><i class="fab fa-facebook-f"></i></a> <!-- Facebook -->
+                <a href="https://www.instagram.com/photonest.bh/"><i class="fab fa-instagram"></i></a> <!-- Instagram -->
             </div>
             <div class="copyright">
                 &copy; 2024 PhotoNest <!-- Copyright notice -->
             </div>
         </div>
-
+        <!-- Legal Links section -->
         <div>
             <h4>Legal</h4>
-            <a href="#privacy-policy">Privacy Policy</a> <!-- Link to privacy policy -->
-            <a href="#TermsAndCondition">Terms and Conditions</a> <!-- Link to terms and conditions -->
+            <a href="Terms.html#privacy-policy">Privacy Policy</a> <!-- Link to privacy policy -->
+            <a href="Terms.html#TermsAndCondition">Terms and Conditions</a> <!-- Link to terms and conditions -->
         </div>
 
 
     </div>
-    
+
 </body>
+
 </html>

@@ -15,18 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const notificationPopup = createNotificationPopup();
         openPopup(notificationPopup);
     });
-});
 
-
-
-
-
-
-document.addEventListener('DOMContentLoaded', () => {
     // Ensure user authentication before displaying the page
     checkUserAuthentication();
 
-   
+   //logout button
     const logoutButton = document.querySelector('.login-btn'); // Ensure this matches the ID in your HTML
 
     if (logoutButton) {
@@ -36,6 +29,39 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         console.error("Logout button not found in the DOM.");
     }
+
+     // Hide options menu if logged-in user is the same as viewed user
+     const loggedInUserId = sessionStorage.getItem("loggedInUserId"); // Get logged-in user ID from session storage
+     const viewedUserId = localStorage.getItem("viewedUserId"); // Get viewed user ID from local storage
+ 
+     const optionsMenuContainer = document.querySelector(".options-menu-container");
+ 
+     if (loggedInUserId === viewedUserId && optionsMenuContainer) {
+         optionsMenuContainer.style.display = "none"; // Hide the options menu
+     }
+
+    //report option button
+    const reportUserButton = document.querySelector(".report-user");
+
+    if (reportUserButton) {
+        reportUserButton.addEventListener("click", () => {
+            // Get reported user details
+            const reportedUserId = localStorage.getItem("viewedUserId"); // User ID to report
+            const reportedUsername = document.querySelector(".profile-section p:nth-of-type(1)").textContent; // Username from the profile page
+
+            if (reportedUserId && reportedUsername) {
+                // Open the report popup
+                openReportUserPopup(reportedUserId, reportedUsername.replace('@', ''));
+            } else {
+                alert("Unable to fetch user details for reporting.");
+            }
+        });
+    }
+
+
+
+
+
 });
 
 // Check user authentication and fetch profile data
@@ -48,14 +74,12 @@ function checkUserAuthentication() {
         } else {
             document.body.style.display = "block"; // Show the page content
             const loggedInUserId = user.uid;
+
             const viewedUserId = localStorage.getItem('viewedUserId') || loggedInUserId; // Get the profile to view
 
-            // Determine if the user is viewing their own profile
-            const isOwnProfile = viewedUserId === loggedInUserId;
-
-            // Fetch and display user profile and posts
-            await loadUserProfile(viewedUserId, loggedInUserId, isOwnProfile);
-            await loadUserPosts(viewedUserId);
+       // Fetch and display user profile and posts
+       await loadUserProfile(viewedUserId, loggedInUserId);
+       await loadUserPosts(viewedUserId);
         }
     });
 }
@@ -82,6 +106,7 @@ async function loadUserProfile(viewedUserId, loggedInUserId, isOwnProfile) {
             document.querySelector('.stats div:nth-of-type(2)').innerHTML = `Followers<br>${userData.followersCount || 0}`;
             document.querySelector('.stats div:nth-of-type(3)').innerHTML = `Following<br>${userData.followingCount || 0}`;
 
+            const isOwnProfile = viewedUserId === loggedInUserId;
             // Adjust profile controls (Edit or Follow/Unfollow)
             adjustProfileControls(viewedUserId, loggedInUserId, isOwnProfile);
         } else {
@@ -95,7 +120,7 @@ async function loadUserProfile(viewedUserId, loggedInUserId, isOwnProfile) {
 // Adjust profile controls (Edit Profile or Follow/Unfollow and Dropdown Menu)
 async function adjustProfileControls(viewedUserId, loggedInUserId, isOwnProfile) {
     const profileSection = document.querySelector('.profile-section');
-    const existingControl = document.querySelector('.follow-btn, .edit-btn');
+    const existingControl = document.querySelector('.follow-menu-toggle, .edit-btn');
     if (existingControl) existingControl.remove(); // Remove existing button to prevent duplication
 
     if (isOwnProfile) {
@@ -110,7 +135,7 @@ async function adjustProfileControls(viewedUserId, loggedInUserId, isOwnProfile)
     } else {
         // Add Follow/Unfollow button
         const controlButton = document.createElement('button');
-        controlButton.className = 'follow-btn';
+        controlButton.className = 'follow-menu-toggle';
 
         const isFollowing = await checkIfFollowing(loggedInUserId, viewedUserId);
 
@@ -158,58 +183,9 @@ async function adjustProfileControls(viewedUserId, loggedInUserId, isOwnProfile)
     }
 }
 
-// Check if the logged-in user is following the viewed user
-async function checkIfFollowing(loggedInUserId, viewedUserId) {
-    try {
-        const followsDocRef = doc(db, 'Follows', loggedInUserId);
-        const followsDoc = await getDoc(followsDocRef);
 
-        if (followsDoc.exists() && followsDoc.data().following.includes(viewedUserId)) {
-            return true;
-        }
-    } catch (error) {
-        console.error('Error checking follow status:', error);
-    }
-    return false;
-}
 
-// Follow a user
-async function followUser(loggedInUserId, viewedUserId) {
-    try {
-        const followsDocRef = doc(db, 'Follows', loggedInUserId);
-        await updateDoc(followsDocRef, {
-            following: arrayUnion(viewedUserId)
-        });
 
-        const followersDocRef = doc(db, 'Follows', viewedUserId);
-        await updateDoc(followersDocRef, {
-            followers: arrayUnion(loggedInUserId)
-        });
-
-        console.log(`User ${loggedInUserId} is now following ${viewedUserId}.`);
-    } catch (error) {
-        console.error('Error following user:', error);
-    }
-}
-
-// Unfollow a user
-async function unfollowUser(loggedInUserId, viewedUserId) {
-    try {
-        const followsDocRef = doc(db, 'Follows', loggedInUserId);
-        await updateDoc(followsDocRef, {
-            following: arrayRemove(viewedUserId)
-        });
-
-        const followersDocRef = doc(db, 'Follows', viewedUserId);
-        await updateDoc(followersDocRef, {
-            followers: arrayRemove(loggedInUserId)
-        });
-
-        console.log(`User ${loggedInUserId} has unfollowed ${viewedUserId}.`);
-    } catch (error) {
-        console.error('Error unfollowing user:', error);
-    }
-}
 
 // Report a user
 function reportUser(viewedUserId) {
@@ -224,28 +200,6 @@ function reportUser(viewedUserId) {
         }).catch((error) => {
             console.error('Error reporting user:', error);
         });
-    }
-}
-
-// Block a user
-async function blockUser(loggedInUserId, viewedUserId) {
-    try {
-        const blockDocRef = doc(db, 'Blocked', loggedInUserId);
-        await updateDoc(blockDocRef, {
-            blockedUsers: arrayUnion(viewedUserId)
-        }).catch(async (err) => {
-            if (err.code === 'not-found') {
-                // If the document does not exist, create it
-                await setDoc(blockDocRef, {
-                    userId: loggedInUserId,
-                    blockedUsers: [viewedUserId]
-                });
-            }
-        });
-
-        alert('User has been blocked.');
-    } catch (error) {
-        console.error('Error blocking user:', error);
     }
 }
 
@@ -293,3 +247,279 @@ async function loadUserPosts(userId) {
         console.error('Error loading user posts:', error);
     }
 }
+
+
+
+//===================== Block users section =================
+// Function to block a user
+// Function to block a user
+async function blockUser() {
+    try {
+        // Get the currently logged-in user's ID
+        const currentUser = auth.currentUser;
+        if (!currentUser) {
+            alert("You need to log in to perform this action.");
+            return;
+        }
+
+        const currentUserId = currentUser.uid;
+
+        // Get the viewed user's ID from localStorage
+        const blockedUserId = localStorage.getItem('viewedUserId');
+        if (!blockedUserId) {
+            console.error("No viewed user ID found in localStorage.");
+            return;
+        }
+
+        // Show confirmation dialog
+        const confirmation = confirm("Are you sure you want to block this user?");
+        if (!confirmation) {
+            return; // Exit if the user cancels
+        }
+
+        // Reference to the BlockedUsers collection for the current user
+        const blockedUsersRef = doc(db, "BlockedUsers", currentUserId);
+
+        // Fetch the current blocked users document
+        const blockedUsersDoc = await getDoc(blockedUsersRef);
+
+        if (!blockedUsersDoc.exists()) {
+            // Create a new document if it doesn't exist
+            await setDoc(blockedUsersRef, {
+                blockedUsers: [blockedUserId], // Add the first blocked user
+                userId: currentUserId, // The user who is blocking
+                createdAt: new Date().toISOString(), // Timestamp of when the block was created
+            });
+            console.log(`BlockedUsers document created for user ${currentUserId} with blocked user ${blockedUserId}`);
+        } else {
+            // Update the document to include the newly blocked user
+            await updateDoc(blockedUsersRef, {
+                blockedUsers: arrayUnion(blockedUserId), // Add the blocked user's ID to the array
+                updatedAt: new Date().toISOString(), // Update the timestamp
+            });
+            console.log(`BlockedUsers document updated for user ${currentUserId}. User ${blockedUserId} added.`);
+        }
+
+        // Optionally: Save the updated blocked list in localStorage (for client-side access)
+        const blockedUsers = JSON.parse(localStorage.getItem('blockedUsers')) || [];
+        if (!blockedUsers.includes(blockedUserId)) {
+            blockedUsers.push(blockedUserId);
+            localStorage.setItem('blockedUsers', JSON.stringify(blockedUsers));
+        }
+
+        alert("User has been blocked successfully.");
+        // Redirect to UserDashboard.html after successful block
+        window.location.href = "UserDashboard.html";
+    } catch (error) {
+        console.error("Error blocking user:", error);
+        alert("An error occurred while blocking the user. Please try again.");
+    }
+}
+
+
+// Event listener for the "Block User" button
+document.querySelector(".block-user").addEventListener("click", blockUser);
+
+//===================== END of Block users section =================
+
+
+//================== reusable popup layout for different sections ============
+// Select popup elements
+const popupContainer = document.getElementById("popup-container");
+const popupTitle = document.getElementById("popup-title");
+const popupBody = document.querySelector(".popup-body");
+const closePopupBtn = document.getElementById("close-popup-btn");
+const actionBtn = document.getElementById("popup-action-btn");
+
+// Function to open the popup with dynamic content
+function openProfilePopup(title, contentHTML, actionCallback) {
+    popupTitle.textContent = title; // Set the popup title
+    popupBody.innerHTML = contentHTML; // Set the dynamic content
+
+    // Add click event for the action button (if callback is provided)
+    if (actionCallback) {
+        actionBtn.onclick = actionCallback;
+        actionBtn.style.display = "inline-block";
+    } else {
+        actionBtn.style.display = "none";
+    }
+
+    popupContainer.classList.add("show"); // Show the popup
+}
+
+// Function to close the popup
+function closePopup() {
+    popupContainer.classList.remove("show");
+}
+
+// Event listeners for closing the popup
+closePopupBtn.addEventListener("click", closePopup);
+popupContainer.addEventListener("click", (e) => {
+    if (e.target === popupContainer) closePopup();
+});
+
+
+
+//================== reusable popup layout for different sections ============
+
+//============================== Report user option ===========================
+// Function to open the "Report User" popup
+function openReportUserPopup(reportedUserId, reportedUsername) {
+    const contentHTML = `
+        <form id="report-user-form">
+            <label for="report-reason">Reason for reporting:</label>
+            <textarea id="report-reason" rows="4" placeholder="Enter the reason for reporting..." required></textarea>
+        </form>
+    `;
+
+    // Define the action for the "Submit" button
+    const submitReport = async () => {
+        const reason = document.getElementById("report-reason").value.trim();
+
+        if (!reason) {
+            alert("Please provide a reason for reporting.");
+            return;
+        }
+
+        try {
+            // Prepare data for Firestore
+            const reportData = {
+                category: "User", // Default category
+                reportedUserId: reportedUserId,
+                reportedUsername: reportedUsername,
+                reason: reason,
+                reportedBy: auth.currentUser.uid, // Current logged-in user's ID
+                reportedAt: new Date().toISOString(),
+                status: "Pending Review", // Default status
+            };
+
+            // Add report to Firestore
+            await setDoc(doc(collection(db, "Reports")), reportData);
+
+            alert("User report submitted successfully.");
+            closePopup(); // Close the popup after submitting the report
+        } catch (error) {
+            console.error("Error submitting report:", error);
+            alert("An error occurred while submitting the report.");
+        }
+    };
+
+    // Open the popup with content and the action button callback
+    openProfilePopup("Report User", contentHTML, submitReport);
+}
+
+
+//============================== END of Report user option ===========================
+
+
+//============================= Follow/unfollow button ==========================
+
+// Function to initialize Follow/Unfollow button logic
+async function initializeFollowButton(viewedUserId, loggedInUserId) {
+    try {
+        // Select the follow button
+        const followBtn = document.getElementById("follow-btn");
+        if (!followBtn) {
+            console.error("Follow button not found in the DOM.");
+            return;
+        }
+
+        // Fetch the current follow status
+        const isFollowing = await checkIfFollowing(loggedInUserId, viewedUserId);
+
+        // Update the button UI based on follow status
+        updateFollowButtonUI(followBtn, isFollowing);
+
+        // Add click event listener to the button
+        followBtn.onclick = async () => {
+            if (isFollowing) {
+                // Unfollow logic
+                await unfollowUser(loggedInUserId, viewedUserId);
+                updateFollowButtonUI(followBtn, false); // Change to "Follow"
+            } else {
+                // Follow logic
+                await followUser(loggedInUserId, viewedUserId);
+                updateFollowButtonUI(followBtn, true); // Change to "Unfollow"
+            }
+        };
+    } catch (error) {
+        console.error("Error initializing Follow button:", error);
+    }
+}
+
+// Function to update Follow/Unfollow button UI
+function updateFollowButtonUI(button, isFollowing) {
+    if (isFollowing) {
+        button.textContent = "Unfollow";
+        button.classList.add("unfollow");
+    } else {
+        button.textContent = "Follow";
+        button.classList.remove("unfollow");
+    }
+}
+
+// Function to check if the logged-in user is following the viewed user
+async function checkIfFollowing(loggedInUserId, viewedUserId) {
+    try {
+        const followsDocRef = doc(db, "Follows", loggedInUserId);
+        const followsDoc = await getDoc(followsDocRef);
+        return followsDoc.exists() && followsDoc.data().following.includes(viewedUserId);
+    } catch (error) {
+        console.error("Error checking follow status:", error);
+        return false;
+    }
+}
+
+// Function to follow a user
+async function followUser(loggedInUserId, viewedUserId) {
+    try {
+        const followsDocRef = doc(db, "Follows", loggedInUserId);
+        await updateDoc(followsDocRef, {
+            following: arrayUnion(viewedUserId),
+        });
+
+        const followersDocRef = doc(db, "Follows", viewedUserId);
+        await updateDoc(followersDocRef, {
+            followers: arrayUnion(loggedInUserId),
+        });
+
+        console.log(`User ${loggedInUserId} is now following ${viewedUserId}`);
+    } catch (error) {
+        console.error("Error following user:", error);
+    }
+}
+
+// Function to unfollow a user
+async function unfollowUser(loggedInUserId, viewedUserId) {
+    try {
+        const followsDocRef = doc(db, "Follows", loggedInUserId);
+        await updateDoc(followsDocRef, {
+            following: arrayRemove(viewedUserId),
+        });
+
+        const followersDocRef = doc(db, "Follows", viewedUserId);
+        await updateDoc(followersDocRef, {
+            followers: arrayRemove(loggedInUserId),
+        });
+
+        console.log(`User ${loggedInUserId} has unfollowed ${viewedUserId}`);
+    } catch (error) {
+        console.error("Error unfollowing user:", error);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//============================= END of Follow/unfollow button ==========================

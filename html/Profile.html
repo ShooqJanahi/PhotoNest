@@ -13,7 +13,7 @@
     <script type="module" src="../js/firebaseConfig.js"></script>
     <script type="module" src="../js/login.js"></script>
     <script type="module" src="../js/Notification.js"></script> <!-- notificatioion popup-->
-    <script type="module" src="../js/Settings.js"></script>
+    
     <script type="module" src="../js/Profile.js"></script>
 
     <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png">
@@ -44,17 +44,24 @@
             <div>Followers<br>750</div>
             <div>Following<br>180</div>
         </div>
-        <button class="edit-btn">Edit Profile</button>
-
         
-        <!-- Options Menu -->
-    <div class="options-menu-container">
-        <button class="options-menu-toggle">Options <i class="fas fa-chevron-down"></i></button>
-        <div class="options-menu hidden">
-            <button class="report-user">Report User</button>
-            <button class="block-user">Block User</button>
+        <div class="edit-profile-container">
+            <a href="Settings.html?open=editProfile" class="edit-btn">Edit Profile</a>
+
+             <!-- Follow button dropdown -->
+  
+       
+       
+            
+            <div class="options-menu-container">
+                <button class="options-menu-toggle">Options <i class="fas fa-chevron-down"></i></button>
+                <div class="options-menu">
+                    <button class="report-user">Report User</button>
+                    <button class="block-user">Block User</button>
+                </div>
+            </div>
+            
         </div>
-    </div>
 
 
 
@@ -70,6 +77,30 @@
         </div>
         <!-- Repeat other gallery items as needed -->
     </section>
+
+
+    <!-- Popup Container -->
+<div id="popup-container" class="popup hidden">
+    <div class="popup-content">
+        <!-- Header -->
+        <div class="popup-header">
+            <h3 id="popup-title">Popup Title</h3>
+            <button id="close-popup-btn">&times;</button>
+        </div>
+
+        <!-- Content -->
+        <div class="popup-body">
+            <!-- Dynamic content will be added here -->
+        </div>
+
+        <!-- Footer (Optional) -->
+        <div class="popup-footer">
+            <button id="popup-action-btn" class="btn-primary">Save</button>
+        </div>
+    </div>
+</div>
+
+
     <!-- Footer Section -->
     <div class="footer">
         <div>

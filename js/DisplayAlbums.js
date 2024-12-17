@@ -1,30 +1,34 @@
-// Import Firebase services
-import { collection, query, where, getDocs,addDoc, doc, getDoc, deleteDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
-import { db } from './firebaseConfig.js'; // Ensure this points to your Firebase config
+// Import Firebase Firestore services
+import { collection, query, where, getDocs, addDoc, doc, getDoc, deleteDoc, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+// Import Firebase configuration
+import { db } from './firebaseConfig.js';
+// Import utility functions for notifications and login/logout functionality
 import { createNotificationPopup, openPopup } from './Notification.js';
 import { logout } from './login.js';
 
 
-
-
+// Reference the container where albums will be displayed
 const albumsContainer = document.getElementById('albums-container');
+
+// Reference the search input and button
 const searchInput = document.getElementById('album-search');
 const searchButton = document.getElementById('search-button');
 
-let userAlbums = []; // Store fetched albums globally
+// Global variable to store the user's albums for filtering and rendering
+let userAlbums = [];
 
-
+// Event listener for the logout button
 document.getElementById('logout-button').addEventListener('click', async (event) => {
-    event.preventDefault();
-    await logout();
+    event.preventDefault(); // Prevents default anchor behavior
+    await logout(); // Call the logout function to sign the user out
 });
 
-// Attach an event listener to the bell icon
+// Event listener for the notification bell icon
 document.querySelector('.fa-bell').addEventListener('click', () => {
     let popup = document.getElementById('notification-popup');
     let overlay = document.getElementById('popup-overlay');
 
-    // Create the popup if it doesn't exist
+    // Create notification popup if it doesn't already exist
     if (!popup || !overlay) {
         createNotificationPopup();
     }
@@ -33,21 +37,23 @@ document.querySelector('.fa-bell').addEventListener('click', () => {
     openPopup();
 });
 
+// Fetch the user's profile picture from Firestore and display it
 async function fetchUserProfileImage() {
-    const user = JSON.parse(sessionStorage.getItem('user')); // Get the logged-in user from session storage
+    const user = JSON.parse(sessionStorage.getItem('user')); // Retrieve user data from session storage
+
+    // Check if user data exists
     if (!user || !user.uid) {
-        console.error("User not logged in or UID not found in session storage.");
+        console.error("User not logged in or UID not found.");
         return;
     }
-
     try {
-        // Fetch the user's document from Firestore
+        // Fetch user document from Firestore using UID
         const userDoc = await getDoc(doc(db, "users", user.uid));
         if (userDoc.exists()) {
-            const userData = userDoc.data();
+            const userData = userDoc.data(); // Extract user data
             console.log("User data fetched successfully:", userData); // Debugging step
 
-            // Check if the profilePic field exists
+            // Set profile picture if available
             if (userData.profilePic) {
                 const profileImageElement = document.getElementById('profile-image');
                 if (profileImageElement) {
@@ -70,43 +76,37 @@ async function fetchUserProfileImage() {
 
 
 document.addEventListener('DOMContentLoaded', async () => {
-
-    // Initialize the Create Album modal functionality
-    setupCreateAlbumModal();
-
-   
-
-    // Fetch and display the profile image
-    await fetchUserProfileImage();
+    setupCreateAlbumModal();// Initialize Create Album Modal functionality
+    await fetchUserProfileImage();// Fetch user profile image
 
     const user = JSON.parse(sessionStorage.getItem('user')); // Get the logged-in user
     if (!user || !user.uid) {
         console.error("User not logged in.");
         return;
     }
-    
-
     try {
-        // Fetch the user's albums
+        // Query Firestore for albums belonging to the current user
         const albumsQuery = query(
             collection(db, 'Albums'),
-            where('userId', '==', user.uid)
+            where('userId', '==', user.uid) // Filter albums by user ID
         );
         const albumsSnapshot = await getDocs(albumsQuery);
 
+        // Handle empty album list
         if (albumsSnapshot.empty) {
             albumsContainer.innerHTML = '<p>No albums found.</p>';
             return;
         }
-
-        // Store albums in a global variable
+        // Process albums and fetch thumbnails for display
         userAlbums = await Promise.all(
-            albumsSnapshot.docs.map(async albumDoc => { // Renamed `doc` to `albumDoc`
-                const albumData = albumDoc.data();
+            albumsSnapshot.docs.map(async albumDoc => { 
+                const albumData = albumDoc.data(); // Extract album data
                 const albumId = albumDoc.id;
 
-                // Fetch the first photo for the album thumbnail (if available)
-                let thumbnailUrl = 'https://placehold.co/250x150'; // Default thumbnail
+                // Default thumbnail if no photos exist
+                let thumbnailUrl = 'https://placehold.co/250x150'; 
+
+                // Fetch the first photo if photo IDs are available
                 if (albumData.photoIds && albumData.photoIds.length > 0) {
                     const firstPhotoId = albumData.photoIds[0];
                     const photoDoc = await getDoc(doc(db, 'Photos', firstPhotoId));
@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         thumbnailUrl = photoDoc.data().imageUrl || thumbnailUrl;
                     }
                 }
-
+                // Return album details with thumbnail
                 return {
                     id: albumId,
                     ...albumData,
@@ -123,8 +123,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             })
         );
 
-        // Render the albums
-        renderAlbums(userAlbums);
+        renderAlbums(userAlbums); // Render albums on the page
 
 
         const editButtons = document.querySelectorAll('.options-btn[data-action="edit"]');
@@ -133,9 +132,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         const saveBtn = document.getElementById('saveEdit');
         const titleInput = document.getElementById('editAlbumTitle');
         let currentAlbumId = '';
-    
+
         editButtons.forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function () {
                 const albumId = this.closest('.album-card').getAttribute('data-album-id');
                 const currentTitle = this.closest('.album-card').querySelector('.info h3').innerText;
                 titleInput.value = currentTitle;
@@ -143,19 +142,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                 modal.style.display = 'block';
             });
         });
-    
+
         closeBtn.onclick = () => modal.style.display = 'none';
         window.onclick = (event) => {
             if (event.target == modal) {
                 modal.style.display = 'none';
             }
         }
-    
+
         saveBtn.addEventListener('click', () => {
             if (titleInput.value.trim()) {
                 const albumRef = doc(db, 'Albums', currentAlbumId);
                 updateDoc(albumRef, { name: titleInput.value.trim() })
-                    .then(() => {
+                    .then(async() => {
+                        await logActivity("edit_album", currentAlbumId); // Log album edit
                         alert('Album title updated successfully.');
                         location.reload(); // Refresh the page to show the new title
                     })
@@ -168,9 +168,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 alert('Please enter a valid title.');
             }
         });
-    
-
-
 
     } catch (error) {
         console.error("Error fetching albums:", error);
@@ -179,16 +176,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 
-// Function to render albums
+// Function to display albums dynamically
 function renderAlbums(albums) {
     const albumsContainer = document.getElementById('albums-container');
-
     albumsContainer.innerHTML = ''; // Clear previous content
+
+    // If no albums exist, display a message
     if (albums.length === 0) {
         albumsContainer.innerHTML = '<p>No albums found.</p>';
         return;
     }
-
+    // Loop through albums and create HTML for each album
     albums.forEach(album => {
         const albumCard = `
             <div class="album-card" data-album-id="${album.id}">
@@ -208,10 +206,10 @@ function renderAlbums(albums) {
             </div>
         `;
 
-        albumsContainer.innerHTML += albumCard;
+        albumsContainer.innerHTML += albumCard; // Append the album card
     });
 
-    setupAlbumCardListeners();
+    setupAlbumCardListeners(); // Add event listeners to album cards
 }
 
 document.getElementById('album-search').addEventListener('keypress', (event) => {
@@ -232,14 +230,16 @@ async function createAlbum(title) {
     try {
         const newAlbum = {
             name: title,
-            description: "", // Default empty description
+            
             photoIds: [], // Empty array for photos initially
             createdAt: new Date().toISOString(),
             userId: user.uid, // Link album to the current user
         };
 
         // Add the new album to Firestore
-        await addDoc(collection(db, "Albums"), newAlbum);
+        const albumRef = await addDoc(collection(db, "Albums"), newAlbum);
+
+        await logActivity("created_album", albumRef.id); // Log album creation
 
         alert("Album created successfully!");
         location.reload(); // Refresh to show the new album
@@ -249,6 +249,7 @@ async function createAlbum(title) {
     }
 }
 
+// Function to initialize the Create Album modal
 function setupCreateAlbumModal() {
     const createAlbumButton = document.querySelector('.icons button'); // Select the create album button
     const createAlbumModal = document.getElementById('createAlbumModal');
@@ -272,14 +273,14 @@ function setupCreateAlbumModal() {
         }
     });
 
-    // Handle form submission
+    // Handle album creation form submission
     createAlbumForm.addEventListener('submit', (event) => {
-        event.preventDefault();
+        event.preventDefault(); // Prevent page reload
 
         const albumTitle = document.getElementById('albumTitle').value.trim();
         if (albumTitle) {
-            createAlbum(albumTitle);
-            createAlbumModal.style.display = 'none';
+            createAlbum(albumTitle); // Create new album
+            createAlbumModal.style.display = 'none'; // Close modal
         } else {
             alert("Please enter a valid album title.");
         }
@@ -292,30 +293,6 @@ function setupCreateAlbumModal() {
 // Function to setup event listeners for each album card
 function setupAlbumCardListeners() {
     albumsContainer.querySelectorAll('.album-card').forEach(card => {
-        // Setup click listener for the options icon to toggle the menu
-        const optionsIcon = card.querySelector('.options-icon');
-        const optionsMenu = card.querySelector('.options-menu');
-
-        // Toggle options menu visibility
-        optionsIcon.addEventListener('click', (event) => {
-            event.stopPropagation(); // Prevents triggering click on the entire card
-            optionsMenu.classList.toggle('hidden'); // Toggle visibility of the options menu
-        });
-
-        // Setup listeners for each button in the options menu
-        optionsMenu.querySelectorAll('.options-btn').forEach(button => {
-            button.addEventListener('click', (event) => {
-                event.stopPropagation(); // Prevent click from reaching the card
-                handleOptionClick(event, card); // Handle the click
-            });
-        });
-
-        // Listener for clicking outside the options menu to close it
-        document.addEventListener('click', (event) => {
-            if (!card.contains(event.target)) {
-                optionsMenu.classList.add('hidden');
-            }
-        }, { once: true });
 
         // Setup redirection for non-option areas of the card
         const clickableAreas = card.querySelectorAll('.clickable-area');
@@ -326,15 +303,45 @@ function setupAlbumCardListeners() {
                 window.location.href = 'PhotoGallery.html'; // Redirection
             });
         });
-    });
+        const optionsIcon = card.querySelector('.options-icon');
+        const optionsMenu = card.querySelector('.options-menu');
 
-    // Close the options menu if clicked outside
-    document.addEventListener('click', () => {
-        document.querySelectorAll('.options-menu').forEach(menu => {
-            menu.classList.add('hidden');
+        // Remove any existing listener to avoid duplicates
+        optionsIcon.removeEventListener('click', toggleMenu);
+        optionsIcon.addEventListener('click', toggleMenu);
+        function toggleMenu(event) {
+            event.stopPropagation(); // Stop event bubbling
+            console.log('Options menu clicked'); // Debug log
+            closeAllOptionMenus(); // Close other open menus
+            optionsMenu.classList.toggle('show'); // Toggle the 'show' class instead of 'hidden'
+        }
+        // Close menu when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!optionsMenu.contains(event.target) && !optionsIcon.contains(event.target)) {
+                optionsMenu.classList.add('hidden');
+            }
         });
+
+        // Options menu button handling
+        optionsMenu.querySelectorAll('.options-btn').forEach(button => {
+            button.removeEventListener('click', handleOption);
+            button.addEventListener('click', handleOption);
+        });
+
+        function handleOption(event) {
+            event.stopPropagation();
+            handleOptionClick(event, card);
+        }
     });
+    // Close all open menus helper
+    function closeAllOptionMenus() {
+        document.querySelectorAll('.options-menu').forEach(menu => {
+            menu.classList.remove('show'); // Remove 'show' class from all menus
+        });
+    }
 }
+
+
 
 
 
@@ -349,20 +356,18 @@ function handleOptionClick(event, card) {
         case 'delete':
             deleteAlbum(albumId);
             break;
-        case 'view':
-            viewAlbumDetails(albumId);
+        case 'share':
+            ShareAlbumDetails(albumId);
             break;
         default:
             console.log('Unknown action:', action);
     }
 }
 
-
-
 // Functions for options menu actions
 function editAlbum(albumId) {
     console.log(`Edit album: ${albumId}`);
-    // Implement the logic for editing the album
+    // opens the edit album popup
 }
 
 // Function to delete an album after confirmation
@@ -371,9 +376,12 @@ function deleteAlbum(albumId) {
     if (confirmation) {
         // Deleting the album document from Firestore
         const albumRef = doc(db, 'Albums', albumId);
+
         deleteDoc(albumRef)
-            .then(() => {
+            .then(async() => {
                 console.log(`Album ${albumId} deleted successfully.`);
+
+                await logActivity("delete_album", albumId); // Log album deletion
                 alert("Album deleted successfully.");
 
                 // Refresh the albums list or redirect as needed
@@ -387,10 +395,122 @@ function deleteAlbum(albumId) {
 }
 
 
-function viewAlbumDetails(albumId) {
-    console.log(`View details of album: ${albumId}`);
-    localStorage.setItem('currentAlbumId', albumId);
-    window.location.href = 'AlbumDetails.html'; // Redirect to album details page
+// Share Album Details Function
+function ShareAlbumDetails(albumId) {
+    const modal = document.getElementById('shareAlbumModal');
+    const closeModal = document.getElementById('closeShareModal');
+    const recipientInput = document.getElementById('recipientSearch');
+    const autocompleteResults = document.getElementById('autocomplete-results');
+    const shareForm = document.getElementById('shareAlbumForm');
+    const messageInput = document.getElementById('shareMessage');
+
+    let selectedRecipient = null;
+
+    // Show the modal
+    modal.style.display = 'block';
+
+    // Close modal when clicking the close button
+    closeModal.onclick = () => {
+        modal.style.display = 'none';
+        resetShareForm();
+    };
+
+    // Reset modal fields
+    function resetShareForm() {
+        recipientInput.value = '';
+        messageInput.value = '';
+        autocompleteResults.innerHTML = '';
+        selectedRecipient = null;
+    }
+
+    // Fetch and display autocomplete results
+    recipientInput.addEventListener('input', async () => {
+        const searchQuery = recipientInput.value.trim().toLowerCase();
+        if (!searchQuery) {
+            autocompleteResults.innerHTML = '';
+            return;
+        }
+
+        try {
+            // Query Firestore for matching usernames with the role "user"
+            const usersRef = collection(db, 'users');
+            const q = query(
+                usersRef,
+                where('username', '>=', searchQuery),
+                where('username', '<=', searchQuery + '\uf8ff'),
+                where('role', '==', 'user') // Filter for role "user"
+            );
+
+            const querySnapshot = await getDocs(q);
+
+            // Display autocomplete results
+            autocompleteResults.innerHTML = '';
+            if (querySnapshot.empty) {
+                autocompleteResults.innerHTML = `<div>No users found.</div>`;
+                return;
+            }
+
+            querySnapshot.forEach(doc => {
+                const user = doc.data();
+                const userId = doc.id;
+
+                const resultItem = document.createElement('div');
+                resultItem.classList.add('autocomplete-item');
+                resultItem.innerHTML = `
+                    <img src="${user.profilePic || '../assets/Default_profile_icon.jpg'}" alt="${user.username} Profile picture">
+                    <span>${user.username}</span>
+                `;
+                resultItem.addEventListener('click', () => {
+                    selectedRecipient = { id: userId, username: user.username };
+                    recipientInput.value = user.username;
+                    autocompleteResults.innerHTML = '';
+                });
+
+                autocompleteResults.appendChild(resultItem);
+            });
+        } catch (error) {
+            console.error('Error fetching users:', error);
+        }
+    });
+
+
+    // Handle form submission
+    shareForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        if (!selectedRecipient) {
+            alert('Please select a valid recipient.');
+            return;
+        }
+
+        const currentUser = JSON.parse(sessionStorage.getItem('user')); // Assume current user info is stored in session
+        const optionalMessage = messageInput.value.trim(); // Get the optional message
+
+        const messageData = {
+            senderId: currentUser.uid,
+            receiverId: selectedRecipient.id,
+            subject: 'Shared an Album',
+            albumId: albumId,
+            message: optionalMessage || '',
+            status: 'Unread',
+            timestamp: serverTimestamp(),
+        };
+
+        try {
+            // Save the message in Firestore
+            await addDoc(collection(db, 'Messages'), messageData);
+
+            // Log activity and notification
+            await logActivity("shared_album", albumId); // Log album sharing
+            await logNotification(selectedRecipient.id, currentUser.uid, albumId); // Log notification
+           
+            alert(`Album shared successfully with ${selectedRecipient.username}.`);
+            modal.style.display = 'none';
+        } catch (error) {
+            console.error('Error sharing album:', error);
+            alert('Failed to share the album. Please try again.');
+        }
+    });
 }
 
 
@@ -401,3 +521,64 @@ function searchAlbums() {
     const filteredAlbums = userAlbums.filter(album => album.name.toLowerCase().includes(searchQuery));
     renderAlbums(filteredAlbums);
 }
+
+
+//========================== Activity log ================
+
+// Function to log user activity to Firestore
+async function logActivity(category, targetId) {
+    const currentUser = JSON.parse(sessionStorage.getItem('user')); // Fetch the current user
+
+    if (!currentUser || !currentUser.uid) {
+        console.error("User not logged in.");
+        return;
+    }
+
+    try {
+        // Create a timestamp in ISO string format
+        const currentTimestamp = new Date().toISOString();
+
+        const activityLog = {
+            category: category,            // Action category (e.g., "delete_album")
+            userId: currentUser.uid,       // Current user's ID
+            targetId: targetId,            // Album ID or target ID
+            timestamp: currentTimestamp,  // Firestore server timestamp
+        };
+
+        // Save log to "ActivityLogs" collection
+        await addDoc(collection(db, 'ActivityLogs'), activityLog);
+        console.log(`Activity logged: ${category} for target ${targetId}`);
+    } catch (error) {
+        console.error("Error logging activity:", error);
+    }
+}
+
+
+//========================== END of Activity log ================
+
+
+//======================= Share Album Notification =================
+// Function to log a notification when an album is shared
+async function logNotification(receiverId, senderId, albumId, photoId = null) {
+    try {
+        const notificationData = {
+            category: "Share", // Default category
+            senderId: senderId, // ID of the sender
+            receiverId: receiverId, // ID of the receiver
+            albumId: albumId, // Shared album ID
+           
+            status: "unopen", // Default status
+            timestamp: new Date().toISOString(), // ISO time format
+        };
+
+        // Add the notification to the "Notifications" collection
+        await addDoc(collection(db, "Notifications"), notificationData);
+        console.log(`Notification sent to user: ${receiverId}`);
+    } catch (error) {
+        console.error("Error logging notification:", error);
+    }
+}
+
+
+
+//======================= END of Share Album Notification =================

@@ -1,105 +1,172 @@
 <!-- Album.html -->
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"><!--language set to English -->
+
 <head>
+    <!-- Character encoding set to UTF-8 for universal character support -->
     <meta charset="UTF-8">
+    <!-- Set the viewport for responsive design on mobile devices -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Album</title>
+    <title>Album</title> <!-- Title of the web page displayed on the browser tab -->
+
+    <!-- Link to the Font Awesome library for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+
+    <!-- Link to the Google Fonts library for custom font 'Inter' -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+
     <link rel="stylesheet" href="../css/Photo.css"> <!-- Link to the external CSS file -->
+
+    <!-- Set the favicon for the browser tab -->
     <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png">
+
+    <!-- Link to the external CSS file for notifications -->
     <link rel="stylesheet" href="../css/Notification.css">
 
+    <!-- Import JavaScript modules for Firebase configuration and other functionalities -->
     <script type="module" src="../js/firebaseConfig.js"></script>
     <script type="module" src="../js/login.js"></script>
     <script type="module" src="../js/DisplayAlbums.js"></script>
     <script type="module" src="../js/Notification.js"></script>
-    
+
 </head>
+
 <body>
+    <!-- Header Section -->
     <div class="header">
+        <!-- Logo Section -->
         <div class="logo">
-            <img src="../assets/PhotoNest_Transparent.png" alt="PhotoNest" id="logo-image"> <!-- Update the source path as needed -->
-    PhotoNest
+            <!-- Display the website logo -->
+            <img src="../assets/PhotoNest_Transparent.png" alt="PhotoNest" id="logo-image">
+            <!-- Update the source path as needed -->
+            PhotoNest
         </div>
+        <!-- Search Bar Section -->
         <div class="search-bar">
+            <!-- Input field for searching albums -->
             <input type="text" id="album-search" placeholder="Search albums...">
+            <!-- Button to trigger search functionality -->
             <button id="search-button">Search</button>
         </div>
-        
+        <!-- Icons Section -->
         <div class="icons">
+            <!-- Button to create a new album -->
             <button>Create Album</button>
-<!-- Create Album Modal -->
-<div id="createAlbumModal" class="modal hidden">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Create Album</h2>
-        <form id="createAlbumForm">
-            <label for="albumTitle">Title:</label>
-            <input type="text" id="albumTitle" name="albumTitle" required>
-            <button type="submit">Create</button>
-        </form>
-    </div>
-</div>
-            
-<i class="fas fa-bell" id="notification-bell"></i>
+            <!-- Modal for creating a new album -->
+            <div id="createAlbumModal" class="modal hidden">
+                <div class="modal-content">
+                    <!-- Close button for the modal -->
+                    <span class="close">&times;</span>
+                    <!-- Title for the modal -->
+                    <h2>Create Album</h2>
+                    <!-- Form to input the album title -->
+                    <form id="createAlbumForm">
+                        <label for="albumTitle">Title:</label>
+                        <input type="text" id="albumTitle" name="albumTitle" required>
+                        <button type="submit">Create</button> <!-- Submit button -->
+                    </form>
+                </div>
+            </div>
 
+            <!-- Notification Bell Icon -->
+            <i class="fas fa-bell" id="notification-bell"></i>
+
+            <!-- Profile Section -->
             <div class="profile-container">
+                <!-- Display the user's profile image -->
                 <img src="" alt="User Profile" id="profile-image">
+                <!-- Dropdown menu for profile actions -->
                 <div class="profile-dropdown hidden">
-                    <a href="Settings.html">Settings</a>
-                    <a href="#" id="logout-button">Logout</a>
+                    <a href="Settings.html">Settings</a> <!-- Link to the settings page -->
+                    <a href="#" id="logout-button">Logout</a> <!-- Logout option -->
                 </div>
             </div>
         </div>
-        
     </div>
+    <!-- Main Content Section -->
     <div class="main-content" id="albums-container">
-        <!-- Album cards will be dynamically injected here -->
+        <!-- Placeholder where album cards will be dynamically injected -->
     </div>
+
+
+
+
 
     <!-- Edit Album Modal -->
-<div id="editAlbumModal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h3>Edit Album Title</h3>
-        <input type="text" id="editAlbumTitle" placeholder="Enter new title" required>
-        <button id="saveEdit">Save</button>
-    </div>
-</div>
-
-    
-   <!-- Footer Section -->
-   <div class="footer">
-    <div>
-        <h4>Quick Links</h4>
-        <a href="UserDashboard.html#Home">Home</a> <!-- Link to privacy policy -->
-        <a href="UserDashboard.html#Home">Explore</a>
-        <a href="Album.html">Album</a>
-        <a href="">Messages</a>
-
-    </div>
-    <div>
-        <h4>Follow Us</h4>
-        <div class="social-icons"> <!-- Social media icons -->
-            <a href="https://www.facebook.com/profile.php?id=61566861417599"><i class="fab fa-facebook-f"></i></a>
-
-            <a href="https://www.instagram.com/photonest.bh/"><i class="fab fa-instagram"></i></a>
-        </div>
-        <div class="copyright">
-            &copy; 2024 PhotoNest <!-- Copyright notice -->
+    <div id="editAlbumModal" class="modal">
+        <div class="modal-content">
+            <!-- Close button for the modal -->
+            <span class="close">&times;</span>
+            <!-- Title of the modal -->
+            <h3>Edit Album Title</h3>
+            <!-- Input field to edit album title -->
+            <input type="text" id="editAlbumTitle" placeholder="Enter new title" required>
+            <!-- Button to save changes -->
+            <button id="saveEdit">Save</button>
         </div>
     </div>
 
-    <div>
-        <h4>Legal</h4>
-        <a href="terms.html#privacy-policy">Privacy Policy</a> <!-- Link to privacy policy -->
-        <a href="terms.html#TermsAndCondition">Terms and Conditions</a> <!-- Link to terms and conditions -->
+    <!-- Share Album Modal -->
+    <div id="shareAlbumModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close" id="closeShareModal">&times;</span>
+            <h3>Share Album</h3>
+            <form id="shareAlbumForm">
+                <!-- Recipient Search Input -->
+                <label for="recipientSearch">Recipient Username:</label>
+                <input type="text" id="recipientSearch" placeholder="Enter username..." autocomplete="off" required>
+                <div id="autocomplete-results" class="autocomplete-results"></div>
+
+                <!-- Optional Message Input -->
+                <label for="shareMessage">Message (optional):</label>
+                <textarea id="shareMessage" placeholder="Add an optional message..." rows="4"></textarea>
+
+
+                <!-- Send Button -->
+                <button type="submit" id="sendShare">Send</button>
+            </form>
+        </div>
     </div>
 
 
-</div>
+
+    <!-- Footer Section -->
+    <div class="footer">
+        <!-- Quick Links Section -->
+        <div>
+            <h4>Quick Links</h4>
+            <!-- Navigation links -->
+            <a href="UserDashboard.html#Home">Home</a>
+            <a href="UserDashboard.html#explore">Explore</a>
+            <a href="Album.html">Album</a>
+            <a href="">Messages</a>
+
+        </div>
+        <!-- Follow Us Section -->
+        <div>
+            <h4>Follow Us</h4>
+            <div class="social-icons"> <!-- Social media icons -->
+                <!-- Facebook and Instagram links with respective icons -->
+                <a href="https://www.facebook.com/profile.php?id=61566861417599"><i class="fab fa-facebook-f"></i></a>
+                <a href="https://www.instagram.com/photonest.bh/"><i class="fab fa-instagram"></i></a>
+            </div>
+            <!-- Copyright Notice -->
+            <div class="copyright">
+                &copy; 2024 PhotoNest <!-- Copyright notice -->
+            </div>
+        </div>
+        <!-- Legal Links Section -->
+        <div>
+            <h4>Legal</h4>
+            <!-- Privacy policy and terms and conditions links -->
+            <a href="terms.html#privacy-policy">Privacy Policy</a> <!-- Link to privacy policy -->
+            <a href="terms.html#TermsAndCondition">Terms and Conditions</a> <!-- Link to terms and conditions -->
+        </div>
+
+
+    </div>
 </body>
+
 </html>

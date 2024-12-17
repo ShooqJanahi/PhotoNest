@@ -30,26 +30,37 @@ document.querySelector('.fa-bell').addEventListener('click', () => {
 // Fetch Photo Information by Photo ID
 async function fetchPhotoData(photoId) {
     try {
+        // Reference the photo document in the database using the photo ID
         const photoRef = doc(db, "Photos", photoId);
+
+        // Fetch the document data from Firestore
         const photoDoc = await getDoc(photoRef);
 
-
+        // Check if the document exists
         if (photoDoc.exists()) {
+
+            // Extract data from the photo document
             const photoData = photoDoc.data();
 
-            // Increment the view count
+            // Increment the view count for the photo
             incrementViewCount(photoRef, photoData.viewCount);
 
-            // Fetch user details
+            // Fetch details of the user who posted the photo
             fetchUserDetails(photoData.userId);
 
-            // Populate photo details
+            // Adding a redirection feature to the user's profile
+            addProfileRedirection(photoData.userId);
+
+            // Populate the UI with the fetched photo details
             populatePhotoDetails(photoData);
         } else {
+            //log if the photo doesn't exist
             console.error("No such photo exists!");
+            //alert the user if the photo doesn't exist
             alert("This photo doesn't exist!");
         }
     } catch (error) {
+        // Log any errors encountered during the fetch operation
         console.error("Error fetching photo data:", error);
     }
 }
@@ -59,47 +70,44 @@ async function fetchPhotoData(photoId) {
 function populatePhotoDetails(photoData) {
     // Populate the photo image
     const photoDisplay = document.getElementById("photo-display");
-    photoDisplay.src = photoData.imageUrl;
-    photoDisplay.alt = "Photo";
+    photoDisplay.src = photoData.imageUrl; // Set the image source to the photo's URL
+    photoDisplay.alt = "Photo"; // Provide a default alt text for accessibility
 
     // Populate caption
     const captionElement = document.getElementById("photo-caption");
-    captionElement.textContent = photoData.caption || "";
+    captionElement.textContent = photoData.caption || ""; // Insert the caption or an empty string if not available
 
     // Populate hashtags
     const hashtagsElement = document.getElementById("photo-hashtags");
     hashtagsElement.innerHTML = ""; // Clear any existing hashtags
     if (photoData.hashtags) {
         photoData.hashtags.forEach((hashtag, index) => {
-            const hashtagElement = document.createElement("span");
-            hashtagElement.classList.add("hashtag");
-            hashtagElement.textContent = `#${hashtag}`;
+            const hashtagElement = document.createElement("span"); // Create a <span> for each hashtag
+            hashtagElement.classList.add("hashtag"); // To add a CSS class for styling
+            hashtagElement.textContent = `#${hashtag}`; // Format the hashtag with a `#`
 
-            hashtagsElement.appendChild(hashtagElement);
+            hashtagsElement.appendChild(hashtagElement); // Append the hashtag to the container
 
             // Add a space after each hashtag except the last one
             if (index < photoData.hashtags.length - 1) {
-                const space = document.createTextNode(" ");
-                hashtagsElement.appendChild(space);
+                const space = document.createTextNode(" "); // Creating a text node for the space
+                hashtagsElement.appendChild(space); // Append the space
             }
         });
     }
 
     // Populate likes count
     const likesCountElement = document.getElementById("likes-count");
-    likesCountElement.textContent = `${photoData.likesCount || 0} Likes`;
+    likesCountElement.textContent = `${photoData.likesCount || 0} Likes`; // Insert the number of likes, default to 0
 
     // Populate location (city and country)
     const locationElement = document.getElementById("photo-location-text");
-    locationElement.textContent = `${photoData.city || "Unknown City"}, ${photoData.country || "Unknown Country"}`;
+    locationElement.textContent = `${photoData.city || "Unknown City"}, ${photoData.country || "Unknown Country"}`; // Display city and country or default text
 
     // Populate date posted
     const dateElement = document.getElementById("photo-date-text");
-    const uploadDate = new Date(photoData.uploadDate);
-    dateElement.textContent = uploadDate.toLocaleDateString();
-
-
-
+    const uploadDate = new Date(photoData.uploadDate); // Convert the upload date to a Date object
+    dateElement.textContent = uploadDate.toLocaleDateString(); // Format the date as a human-readable string
 }
 
 
@@ -116,26 +124,36 @@ async function fetchUserDetails(userId) {
         // Fetch user document data
         const userDoc = await getDoc(userRef);
 
+        // Check if the document exists in Firestore
         if (userDoc.exists()) {
+
+            // Extract the user data from the document
             const userData = userDoc.data();
 
             // Populate user details on the page
-            populateUserDetails(userData);
+            populateUserDetails(userData); // Calls a separate function to update the UI with the retrieved user details.
         } else {
+            // If no document exists for the given userId, log a warning message
             console.warn("No user data found for userId:", userId);
         }
     } catch (error) {
+        // Log any errors encountered during the Firestore operations
         console.error("Error fetching user details:", error);
     }
 }
 
 // Populate user details in the HTML
 function populateUserDetails(userData) {
+    // Get the HTML element for displaying the username
     const usernameElement = document.getElementById("photo-username");
+
+    // Get the HTML element for displaying the user's profile picture
     const profilePicElement = document.getElementById("photo-user-profile-pic");
 
-    // Update the username and profile picture
+    // If the username is available in the userData, display it; otherwise, use a default "Unknown User"
     usernameElement.textContent = userData.username || "Unknown User";
+
+    // If a profile picture URL is available in userData, use it; otherwise, fall back to a default profile icon
     profilePicElement.src = userData.profilePic || "../assets/Default_profile_icon.jpg";
 }
 
@@ -151,130 +169,145 @@ function populateUserDetails(userData) {
 // Function to fetch and display comments for the photo
 async function fetchAndDisplayComments(photoId) {
     try {
-        // Reference the Comments collection and query by photoId
+        // Reference the Comments collection in Firestore
         const commentsRef = collection(db, "Comments");
+
+        // Query to fetch comments for the given photoId, ordered by timestamp (most recent first)
         const commentsQuery = query(
-            commentsRef, 
-            where("photoId", "==", photoId),
-            orderBy("timestamp", "desc") // Order comments by timestamp in descending order
+            commentsRef,
+            where("photoId", "==", photoId), // Filter comments by photoId
+            orderBy("timestamp", "desc") // Sort by timestamp in descending order
         );
-        
+
+        // Execute the query and get a snapshot of the matching documents
         const querySnapshot = await getDocs(commentsQuery);
 
-        // Get the comments container
+        // Get the HTML container for displaying comments
         const commentsContainer = document.getElementById("comments-container");
-        commentsContainer.innerHTML = ""; // Clear existing comments
 
+        commentsContainer.innerHTML = ""; // Clear any existing comments in the container
+
+        // Check if there are any comments
         if (!querySnapshot.empty) {
+            // Loop through each document in the query snapshot
             querySnapshot.forEach((doc) => {
-                const commentData = doc.data();
+                const commentData = doc.data(); // Retrieve the comment data
                 commentData.commentId = doc.id; // Add the Firestore document ID to the commentData
-                const commentElement = createCommentElement(commentData);
-                commentsContainer.appendChild(commentElement);
+                const commentElement = createCommentElement(commentData); // Create a comment DOM element
+                commentsContainer.appendChild(commentElement); // Add the comment to the container
             });
 
         } else {
+            // Display a placeholder message if no comments are found
             commentsContainer.innerHTML = "<p>No comments yet. Be the first to comment!</p>";
         }
     } catch (error) {
+        // Log any errors encountered during the fetch process
         console.error("Error fetching comments:", error);
     }
 }
 
 // Function to create a comment element
 function createCommentElement(commentData) {
+    // Create the main container for the comment card
     const commentDiv = document.createElement("div");
-    commentDiv.classList.add("comment-card"); // Matches the provided CSS class for the card
+    commentDiv.classList.add("comment-card"); // Style the card with the CSS class
 
-    // Comment header
+    // Comment header section
     const commentHeader = document.createElement("div");
     commentHeader.classList.add("comment-header");
-    commentHeader.style.display = "flex"; // Align items horizontally
-    commentHeader.style.justifyContent = "space-between"; // Space out elements
+    commentHeader.style.display = "flex"; // Align username and dropdown horizontally
+    commentHeader.style.justifyContent = "space-between"; // Space out username and options icon
 
-    // Comment details (username and timestamp)
+    // Comment details container (for username and timestamp)
     const commentDetails = document.createElement("div");
     commentDetails.classList.add("comment-details");
 
+    // Username element
     const username = document.createElement("strong");
-    username.textContent = commentData.username || "Unknown User";
+    username.textContent = commentData.username || "Unknown User"; // Default to "Unknown User" if no username
 
+    // Timestamp element
     const timestamp = document.createElement("span");
     timestamp.classList.add("comment-time");
     const commentTimestamp = commentData.timestamp
-        ? new Date(commentData.timestamp.seconds * 1000)
-        : new Date();
-    timestamp.textContent = commentTimestamp.toLocaleString();
+        ? new Date(commentData.timestamp.seconds * 1000) // Convert Firestore timestamp to JavaScript Date
+        : new Date();  // Default to current time if no timestamp
+    timestamp.textContent = commentTimestamp.toLocaleString(); // Format as a readable date/time string
 
-    // Add username and timestamp to the details
+    // Append username and timestamp to the details container
     commentDetails.appendChild(username);
     commentDetails.appendChild(timestamp);
 
-    // Dropdown menu for comment options
+    // Dropdown container for options
     const dropdownContainer = document.createElement("div");
     dropdownContainer.classList.add("comment-options-container");
 
+    // Options icon (ellipsis)
     const optionsIcon = document.createElement("i");
     optionsIcon.classList.add("fas", "fa-ellipsis-v", "comment-options-icon"); // Font Awesome icon
-    optionsIcon.style.cursor = "pointer";
-    optionsIcon.style.marginLeft = "10px";
+    optionsIcon.style.cursor = "pointer"; // Pointer cursor for interactivity
+    optionsIcon.style.marginLeft = "10px"; // Spacing between icon and other elements
 
+    // Dropdown menu container
     const dropdownMenu = document.createElement("div");
     dropdownMenu.classList.add("dropdown-menu", "hidden"); // Initially hidden
-    dropdownMenu.style.position = "absolute";
-    dropdownMenu.style.backgroundColor = "#fff";
-    dropdownMenu.style.boxShadow = "0px 4px 6px rgba(0, 0, 0, 0.1)";
-    dropdownMenu.style.borderRadius = "5px";
-    dropdownMenu.style.padding = "5px 0";
-    dropdownMenu.style.zIndex = "10";
-    dropdownMenu.style.width = "150px";
+    dropdownMenu.style.position = "absolute"; // Positioned relative to the container
+    dropdownMenu.style.backgroundColor = "#fff"; // White background for visibility
+    dropdownMenu.style.boxShadow = "0px 4px 6px rgba(0, 0, 0, 0.1)"; // Subtle shadow for depth
+    dropdownMenu.style.borderRadius = "5px"; // Rounded corners
+    dropdownMenu.style.padding = "5px 0"; // Inner padding for dropdown items
+    dropdownMenu.style.zIndex = "10"; // Ensure the dropdown appears above other elements
+    dropdownMenu.style.width = "150px"; // Fixed width for dropdown
 
-    // Add dropdown options
+    // Dropdown options: Delete Comment
     const deleteOption = document.createElement("div");
     deleteOption.classList.add("dropdown-option");
-    deleteOption.textContent = "Delete Comment";
+    deleteOption.textContent = "Delete Comment"; // Display text
     deleteOption.onclick = () => {
         console.log("Comment ID passed to deleteComment:", commentData.commentId); // Debugging log
-        deleteComment(commentData.commentId);
+        deleteComment(commentData.commentId); // Call deleteComment function with the comment ID
     };
 
-
+    // Dropdown options: Report Comment
     const reportOption = document.createElement("div");
     reportOption.classList.add("dropdown-option");
-    reportOption.textContent = "Report Comment";
-    reportOption.onclick = () => reportComment(commentData.commentId); // Pass comment ID
+    reportOption.textContent = "Report Comment"; // Display text
+    reportOption.onclick = () => reportComment(commentData.commentId); // Call reportComment function with the comment ID
 
+    // Append options to the dropdown menu
     dropdownMenu.appendChild(deleteOption);
     dropdownMenu.appendChild(reportOption);
 
-    // Toggle dropdown menu visibility
+    // Toggle dropdown menu visibility on click
     optionsIcon.onclick = (event) => {
-        event.stopPropagation(); // Prevent event bubbling
-        dropdownMenu.classList.toggle("hidden");
+        event.stopPropagation(); // Prevent click event from propagating to the document
+        dropdownMenu.classList.toggle("hidden"); // Show/hide the dropdown menu
     };
 
-    // Hide dropdown when clicking elsewhere
+    // Hide the dropdown menu when clicking elsewhere on the document
     document.addEventListener("click", () => {
-        dropdownMenu.classList.add("hidden");
+        dropdownMenu.classList.add("hidden"); // Hide the menu
     });
 
-    // Append the dropdown menu to the container
+    // Append the dropdown icon and menu to the container
     dropdownContainer.appendChild(optionsIcon);
     dropdownContainer.appendChild(dropdownMenu);
 
-    // Append details and options to the header
+    // Add the details and dropdown to the comment header
     commentHeader.appendChild(commentDetails);
     commentHeader.appendChild(dropdownContainer);
 
     // Comment text
     const commentText = document.createElement("p");
     commentText.classList.add("comment-text");
-    commentText.textContent = commentData.commentText;
+    commentText.textContent = commentData.commentText; // Display the comment's text
 
-    // Append header and text to the comment card
+    // Append header and text to the main comment card
     commentDiv.appendChild(commentHeader);
     commentDiv.appendChild(commentText);
 
+    // Return the constructed comment element
     return commentDiv;
 }
 
@@ -283,80 +316,81 @@ function createCommentElement(commentData) {
 // Function to handle adding a new comment
 async function addComment(photoId, userId, username, commentText, photoData) {
     try {
-
+        // Ensure valid photo data and non-empty comment
         if (!photoData || !photoData.userId) {
             console.error("Invalid photoData or missing userId:", photoData);
             alert("Unable to add comment due to missing photo details.");
             return;
         }
-        
+
         if (!commentText.trim()) {
-            alert("Comment cannot be empty.");
+            alert("Comment cannot be empty."); // Prevent adding empty comments
             return;
         }
-
+        // Reference the Comments collection
         const commentsRef = collection(db, "Comments");
 
-        // Add the new comment to the Comments collection
+        // Add the new comment to the Comments collection in firestore
         const newComment = await addDoc(commentsRef, {
-            photoId: photoId,
-            userId: userId,
-            username: username,
-            commentText: commentText.trim(),
-            timestamp: serverTimestamp(), // Use server timestamp
+            photoId: photoId, // ID of the photo being commented on
+            userId: userId, // ID of the user adding the comment
+            username: username, // Username of the commenter
+            commentText: commentText.trim(), // Cleaned-up comment text
+            timestamp: serverTimestamp(), // Firestore server timestamp
         });
-
         // Increment the comment count in the Photos collection
         const photoRef = doc(db, "Photos", photoId);
         await updateDoc(photoRef, {
-            commentsCount: increment(1),
+            commentsCount: increment(1), // Increment the comment count atomically
         });
-
         // Send a notification to the photo owner
         await sendNotification(
             photoData.userId,   // Receiver: Photo owner
             userId,             // Sender: Current user
-            "Comment",          // Category: Comment
-            photoId             // Photo ID
+            "Comment",          // Notification category
+            photoId             // Reference to the photo
         );
-
-        // Log the comment action
+        // Log the user's activity
         await logActivity(userId, photoId, "commented", `Comment ID: ${newComment.id}`);
 
-        // Clear the input field and refresh the comments section
+        // Clear the input field for better UX
         document.getElementById("comment-input").value = "";
-        fetchAndDisplayComments(photoId); // Refresh comments section
+
+        // Refresh the comments section to show the new comment
+        fetchAndDisplayComments(photoId);
         console.log("Comment added successfully.");
     } catch (error) {
-        console.error("Error adding comment:", error);
+        console.error("Error adding comment:", error); // Log errors for debugging
     }
 }
 
 
-// Add event listener for submitting a comment
+// Added event listener for submitting a comment
 document.getElementById("submit-comment").addEventListener("click", async () => {
+    // Fetch photo ID from localStorage and current user from sessionStorage
     const photoId = localStorage.getItem("photoId");
     const currentUser = JSON.parse(sessionStorage.getItem("user"));
 
     if (!photoId || !currentUser) {
-        alert("Error: Missing photo ID or user data.");
+        alert("Error: Missing photo ID or user data."); // Alert if required data is missing
+
         return;
     }
 
-    // Fetch photo data
+    // Fetch photo data from Firestore
     const photoRef = doc(db, "Photos", photoId);
     const photoDoc = await getDoc(photoRef);
 
     if (!photoDoc.exists()) {
-        console.error("Photo not found!");
+        console.error("Photo not found!"); // Log if the photo doesn't exist
         alert("Photo not found. Cannot add comment.");
         return;
     }
 
-    const photoData = photoDoc.data(); // Extract the photo data
-    const commentText = document.getElementById("comment-input").value;
+    const photoData = photoDoc.data(); // Extract the photo details
+    const commentText = document.getElementById("comment-input").value; // Get comment text
 
-    // Pass `photoData` to `addComment`
+    // Pass data to `addComment` function
     await addComment(photoId, currentUser.uid, currentUser.username, commentText, photoData);
 });
 
@@ -371,11 +405,14 @@ document.getElementById("submit-comment").addEventListener("click", async () => 
 
 async function incrementViewCount(photoRef, currentViewCount) {
     try {
+        // Update the 'viewCount' field in the Photos Firestore collection
         await updateDoc(photoRef, {
             viewCount: increment(1), // Increment viewCount by 1
         });
+        // Log a success message to the console
         console.log("View count incremented successfully");
     } catch (error) {
+        // Log an error message to the console if the operation fails
         console.error("Error incrementing view count:", error);
     }
 }
@@ -393,20 +430,20 @@ async function incrementViewCount(photoRef, currentViewCount) {
 //=============== Likes ================
 
 async function initializeLikeButton(photoId) {
-    const currentUser = JSON.parse(sessionStorage.getItem("user")); // Parse the user object
+    const currentUser = JSON.parse(sessionStorage.getItem("user")); // Retrieve logged-in user details
 
     if (!currentUser || !currentUser.uid) {
         console.error("Error: User ID not found in sessionStorage.");
         alert("Please log in to like photos.");
-        return;
+        return; // Exit if user is not logged in
     }
 
-
+    // Reference the like icon and likes count elements in the DOM
     const likeIcon = document.getElementById("like-icon");
     const likesCountElement = document.getElementById("likes-count");
-    const photoRef = doc(db, "Photos", photoId);
+    const photoRef = doc(db, "Photos", photoId); // Reference to the photo document
 
-    // Check if the user has already liked the photo
+    // Query to check if the current user has already liked the photo
     const userLikeRef = collection(db, "Likes");
     const userLikeQuery = query(
         userLikeRef,
@@ -414,38 +451,38 @@ async function initializeLikeButton(photoId) {
         where("userId", "==", currentUser.uid)
     );
 
-    let userLikeSnapshot = await getDocs(userLikeQuery);
-    let hasLiked = !userLikeSnapshot.empty; // True if the user has already liked the photo
+    let userLikeSnapshot = await getDocs(userLikeQuery); // Fetch user's like state
+    let hasLiked = !userLikeSnapshot.empty; /// Determine if the user has liked the photo
 
-    // Update the like button color and likes count
+    // Update the like button color based on like state
     likeIcon.style.color = hasLiked ? "red" : "gray"; // Red if liked, gray if not
 
-    // Fetch the current likes count from Firestore
+    // Fetch the current likes count and display it
     const photoDoc = await getDoc(photoRef);
     if (photoDoc.exists()) {
         const photoData = photoDoc.data();
         likesCountElement.textContent = `${photoData.likesCount || 0} Likes`;
     }
 
-    // Attach click event to toggle like functionality
+    // Attach click event to toggle the like
     likeIcon.onclick = async () => {
         try {
             if (hasLiked) {
-                // Remove like
+                // Unlike the photo
                 if (!userLikeSnapshot.empty) {
                     await removeLike(photoId, currentUser, photoRef, userLikeSnapshot.docs[0]);
                     console.log("Photo unliked.");
                 }
             } else {
-                // Add like
+                // Like the photo
                 await addLike(photoId, currentUser, photoRef);
                 console.log("Photo liked.");
             }
 
-            // Refresh state dynamically after updating Firestore
-            userLikeSnapshot = await getDocs(userLikeQuery);
+            // Refresh the like state dynamically
+            userLikeSnapshot = await getDocs(userLikeQuery); // Re-fetch like state
             hasLiked = !userLikeSnapshot.empty; // Update the hasLiked state
-            await updateLikeUI(photoId, currentUser, likeIcon, likesCountElement);
+            await updateLikeUI(photoId, currentUser, likeIcon, likesCountElement); // Refresh the UI
         } catch (error) {
             console.error("Error toggling like:", error);
         }
@@ -455,7 +492,7 @@ async function initializeLikeButton(photoId) {
 
 async function addLike(photoId, currentUser, photoRef) {
     try {
-        // Fetch the photo data to get the owner's userId
+        // Fetch photo data for the owner ID
         const photoDoc = await getDoc(photoRef);
         if (!photoDoc.exists()) {
             console.error("Photo not found!");
@@ -464,13 +501,12 @@ async function addLike(photoId, currentUser, photoRef) {
         }
         const photoData = photoDoc.data(); // Get photo data from Firestore
 
-
-        // Add the like to the Likes collection
+        // Add a new like to the Likes collection
         const likesRef = collection(db, "Likes");
         await addDoc(likesRef, {
             photoId: photoId,
             userId: currentUser.uid,
-            timestamp: new Date().toISOString(),
+            timestamp: new Date().toISOString(), // Store the like timestamp
         });
 
         // Increment the like count in the Photos collection
@@ -478,6 +514,7 @@ async function addLike(photoId, currentUser, photoRef) {
             likesCount: increment(1),
         });
 
+        // Send a notification to the photo owner
         await sendNotification(
             photoData.userId,           // Receiver: Photo owner
             currentUser.uid,            // Sender: Current user
@@ -487,7 +524,7 @@ async function addLike(photoId, currentUser, photoRef) {
         );
 
 
-        // Log the like action
+        // Log the activity
         await logActivity(currentUser.uid, photoId, "liked_photo");
 
         console.log("Photo liked successfully.");
@@ -498,7 +535,7 @@ async function addLike(photoId, currentUser, photoRef) {
 
 async function removeLike(photoId, currentUser, photoRef, likeDoc) {
     try {
-        // Remove the like from the Likes collection
+        // Delete the like document from the Likes collection
         await deleteDoc(likeDoc.ref);
 
         // Decrement the like count in the Photos collection
@@ -509,7 +546,7 @@ async function removeLike(photoId, currentUser, photoRef, likeDoc) {
         // Delete the notification for this like
         await deleteNotification(currentUser.uid, photoId, "Like");
 
-        // Log the remove action
+         // Log the remove like activity
         await logActivity(currentUser.uid, photoId, "removed_like");
 
         console.log("Photo unliked successfully.");
@@ -682,105 +719,112 @@ function handleDropdownAction(actionId) {
 
 
 
-//============== Create popup to call for  different sections ======
-
+//============== general popup to call for  different sections ======
 function createViewImagePopup(content, title = "Popup", onCloseCallback = null) {
     // Check if a popup already exists to prevent duplicates
     let existingPopup = document.getElementById("view-image-popup");
     if (existingPopup) {
-        existingPopup.remove(); // Clean up previous popup if any
+        existingPopup.remove(); // Clean up the previous popup if it exists
     }
 
-    // Create the popup container
+    // Creating the popup overlay (background)
     const popupOverlay = document.createElement("div");
-    popupOverlay.id = "view-image-popup";
-    popupOverlay.style.position = "fixed";
-    popupOverlay.style.top = "0";
-    popupOverlay.style.left = "0";
-    popupOverlay.style.width = "100%";
-    popupOverlay.style.height = "100%";
-    popupOverlay.style.backgroundColor = "rgba(0, 0, 0, 0.6)";
-    popupOverlay.style.zIndex = "1000";
-    popupOverlay.style.display = "flex";
-    popupOverlay.style.alignItems = "center";
-    popupOverlay.style.justifyContent = "center";
+    popupOverlay.id = "view-image-popup"; // Assign a unique ID to the popup
+    popupOverlay.style.position = "fixed"; // Keeps the popup overlay in a fixed position
+    popupOverlay.style.top = "0"; // Aligns the top edge to the viewport
+    popupOverlay.style.left = "0"; // Aligns the left edge to the viewport
+    popupOverlay.style.width = "100%"; // Covers the entire viewport horizontally
+    popupOverlay.style.height = "100%"; // Covers the entire viewport vertically
+    popupOverlay.style.backgroundColor = "rgba(0, 0, 0, 0.6)"; // Semi-transparent dark background for focus
+    popupOverlay.style.zIndex = "1000"; // Ensures the popup is above other elements
+    popupOverlay.style.display = "flex"; // Centers the popup content using flexbox
+    popupOverlay.style.alignItems = "center"; // Vertically centers the content
+    popupOverlay.style.justifyContent = "center"; // Horizontally centers the content
 
-    // Prevent popup from closing when clicking on the overlay
+    // Prevent popup from closing when clicking inside the popup itself
     popupOverlay.addEventListener("click", (event) => {
-        event.stopPropagation(); // Stop event bubbling
+        event.stopPropagation(); // Prevents the click event from bubbling up to the overlay
     });
 
-    // Create the popup content container
+    // Creating the popup content container
     const popupContent = document.createElement("div");
-    popupContent.style.backgroundColor = "#fff";
-    popupContent.style.borderRadius = "10px";
-    popupContent.style.padding = "20px";
-    popupContent.style.width = "90%";
-    popupContent.style.maxWidth = "500px";
-    popupContent.style.boxShadow = "0 5px 15px rgba(0, 0, 0, 0.3)";
-    popupContent.style.position = "relative";
-    popupContent.style.textAlign = "center"; // Center-align content
+    popupContent.style.backgroundColor = "#fff"; // White background for the popup
+    popupContent.style.borderRadius = "10px"; // Rounded corners for a modern look
+    popupContent.style.padding = "20px"; // Padding for content spacing
+    popupContent.style.width = "90%"; // Responsive width for smaller screens
+    popupContent.style.maxWidth = "500px"; // Limits the maximum width for larger screens
+    popupContent.style.boxShadow = "0 5px 15px rgba(0, 0, 0, 0.3)"; // Adds depth with shadow
+    popupContent.style.position = "relative"; // Ensures close button is positioned relative to the content
+    popupContent.style.textAlign = "center"; // Center-aligns all text inside the popup
 
-    // Add title
+    // Add title to the popup
     const popupTitle = document.createElement("h2");
-    popupTitle.textContent = title;
-    popupTitle.style.marginTop = "0";
-    popupTitle.style.fontSize = "1.5rem";
-    popupTitle.style.fontWeight = "600";
-    popupTitle.style.color = "#333";
-    popupContent.appendChild(popupTitle);
+    popupTitle.textContent = title; // Sets the title text
+    popupTitle.style.marginTop = "0"; // Removes default margin for the title
+    popupTitle.style.fontSize = "1.5rem"; // Adjusts font size for emphasis
+    popupTitle.style.fontWeight = "600"; // Makes the title bold
+    popupTitle.style.color = "#333"; // Darker text color for readability
+    popupContent.appendChild(popupTitle); // Add the title to the popup content
 
-    // Add the content
+    // Add the main content to the popup
     const popupBody = document.createElement("div");
-    popupBody.innerHTML = content;
-    popupBody.style.marginTop = "15px";
-    popupBody.style.color = "#555";
-    popupBody.style.fontSize = "1rem";
-    popupContent.appendChild(popupBody);
+    popupBody.innerHTML = content; // Injects the provided content as HTML
+    popupBody.style.marginTop = "15px"; // Adds space between the title and the content
+    popupBody.style.color = "#555"; // Subtle text color for body content
+    popupBody.style.fontSize = "1rem"; // Standard font size for readability
+    popupContent.appendChild(popupBody); // Add the body to the popup content
 
-    // Add close button
+    // Create and style the close button
     const closeButton = document.createElement("button");
-    closeButton.textContent = "Close";
-    closeButton.style.position = "absolute";
-    closeButton.style.top = "10px";
-    closeButton.style.right = "10px";
-    closeButton.style.backgroundColor = "#e74c3c";
-    closeButton.style.color = "#fff";
-    closeButton.style.border = "none";
-    closeButton.style.borderRadius = "5px";
-    closeButton.style.padding = "5px 10px";
-    closeButton.style.cursor = "pointer";
-    closeButton.style.fontSize = "0.9rem";
+    closeButton.textContent = "Close"; // Button label
+    closeButton.style.position = "absolute"; // Positions the button inside the popup
+    closeButton.style.top = "10px";  // Distance from the top of the popup
+    closeButton.style.right = "10px"; // Distance from the right edge
+    closeButton.style.backgroundColor = "#e74c3c"; // Red background for the close button
+    closeButton.style.color = "#fff"; // White text color for contrast
+    closeButton.style.border = "none"; // Removes default button border
+    closeButton.style.borderRadius = "5px"; // Smooth corners
+    closeButton.style.padding = "5px 10px"; // Adds padding for better appearance
+    closeButton.style.cursor = "pointer"; // Changes cursor to pointer for interactivity
+    closeButton.style.fontSize = "0.9rem"; // Slightly smaller font for the button text
 
+    // Close button functionality
     closeButton.addEventListener("click", () => {
-        popupOverlay.remove(); // Remove the popup
+        popupOverlay.remove(); // Removes the popup from the DOM
         if (onCloseCallback) {
-            onCloseCallback(); // Execute the callback if provided
+            onCloseCallback(); // Executes the callback if provided
         }
     });
 
-    popupContent.appendChild(closeButton);
+    popupContent.appendChild(closeButton); // Add the close button to the popup content
 
-    // Append popup content to the overlay
+    // Append the popup content to the overlay
     popupOverlay.appendChild(popupContent);
 
-    // Append the overlay to the body
+    // Append the overlay to the document body
     document.body.appendChild(popupOverlay);
 
-    // Focus trap for accessibility
-    popupContent.tabIndex = -1;
-    popupContent.focus();
+    // Accessibility: Focus trap
+    popupContent.tabIndex = -1; // Makes the popup content focusable
+    popupContent.focus(); // Automatically focuses on the popup for accessibility
 }
 
 
 
 // Function to handle editing photo
 function createEditPhotoPopup(photoId, currentCaption, currentHashtags) {
-    
+    // Generate the popup form with the current caption and hashtags pre-filled
     const popupContent = `
       <form id="edit-photo-form">
+
+        <!-- Caption Input -->
         <label for="edit-caption">Caption:</label>
-        <textarea id="edit-caption" style="width: 100%; height: 60px; margin-bottom: 10px;">${currentCaption}</textarea>
+        <textarea 
+        id="edit-caption" 
+        style="width: 100%; height: 60px; margin-bottom: 10px;">
+        ${currentCaption}</textarea>
+        
+        <!-- Hashtags Input -->
         <label for="edit-hashtags">Hashtags (comma-separated):</label>
         <input 
           type="text" 
@@ -788,55 +832,72 @@ function createEditPhotoPopup(photoId, currentCaption, currentHashtags) {
           style="width: 100%; margin-bottom: 20px;" 
           value="${currentHashtags.join(', ')}"
         />
-        <button type="button" id="save-edits-btn" style="background-color: #4CAF50; color: #fff; border: none; border-radius: 5px; padding: 10px 20px; cursor: pointer;">Save</button>
+
+        <!-- Save Button -->
+        <button
+         type="button" 
+         id="save-edits-btn" 
+         style="background-color: #4CAF50; color: #fff; border: none; border-radius: 5px; padding: 10px 20px; cursor: pointer;">
+         Save</button>
       </form>
     `;
 
+    // Creating and display the popup using the reusable createViewImagePopup function
     createViewImagePopup(popupContent, "Edit Photo");
 
-    // Handle Save button click
+    // Adding event listener to handle Save button click
     document.getElementById("save-edits-btn").addEventListener("click", async () => {
-        const newCaption = document.getElementById("edit-caption").value.trim();
+        // Retrieve the updated caption and hashtags from the form
+        const newCaption = document.getElementById("edit-caption").value.trim(); // Remove unnecessary whitespace
         const newHashtags = document.getElementById("edit-hashtags").value
-            .split(",")
-            .map(tag => tag.trim().toLowerCase()) // Normalize hashtags
-            .filter(tag => tag.length > 0); // Remove empty tags
+            .split(",") // Split input by commas
+            .map(tag => tag.trim().toLowerCase()) // Normalize hashtags: trim whitespace and convert to lowercase
+            .filter(tag => tag.length > 0); // Remove empty or invalid hashtags
 
-        // Ask for confirmation
+        // Confirm the user's intention to save changes
         const confirmation = confirm("Are you sure you want to save these changes?");
         if (confirmation) {
             try {
+                // Reference the photo document in Firestore
                 const photoRef = doc(db, "Photos", photoId);
+
+                // Fetch the photo document from Firestore
                 const photoDoc = await getDoc(photoRef);
 
+                // Check if the photo exists
                 if (photoDoc.exists()) {
-                    const photoData = photoDoc.data();
-                    const oldHashtags = photoData.hashtags || [];
+                    const photoData = photoDoc.data(); // Extract the photo data
+                    const oldHashtags = photoData.hashtags || []; // Retrieve the current hashtags or default to an empty array
 
-                     // Decrement counts for old hashtags
-                     const hashtagsToRemove = oldHashtags.filter(tag => !newHashtags.includes(tag));
-                     for (const hashtag of hashtagsToRemove) {
-                         await reduceHashtagCount(hashtag);
-                     }
+                    // Determine hashtags to remove (present in oldHashtags but not in newHashtags)
+                    const hashtagsToRemove = oldHashtags.filter(tag => !newHashtags.includes(tag));
+                    for (const hashtag of hashtagsToRemove) {
+                        await reduceHashtagCount(hashtag); // Decrement the count for removed hashtags
+                    }
+
+                    // Update the Firestore document with new caption and hashtags
+                    await updateDoc(photoRef, {
+                        caption: newCaption,
+                        hashtags: newHashtags,
+                    });
+
+                    // Determine hashtags to add (present in newHashtags but not in oldHashtags)
+                    const hashtagsToAdd = newHashtags.filter(tag => !oldHashtags.includes(tag));
+                    await processHashtags(hashtagsToAdd); // Increment the count for new hashtags
+
+                    // Notify the user of success and close the popup
+                    alert("Photo updated successfully!");
+                    document.getElementById("view-image-popup").remove(); // Close popup
 
 
-                await updateDoc(photoRef, {
-                    caption: newCaption,
-                    hashtags: newHashtags,
-                });
-
-                 // Increment counts for new hashtags
-                 const hashtagsToAdd = newHashtags.filter(tag => !oldHashtags.includes(tag));
-                 await processHashtags(hashtagsToAdd);
-
-                alert("Photo updated successfully!");
-                document.getElementById("view-image-popup").remove(); // Close popup
-                fetchPhotoData(photoId); // Refresh photo details on the page
-            } else {
-                console.error("Photo does not exist.");
-                alert("Photo not found.");
-            }
+                    fetchPhotoData(photoId); // Refresh photo details on the page
+                } else {
+                    // If the photo doesn't exist, log an error and notify the user
+                    console.error("Photo does not exist.");
+                    alert("Photo not found.");
+                }
             } catch (error) {
+                // Handle any errors that occur during the update
                 console.error("Error updating photo:", error);
                 alert("Failed to update the photo. Please try again.");
             }
@@ -901,26 +962,38 @@ async function deletePhoto(photoId) {
 // Function to decrement hashtag photoCount or remove the hashtag if the count reaches 0
 async function reduceHashtagCount(hashtag) {
     try {
-        // Query the database for the hashtag in the "hashtag" field
+        // Reference to the "Hashtag" collection in Firestore
         const hashtagRef = collection(db, "Hashtag");
+
+        // Query to find the document where the "hashtag" field matches the given hashtag
         const hashtagQuery = query(hashtagRef, where("hashtag", "==", hashtag));
+
+        // Execute the query and get the matching documents
         const querySnapshot = await getDocs(hashtagQuery);
 
+        // Iterate through the matching documents (should typically be only one)
         querySnapshot.forEach(async (docSnapshot) => {
+
+            // Get the document reference for the specific hashtag
             const hashtagDocRef = doc(db, "Hashtag", docSnapshot.id);
+
+            // Extract the data from the document
             const hashtagData = docSnapshot.data();
 
+            // Check if the photoCount is greater than 1
             if (hashtagData.photoCount > 1) {
-                // Decrement photoCount if it's greater than 1
+
+                // Decrement the photoCount field by 1
                 await updateDoc(hashtagDocRef, { photoCount: increment(-1) });
                 console.log(`Decremented photoCount for hashtag: ${hashtag}`);
             } else {
-                // Remove the hashtag document if photoCount becomes 0
+                // If photoCount is 1 or less, delete the hashtag document
                 await deleteDoc(hashtagDocRef);
                 console.log(`Deleted hashtag: ${hashtag} (no photos remaining)`);
             }
         });
     } catch (error) {
+        // Log any errors encountered during the process
         console.error("Error reducing hashtag count:", error);
     }
 }
@@ -953,35 +1026,45 @@ async function deletePhotoReferences(photoId) {
 //This function will copy the photo's document from the Photos collection to the VaultPhoto collection and then delete it from the Photos collection.
 async function moveToVault(photoId) {
     try {
+         // Reference to the photo document in the Photos collection
         const photoRef = doc(db, "Photos", photoId);
         const photoDoc = await getDoc(photoRef);
 
+        // Ensure the photo exists
         if (!photoDoc.exists()) {
             console.error(`Photo with ID ${photoId} does not exist.`);
             alert("Photo not found. Please try again.");
             return;
         }
+
         console.log("Photo document fetched successfully.");
 
-        const photoData = photoDoc.data();
+        // Extract photo data
+        const photoData = photoDoc.data(); 
         console.log("Photo data:", photoData);
 
-        const vaultPhotoRef = doc(db, "VaultPhoto", photoId);
+        // Reference to the VaultPhoto collection
+        const vaultPhotoRef = doc(db, "VaultPhoto", photoId); // Target document in VaultPhoto collection
         console.log("Attempting to add photo to VaultPhoto collection...");
-        await setDoc(vaultPhotoRef, photoData);
+
+         // Copy the photo data to the VaultPhoto collection
+        await setDoc(vaultPhotoRef, photoData); 
         console.log("Photo added to VaultPhoto collection successfully.");
 
-        await deleteDoc(photoRef);
+        // Delete the photo from the Photos collection
+        await deleteDoc(photoRef); 
         console.log("Photo deleted from Photos collection successfully.");
 
+        // Notify the user of success
         alert("Photo moved to the vault successfully!");
 
-        // Log the delete action
+        // Log the activity of moving the photo to the vault
         await logActivity(sessionStorage.getItem("userId"), photoId, "move_to_vault");
 
-        // Redirect to UserDashboard.html
+        // Redirect to the user dashboard
         window.location.href = "UserDashboard.html";
     } catch (error) {
+        // Handle errors
         console.error("Error moving photo to the vault:", error);
         alert("Failed to move the photo to the vault. Please try again.");
     }
@@ -997,9 +1080,6 @@ async function createMoveToAlbumPopup() {
         alert("Error: Photo ID is missing.");
         return;
     }
-
-
-
 
     const currentUser = JSON.parse(sessionStorage.getItem("user")); // Parse the stored user object
 
@@ -1062,7 +1142,7 @@ async function createMoveToAlbumPopup() {
 
         createViewImagePopup(popupContent, "Move to Album");
 
-        // Add event listener for search
+         // Search functionality
         document.getElementById("album-search").addEventListener("input", (e) => {
             const searchQuery = e.target.value.toLowerCase();
             const albumOptions = document.querySelectorAll(".album-option");
@@ -1077,12 +1157,12 @@ async function createMoveToAlbumPopup() {
             });
         });
 
-        // Add event listener for the Create Album button
+        //event listener for the Create Album button
         document.getElementById("create-new-album-btn").addEventListener("click", () => {
             createNewAlbumPopup(photoId); // Pass photoId in case you want to add it immediately to the new album
         });
 
-        // Add event listeners for Add/Remove buttons
+        // Add/Remove photo buttons functionality
         document.querySelectorAll(".add-to-album-btn").forEach((button) => {
             button.addEventListener("click", async (e) => {
                 const albumId = button.getAttribute("data-album-id");
@@ -1114,8 +1194,6 @@ async function createMoveToAlbumPopup() {
         alert("Failed to load albums. Please try again.");
     }
 }
-
-
 
 
 // Function to create a new album
@@ -1152,8 +1230,6 @@ async function createNewAlbumPopup() {
             return;
         }
 
-
-
         try {
             const newAlbumRef = await addDoc(collection(db, "Albums"), {
                 name: albumName,
@@ -1182,7 +1258,6 @@ async function addPhotoToAlbum(albumId, photoId) {
         alert("Error: Photo ID is invalid.");
         return;
     }
-
 
     try {
         const albumRef = doc(db, "Albums", albumId);
@@ -1217,7 +1292,6 @@ async function addPhotoToAlbum(albumId, photoId) {
 
             );
 
-
             console.log(`Photo ${photoId} added to album ${albumId}`);
             alert("Photo added to album successfully!");
         } else {
@@ -1229,9 +1303,6 @@ async function addPhotoToAlbum(albumId, photoId) {
         alert("Failed to add photo to album. Please try again.");
     }
 }
-
-
-
 
 // Function to remove a photo from an album
 async function removePhotoFromAlbum(albumId, photoId) {
@@ -1278,7 +1349,6 @@ async function createReportPhotoPopup(photoId) {
         alert("Please log in to report this photo.");
         return;
     }
-
     try {
         // Fetch the photo data to get owner information
         const photoRef = doc(db, "Photos", photoId);
@@ -1289,7 +1359,6 @@ async function createReportPhotoPopup(photoId) {
             alert("Photo not found. Cannot report.");
             return;
         }
-
         const photoData = photoDoc.data();
         const photoOwnerId = photoData.userId;
         const photoOwnerUsername = photoData.username || "Unknown";
@@ -1311,14 +1380,12 @@ async function createReportPhotoPopup(photoId) {
                 </button>
             </form>
         `;
-
         createViewImagePopup(popupContent, "Report Photo");
 
         // Handle form submission
         document.getElementById("report-photo-form").addEventListener("submit", async (e) => {
             e.preventDefault();
             const reason = document.getElementById("report-reason").value.trim();
-
 
             if (!reason) {
                 alert("Please provide a reason for reporting.");
@@ -1327,20 +1394,20 @@ async function createReportPhotoPopup(photoId) {
 
 
             try {
-                const reportsRef = collection(db, "Reports");
-                const reportData = {
+                // Add report document to "Reports" collection
+                await addDoc(collection(db, "Reports"), {
                     category: "Photo",
                     messageId: photoId,
                     reason: reason,
                     reportedBy: userId,
                     reportedAt: serverTimestamp(),
-                    status: "Pending Review",
                     ownerId: photoOwnerId,
                     ownerUsername: photoOwnerUsername,
-                };
+                    status: "Pending Review",
+                });
 
-                await addDoc(reportsRef, reportData); // Submit the report
-                console.log("Report submitted successfully:", reportData);
+                
+                console.log("Report submitted successfully");
 
                 alert("Report submitted successfully.");
 
@@ -1371,79 +1438,106 @@ async function createReportPhotoPopup(photoId) {
 
 
 //================= Comment dropdown oprtions ==================
+// Function to delete a comment
 async function deleteComment(commentId) {
     try {
-        console.log("Deleting comment with ID:", commentId); // Debugging log
+        console.log("Deleting comment with ID:", commentId); // Debug log to show the comment ID being deleted
+        
+        // Validate if the comment ID is provided
         if (!commentId) {
-            throw new Error("Comment ID is missing.");
+            throw new Error("Comment ID is missing."); // Throw an error if no comment ID is provided
         }
 
-        // Get the photo ID from local storage
+        // Get the photo ID associated with the comment from localStorage
         const photoId = localStorage.getItem("photoId");
         if (!photoId) {
-            throw new Error("Photo ID is missing.");
+            throw new Error("Photo ID is missing."); // Throw an error if no photo ID is found
         }
 
-        // Reference the specific comment and delete it
-        const commentRef = doc(db, "Comments", commentId);
-        await deleteDoc(commentRef); // Delete the comment from Firestore
-        console.log("Comment deleted successfully!");
-
-        // Decrement the commentsCount in the Photos collection
-        const photoRef = doc(db, "Photos", photoId);
-        await updateDoc(photoRef, {
-            commentsCount: increment(-1), // Decrement by 1
-        });
-        console.log("Comments count decremented successfully!");
-
-        // Delete the notification for this comment
-        await deleteNotification(commentData.userId, photoId, "Comment");
-
-        // Log the delete action
-        await logActivity(sessionStorage.getItem("userId"), photoId, "deleted_comment");
-
-        // Refresh the comments section
-        fetchAndDisplayComments(photoId);
-
-        alert("Comment deleted successfully!");
-    } catch (error) {
-        console.error("Error deleting comment:", error);
-        alert("Failed to delete the comment. Please try again.");
-    }
-}
-
-
-
-async function reportComment(commentId) {
-    if (!commentId) {
-        console.error("Comment ID is missing.");
-        alert("Cannot report comment. Please try again.");
-        return;
-    }
-
-    const currentUser = JSON.parse(sessionStorage.getItem("user"));
-    if (!currentUser || !currentUser.uid) {
-        console.error("User is not logged in.");
-        alert("Please log in to report comments.");
-        return;
-    }
-
-    try {
-        // Fetch comment data to get details of the comment's creator
+        // Reference the specific comment document in Firestore
         const commentRef = doc(db, "Comments", commentId);
         const commentDoc = await getDoc(commentRef);
 
         if (!commentDoc.exists()) {
-            console.error("Comment not found.");
-            alert("Comment not found. Please try again.");
-            return;
+            throw new Error("Comment not found.");
         }
 
-        const commentData = commentDoc.data();
-        const commentOwnerId = commentData.userId;
-        const commentOwnerUsername = commentData.username || "Unknown User";
+        const commentData = commentDoc.data(); // Extract comment data
 
-        // Create popup content
+        await deleteDoc(commentRef); // Delete the comment from Firestore
+        console.log("Comment deleted successfully!"); // Log success message
+
+        // Reference the photo document in Firestore to update the comment count
+        const photoRef = doc(db, "Photos", photoId);
+        await updateDoc(photoRef, {
+            commentsCount: increment(-1), // Decrement the `commentsCount` field by 1
+        });
+        console.log("Comments count decremented successfully!"); // Log success message for decrement
+
+        // Delete the notification related to this comment
+        await deleteNotification(commentData.userId, photoId, "Comment"); 
+
+         // Log the delete action for tracking purposes
+        await logActivity(sessionStorage.getItem("userId"), photoId, "deleted_comment");
+
+        // Refresh the comments section to reflect the deletion
+        fetchAndDisplayComments(photoId);
+
+        // Notify the user of successful deletion
+        alert("Comment deleted successfully!");
+    } catch (error) {
+        console.error("Error deleting comment:", error); // Log any errors encountered during the process
+        alert("Failed to delete the comment. Please try again."); // Notify the user of the error
+    }
+}
+
+
+// Function to report a comment
+async function reportComment(commentId) {
+    // Check if a valid comment ID is provided
+    console.log("Received commentId:", commentId);
+    if (!commentId) {
+        console.error("Comment ID is missing."); // Log error for debugging
+        alert("Cannot report comment. Please try again."); // Notify user
+        return; // Exit the function
+    }
+
+    const photoId = localStorage.getItem("photoId"); // Fetch photoId from local storage
+    console.log("Retrieved photoId:", photoId);
+    if (!photoId) {
+        console.error("Photo ID is missing.");
+        alert("Cannot report the comment. Photo ID is missing.");
+        return;
+    }
+
+    // Retrieve the current user's information from session storage
+    const currentUser = JSON.parse(sessionStorage.getItem("user"));
+    if (!currentUser || !currentUser.uid) {
+        console.error("User is not logged in."); // Log error for debugging
+        alert("Please log in to report comments."); // Notify user to log in
+        return; // Exit the function
+    }
+    try {
+        // Fetch the comment document from the "Comments" collection in Firestore
+        console.log("Fetching comment data...");
+        const commentRef = doc(db, "Comments", commentId);
+        const commentDoc = await getDoc(commentRef);
+
+        // Check if the comment exists in the database
+        if (!commentDoc.exists()) {
+            console.error("Comment not found."); // Log error if comment is missing
+            alert("Comment not found. Please try again."); // Notify user
+            return;  // Exit the function
+        }
+
+        console.log("Comment data fetched successfully.");
+        
+        // Extract the comment's data
+        const commentData = commentDoc.data();
+        const commentOwnerId = commentData.userId; // ID of the comment's creator
+        const commentOwnerUsername = commentData.username || "Unknown User"; // Username of the comment's creator
+
+        // Define the popup's HTML content for reporting the comment
         const popupContent = `
             <form id="report-comment-form">
                 <label for="report-reason">Reason for reporting this comment:</label>
@@ -1461,49 +1555,53 @@ async function reportComment(commentId) {
             </form>
         `;
 
+        // Display the popup with the provided content
         createViewImagePopup(popupContent, "Report Comment");
 
-        // Handle form submission
+        // Add an event listener to handle the form submission
         document.getElementById("report-comment-form").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const reason = document.getElementById("report-reason").value.trim();
+            console.log("Report form submitted"); // Debugging log to confirm event is firing
+            e.preventDefault(); // Prevent the default form submission behavior
+            
+            const reason = document.getElementById("report-reason").value.trim(); // Retrieve the report reason
 
+            // Check if the reason field is not empty
             if (!reason) {
-                alert("Please provide a reason for reporting.");
-                return;
+                alert("Please provide a reason for reporting."); // Notify user
+                return; // Exit the function
             }
 
             try {
-                const reportsRef = collection(db, "Reports");
-
-                // Add report to Firestore with additional details
-                await addDoc(reportsRef, {
-                    category: "Comment",
-                    messageId: commentId,
-                    reason: reason,
+             
+                 // Add a new report document to Firestore with the report details
+                 await addDoc(collection(db, "Reports"), {
+                    category: "Comment", // The type of content being reported
+                    messageId: commentId, // The ID of the reported comment
+                    reason: reason,  // Reason provided by the user
                     reportedBy: currentUser.uid, // ID of the user reporting the comment
                     reportedByUsername: currentUser.username || "Unknown User", // Username of the user reporting
-                    reportedAt: serverTimestamp(),
+                    reportedAt: serverTimestamp(), // Timestamp of when the report was submitted
                     commentOwnerId: commentOwnerId, // ID of the user who created the comment
                     commentOwnerUsername: commentOwnerUsername, // Username of the user who created the comment
-                    status: "Pending Review",
+                    status: "Pending Review", // Initial status of the report
                 });
 
-                alert("Comment reported successfully.");
+                console.log("Report successfully submitted to Firestore.");
+                alert("Comment reported successfully."); // Notify user of success
 
-                // Log 
+                 // Log the reporting action for analytics
                 await logActivity(sessionStorage.getItem("userId"), photoId, "report_comment");
 
 
-                document.getElementById("view-image-popup").remove(); // Close popup
+                document.getElementById("view-image-popup").remove(); // Close the popup after submission
             } catch (error) {
-                console.error("Error reporting comment:", error);
-                alert("Failed to report the comment. Please try again.");
+                console.error("Error reporting comment:", error); // Log error for debugging
+                alert("Failed to report the comment. Please try again."); // Notify user of failure
             }
         });
     } catch (error) {
-        console.error("Error fetching comment details:", error);
-        alert("Failed to fetch the comment details. Please try again.");
+        console.error("Error fetching comment details:", error); // Log error if comment fetch fails
+        alert("Failed to fetch the comment details. Please try again.");// Notify user of failure
     }
 }
 
@@ -1522,6 +1620,7 @@ async function createSharePopup(photoId) {
         return;
     }
 
+    // Define the popup content
     const popupContent = `
     <div>
         <label for="user-search">Search Username:</label>
@@ -1546,6 +1645,7 @@ async function createSharePopup(photoId) {
     </div>
 `;
 
+    // Create the popup using a reusable function
     createViewImagePopup(popupContent, "Share Photo");
 
     // Add event listener to search input
@@ -1632,6 +1732,7 @@ async function createSharePopup(photoId) {
                 timestamp: serverTimestamp(),
             });
 
+            // Send notification to the recipient
             await sendNotification(
                 selectedUserId,             // Receiver: Selected user to share with
                 currentUser.uid,            // Sender: Current user
@@ -1639,7 +1740,6 @@ async function createSharePopup(photoId) {
                 photoId,                    // Photo ID
 
             );
-
 
             // Log the share action
             await logActivity(currentUser.uid, photoId, "shared_photo", `Shared with ${receiverUsername}`);
@@ -1651,7 +1751,6 @@ async function createSharePopup(photoId) {
             alert("Failed to share the photo. Please try again.");
         }
     });
-
 }
 
 document.getElementById("share-button").addEventListener("click", () => {
@@ -1660,7 +1759,6 @@ document.getElementById("share-button").addEventListener("click", () => {
         alert("Error: Photo ID is missing.");
         return;
     }
-
     createSharePopup(photoId);
 });
 
@@ -1865,51 +1963,101 @@ async function deleteNotification(senderId, photoId, category) {
 // Function to manage hashtags
 async function handleHashtag(hashtag) {
     try {
-        // Query the database for the hashtag in the "hashtag" field
+        // Reference the "Hashtag" collection in Firestore
         const hashtagRef = collection(db, "Hashtag");
+
+        // Query to find the document where the "hashtag" field matches the provided hashtag
         const hashtagQuery = query(hashtagRef, where("hashtag", "==", hashtag));
+
+        // Execute the query to fetch the matching documents
         const querySnapshot = await getDocs(hashtagQuery);
 
         if (!querySnapshot.empty) {
             // If hashtag exists, increment its photoCount
             querySnapshot.forEach(async (docSnapshot) => {
-                const hashtagDocRef = doc(db, "Hashtag", docSnapshot.id);
-                await updateDoc(hashtagDocRef, { photoCount: increment(1) });
+                const hashtagDocRef = doc(db, "Hashtag", docSnapshot.id); // Reference to the existing document
+                await updateDoc(hashtagDocRef, { photoCount: increment(1) }); // Increment photoCount by 1
                 console.log(`Hashtag '${hashtag}' exists. Incremented photoCount.`);
             });
         } else {
-            // If hashtag doesn't exist, create it with photoCount = 1
+            // If the hashtag doesn't exist, create a new document with photoCount = 1
             await addDoc(hashtagRef, { hashtag: hashtag, photoCount: 1 });
             console.log(`Hashtag '${hashtag}' created with photoCount = 1.`);
         }
     } catch (error) {
+        // Log any errors that occur during the process
         console.error("Error handling hashtag:", error);
     }
 }
 
-
-
-// Process multiple hashtags in bulk
+// Function to process multiple hashtags
 async function processHashtags(hashtags) {
+
+    // Remove duplicates by converting the array to a Set and back to an array
     const uniqueHashtags = [...new Set(hashtags)]; // Remove duplicates
+
     try {
+        // Loop through each unique hashtag and process it
         for (const hashtag of uniqueHashtags) {
-            await handleHashtag(hashtag);
+            await handleHashtag(hashtag); // Call handleHashtag for each tag
         }
     } catch (error) {
+        // Log errors that occur while processing hashtags
         console.error("Error processing hashtags:", error);
     }
 }
 
 
 
-
-
-
-
-
-
-
-
-
 //=========== END of the hashtag section ===============
+
+
+
+//================================= clicking the profile pic and username event ============================
+/*handle redirection to the user's profile page when clicking the profile picture or username of the user who uploaded the photo
+Attach click event listeners to the profile picture and username*/
+function addProfileRedirection(userId) {
+    // Get the HTML element for the user's profile picture
+    const profilePicElement = document.getElementById("photo-user-profile-pic");
+
+    // Get the HTML element for the user's username
+    const usernameElement = document.getElementById("photo-username");
+
+    // Check if the profile picture element exists
+    if (profilePicElement) {
+        profilePicElement.style.cursor = "pointer"; // Change cursor to indicate it's clickable
+
+        // Add a click event listener to the profile picture
+        profilePicElement.addEventListener("click", () => {
+            redirectToProfile(userId); // Redirect to the user's profile when clicked
+        });
+    }
+
+    // Check if the username element exists
+    if (usernameElement) {
+        usernameElement.style.cursor = "pointer"; // Change cursor to indicate it's clickable
+
+        // Add a click event listener to the username
+        usernameElement.addEventListener("click", () => {
+            redirectToProfile(userId); // Redirect to the user's profile when clicked
+        });
+    }
+}
+
+// Redirect to Profile.html and store the user ID in localStorage
+function redirectToProfile(userId) {
+    // Check if userId is provided
+    if (!userId) {
+        console.error("User ID is missing. Cannot redirect to profile.");
+        alert("Unable to fetch user details."); // Notify the user of the issue
+        return; // Exit the function if userId is missing
+    }
+
+    // Store the userId in localStorage for retrieval on the profile page
+    localStorage.setItem("viewedUserId", userId);
+
+    // Redirect to the Profile.html page
+    window.location.href = "Profile.html"; // Redirect to the profile page
+}
+
+

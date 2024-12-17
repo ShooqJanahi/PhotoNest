@@ -1,63 +1,125 @@
+/* General styles applied to the entire webpage */
 body {
-    font-family: 'Inter', sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f3f0ff;
-    color: #333;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+    font-family: 'Inter', sans-serif; /* Font used throughout the page */
+    margin: 0; /* Removes default margin */
+    padding: 0; /* Removes default padding */
+    background-color: #f3f0ff; /* Light purple background */
+    color: #333; /* Default text color */
+    display: flex; /* Enables flexbox layout */
+    flex-direction: column; /* Stacks content vertically */
+    min-height: 100vh; /* Ensures the page takes at least the full viewport height */
     overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
+/* HEADER SECTION STYLES */
 .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px;
-    background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex; /* Aligns elements in a row */
+    align-items: center; /* Vertically centers content */
+    justify-content: space-between; /* Pushes items to edges */
+    padding: 20px; /* Inner spacing for the header */
+    background-color: #fff;  /* White background for the header */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
 }
 
 .header .logo {
-    display: flex;
-    align-items: center;
-    font-size: 24px;
-    font-weight: 700;
+    display: flex; /* Aligns logo elements in a row */
+    align-items: center; /* Vertically centers content */
+    font-size: 24px; /* Larger font size for the logo text */
+    font-weight: 700; /* Makes the logo text bold */
 }
 
 .header .logo img {
-    width: 40px; /* Adjust the size of the image */
+    width: 40px; /* Size of the logo image */
     height: auto; /* Maintain the aspect ratio */
-    margin-right: 10px; /* Space between the image and the text */
+    margin-right: 10px; /* Adds space between logo image and text */
     object-fit: contain; /* Ensure the image fits nicely */
 }
 
 
-.header .profile-photo {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+/* PROFILE SECTION IN HEADER */
+/* Style for the profile section containing the bell and profile picture */
+.profile-section {
+    display: flex; /* Align items in a row */
+    align-items: center; /* Vertically center the bell and profile image */
+    gap: 10px; /* Add 5px spacing between the bell and the profile image */
 }
 
-.header .profile-photo img {
-    width: 40px; /* Size of the profile photo */
-    height: 40px; /* Keep it square */
-    border-radius: 50%; /* Makes the photo circular */
-    object-fit: cover; /* Ensures the image covers the container */
-    border: 2px solid #6a1b9a; /* Optional border for styling */
+/* Style for the bell icon */
+#notification-bell {
+    font-size: 24px; /* Adjust size of the bell icon */
+    color: #000000; /* Optional: Use a matching color for the bell */
+    cursor: pointer; /* Change cursor to pointer for interactivity */
+    transition: transform 0.3s ease, color 0.3s ease; /* Smooth hover effect */
 }
 
+#notification-bell:hover {
+    transform: scale(1.1); /* Slightly enlarge on hover */
+    color: #8e3aad; /* Change color on hover */
+}
+
+
+/* Style the profile container and profile picture */
+.profile-container {
+    position: relative;
+    display: inline-block;
+    cursor: pointer; /* Adds a pointer cursor for interaction */
+}
+
+.profile-container img#profile-image {
+    width: 40px; /* Matches the size of user icons */
+    height: 40px; /* Ensure it's square */
+    border-radius: 50%; /* Make it circular */
+    object-fit: cover; /* Ensure the image fits well */
+    border: 2px solid #6a1b9a; /* Optional: adds a border */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover effect */
+}
+
+.profile-container img#profile-image:hover {
+    transform: scale(1.1); /* Slightly enlarge on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a shadow effect */
+}
+
+.profile-dropdown {
+    position: absolute; /* Positions dropdown relative to the parent container */
+    top: calc(100% + 10px); /* Place the dropdown below the image */
+    right: 0; /* Aligns to the right edge of the container */
+    background: #ffffff; /* White background for the dropdown */
+    border: 1px solid #ddd; /* Light gray border */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    border-radius: 8px; /* Rounded corners for the dropdown */
+    display: none; /* Hidden by default */
+    z-index: 1000; /* Ensures it appears above other elements */
+    min-width: 150px; /* Set a minimum width */
+}
+
+.profile-dropdown a {
+    display: block; /* Each link occupies a full line */
+    padding: 10px 15px; /* Spacing inside each dropdown option */
+    color: #333; /* Default text color */
+    text-decoration: none; /* Removes underline from links */
+    font-size: 14px; /* Font size for dropdown text */
+    transition: background 0.3s ease; /* Smooth hover effect */
+}
+
+.profile-dropdown a:hover {
+    background: #f3e7f8; /* Subtle purple background on hover */
+}
+
+.profile-container:hover .profile-dropdown {
+    display: block; /* Show dropdown on hover */
+}
+
+/* MAIN CONTAINER FOR IMAGE & DETAILS */
 .container {
-    display: flex;
-    justify-content: space-between;
-    padding: 40px;
-    padding-top: 20px;
-    flex: 1;
-    max-width: 1200px; /* Constrain content width */
-    width: 100%;
-    margin: 0 auto; /* Center the container on larger screens */
-    box-sizing: border-box;
+    display: flex; /* Aligns image and details section horizontally */
+    justify-content: space-between; /* Space between image and details */
+    padding: 40px; /* Adds padding around the container */
+    padding-top: 20px; /* Reduces padding at the top */
+    flex: 1; /* Ensures it grows to fill available space */
+    max-width: 1200px; /* Restricts container width */
+    width: 100%; /* Full width */
+    margin: 0 auto; /* Centers container on larger screens */
+    box-sizing: border-box; /* Includes padding in width/height */
 }
 
 /* Style for the user details container */
@@ -92,7 +154,7 @@ body {
     color: #666; /* Subtle color for full name */
 }
 
-
+/* IMAGE SECTION */
 .image-section img {
     width: 100%;
     max-width: 600px;
@@ -110,98 +172,156 @@ body {
     cursor: pointer;
 }
 
+/* DETAILS SECTION */
 .details-section {
-    position: relative; /* Needed for positioning the ellipsis icon */
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px;
-    margin-left: 20px;
-    box-sizing: border-box;
+    position: relative; /* Allows positioning of child elements */
+    background-color: #fff; /* White background for the details card */
+    padding: 20px; /* Adds inner spacing */
+    border-radius: 20px; /* Rounded corners */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    width: 100%; /* Full width */
+    max-width: 400px; /* Restricts maximum width */
+    margin-left: 20px; /* Adds space between image and details */
+    box-sizing: border-box; /* Includes padding/borders in size */
 }
 
-
 .details-section p {
-    margin: 10px 0;
+    margin: 10px 0; /* Spacing between paragraphs */
 }
 
 .details-section .likes {
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px;
+    display: flex; /* Aligns like icon and count in a row */
+    align-items: center; /* Vertically centers content */
+    margin-bottom: 20px; /* Adds space below the likes section */
 }
 
 .details-section .likes i.liked {
-    color: red; /* Turns the heart icon red */
+    color: red; /* Changes heart icon to red when liked */
 }
-
-
 
 .details-section .likes i {
     margin-right: 10px;
     color: #a7a4a4;
 }
 
+
 /*comment section*/
 .comment-card {
-    display: flex;
-    flex-direction: column;
-    background: #f9f9f9;
-    border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex; /* Flexbox layout for inner content */
+    flex-direction: column; /* Stack content vertically */
+    background: #f9f9f9; /* Light gray background */
+    border-radius: 10px; /* Rounded corners */
+    padding: 15px; /* Inner spacing */
+    margin-bottom: 10px; /* Space between consecutive comments */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
 }
 
 .comment-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 10px;
+    display: flex; /* Arrange items in a row */
+    align-items: center; /* Vertically align content */
+    justify-content: space-between; /* Space out elements (e.g., name and options icon) */
+    margin-bottom: 10px; /* Add spacing below the header */
 }
 
 .comment-profile-pic {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-right: 10px;
+    width: 40px; /* Fixed width for the profile picture */
+    height: 40px; /* Fixed height */
+    border-radius: 50%; /* Makes the image circular */
+    object-fit: cover; /* Ensures the image fills the container without distortion */
+    margin-right: 10px; /* Space between the profile picture and the next element */
 }
 
 .comment-details {
-    flex-grow: 1;
+    flex-grow: 1; /* Expands to fill available space in the header */
 }
 
 .comment-details strong {
-    font-size: 1rem;
-    color: #333;
+    font-size: 1rem; /* Standard font size for the username */
+    color: #333; /* Dark text for visibility */
 }
 
 .comment-time {
-    font-size: 0.8rem;
-    color: #666;
-    display: block;
+    font-size: 0.8rem; /* Smaller font size for timestamps */
+    color: #666; /* Subtle gray color for secondary information */
+    display: block; /* Ensures the timestamp appears on its own line */
 }
 
 .comment-text {
-    font-size: 0.9rem;
-    color: #333;
-    margin-top: 5px;
+    font-size: 0.9rem; /* Standard font size for comment text */
+    color: #333; /* Dark color for readability */
+    margin-top: 5px; /* Space between the header and the text */
 }
 
 .options-icon {
-    font-size: 1.2rem;
-    color: #999;
-    cursor: pointer;
-    transition: color 0.3s;
+    font-size: 1.2rem; /* Slightly larger font size for the icon */
+    color: #999; /* Gray color for subtlety */
+    cursor: pointer; /* Pointer cursor to indicate interactivity */
+    transition: color 0.3s; /* Smooth transition effect on hover */
 }
 
 .options-icon:hover {
-    color: #6a1b9a;
+    color: #6a1b9a; /* Change color to purple on hover */
 }
 
+
+.details-section .buttons {
+    display: flex; /* Arrange buttons horizontally */
+    justify-content: space-between; /* Spread buttons evenly */
+    margin-bottom: 20px; /* Adds space below the buttons */
+}
+
+.details-section .buttons button {
+    background-color: #6a1b9a; /* Matches the purple theme */
+    color: #fff; /* White text for contrast */
+    padding: 10px 20px; /* Inner padding for a clickable area */
+    border: none; /* Removes default border */
+    border-radius: 20px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor for interactivity */
+    font-weight: 500; /* Bold text for emphasis */
+}
+
+.comments-section {
+    margin-top: 20px; /* Adds space above the comments section */
+}
+
+.comments-section .comment {
+    display: flex; /* Arrange content in a row */
+    justify-content: space-between; /* Spread content to edges */
+    align-items: center; /* Align items vertically */
+    background-color: #f9f9f9; /* Light background for contrast */
+    padding: 10px; /* Inner padding */
+    border-radius: 10px; /* Smooth rounded corners */
+    margin-bottom: 10px; /* Space between consecutive comments */
+}
+
+
+.comments-section .comment i {
+    color: #6a1b9a; /* Purple color to match the theme */
+}
+
+.add-comment {
+    display: flex; /* Aligns input and button in a row */
+    align-items: center; /* Vertically centers content */
+    margin-top: 10px; /* Adds space above the comment input */
+}
+
+.add-comment input {
+    width: 100%; /* Full width of parent container */
+    padding: 10px; /* Adds inner spacing */
+    border: 1px solid #ddd; /* Light gray border */
+    border-radius: 20px; /* Rounded corners */
+    margin-right: 10px; /* Space between input and button */
+}
+
+.add-comment button {
+    background-color: #6a1b9a; /* Purple background for the button */
+    color: #fff; /* White text */
+    padding: 10px 20px; /* Inner padding */
+    border: none; /* Removes default border */
+    border-radius: 20px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor for interactivity */
+    font-weight: 500; /* Medium font weight */
+}
 
 
 /* Dropdown menu styling */
@@ -239,64 +359,6 @@ body {
     display: block;
   }
 
-/* General popup styles for consistency */
-/* Popup container */
-.popup {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1000;
-    background: #fff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    padding: 20px;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 500px;
-    box-sizing: border-box;
-}
-
-/* Overlay for dimming the background */
-.popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1500; /* Increase if dropdown conflicts */
-}
-
-/* Close button */
-.popup .popup-actions {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 15px;
-}
-
-.popup .popup-actions button {
-    margin-left: 10px;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.popup .popup-actions button:hover {
-    background: #ddd;
-}
-
-/* Prevent overflow of content */
-.popup textarea,
-.popup input {
-    width: 100%;
-    box-sizing: border-box;
-    margin-top: 10px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 14px;
-}
 
 .no-suggestions {
     font-size: 14px;
@@ -388,74 +450,6 @@ body {
 }
 
 
-/*comment section*/
-
-.details-section .buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-}
-
-.details-section .buttons button {
-    background-color: #6a1b9a;
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 20px;
-    cursor: pointer;
-    font-weight: 500;
-}
-
-.comments-section {
-    margin-top: 20px;
-}
-
-.comments-section .comment {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #f9f9f9;
-    padding: 10px;
-    border-radius: 10px;
-    margin-bottom: 10px;
-}
-
-
-.comments-section .comment i {
-    color: #6a1b9a;
-}
-
-.add-comment {
-    display: flex;
-    align-items: center;
-    margin-top: 10px;
-}
-
-.add-comment input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 20px;
-    margin-right: 10px;
-}
-
-.add-comment button {
-    background-color: #6a1b9a;
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 20px;
-    cursor: pointer;
-    font-weight: 500;
-}
-
-
-
-
-
-
-
-
 
 
 
@@ -496,81 +490,6 @@ body {
     margin: 0 5px; /* Adds spacing around icons */
     font-size: 20px; /* Sets a standard size for icons */
     color: #6a0dad; /* Matches the branding color */
-}
-
-/* Style for the profile section containing the bell and profile picture */
-.profile-section {
-    display: flex; /* Align items in a row */
-    align-items: center; /* Vertically center the bell and profile image */
-    gap: 10px; /* Add 5px spacing between the bell and the profile image */
-}
-
-/* Style for the bell icon */
-#notification-bell {
-    font-size: 24px; /* Adjust size of the bell icon */
-    color: #000000; /* Optional: Use a matching color for the bell */
-    cursor: pointer; /* Change cursor to pointer for interactivity */
-    transition: transform 0.3s ease, color 0.3s ease; /* Smooth hover effect */
-}
-
-#notification-bell:hover {
-    transform: scale(1.1); /* Slightly enlarge on hover */
-    color: #8e3aad; /* Change color on hover */
-}
-
-
-
-
-
-/* Style the profile container and profile picture */
-.profile-container {
-    position: relative;
-    display: inline-block;
-    cursor: pointer; /* Adds a pointer cursor for interaction */
-}
-
-.profile-container img#profile-image {
-    width: 40px; /* Matches the size of user icons */
-    height: 40px; /* Ensure it's square */
-    border-radius: 50%; /* Make it circular */
-    object-fit: cover; /* Ensure the image fits well */
-    border: 2px solid #6a1b9a; /* Optional: adds a border */
-    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover effect */
-}
-
-.profile-container img#profile-image:hover {
-    transform: scale(1.1); /* Slightly enlarge on hover */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a shadow effect */
-}
-
-.profile-dropdown {
-    position: absolute;
-    top: calc(100% + 10px); /* Place the dropdown below the image */
-    right: 0;
-    background: #ffffff;
-    border: 1px solid #ddd;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    border-radius: 8px; /* Rounded corners for the dropdown */
-    display: none; /* Hidden by default */
-    z-index: 1000;
-    min-width: 150px; /* Set a minimum width */
-}
-
-.profile-dropdown a {
-    display: block;
-    padding: 10px 15px;
-    color: #333;
-    text-decoration: none;
-    font-size: 14px;
-    transition: background 0.3s ease; /* Smooth hover effect */
-}
-
-.profile-dropdown a:hover {
-    background: #f3e7f8; /* Subtle hover effect */
-}
-
-.profile-container:hover .profile-dropdown {
-    display: block; /* Show dropdown on hover */
 }
 
 

@@ -2,8 +2,8 @@
 /*Album.html*/
 
 .wrapper {
-    display: flex;
-    flex-direction: column;
+    display: flex; /* Enables flexbox */
+    flex-direction: column; /* Aligns content vertically */
     flex: 1; /* Allow it to stretch to fill remaining space */
 }
 
@@ -11,38 +11,39 @@
 
 /* Global Styles */
 html, body {
-    height: 100%; /* Make sure the html and body take the full height of the viewport */
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box; /* Include padding and border in the element's width and height */
+    height: 100%; /* Ensures the html and body take up the full viewport height */
+    margin: 0; /* Removes default margin */
+    padding: 0; /* Removes default padding */
+    box-sizing: border-box; /* Includes padding and borders in width/height */
 
 }
 
 
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', sans-serif; /* Sets the default font */
+    margin: 0;
     margin: 0;
     padding: 0;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    background-color: #f0f0ff;
-    color: #333;
+    display: flex;  /* Uses flexbox for layout */
+    flex-direction: column; /* Aligns content vertically */
+    min-height: 100vh; /* Ensures body takes at least the full viewport height */
+    background-color: #f0f0ff; /* Light purple background */
+    color: #333; /* Dark gray text for readability */
     
 }
 
 /* Header */
 .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex; /* Flexbox for horizontal alignment */
+    justify-content: space-between; /* Space between logo and icons */
+    align-items: center; /* Vertically center items */
+    padding: 20px; /* Adds spacing around the header */
+    background-color: #fff; /* White background */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow for depth */
 }
 .header img {
-    height: 40px;
-    margin-right: 10px;
+    height: 40px; /* Logo image height */
+    margin-right: 10px; /* Spacing to the right of the logo */
 }
 .header h1 {
     font-size: 24px;
@@ -51,26 +52,26 @@ body {
 }
 
 #profile-image {
-    height: 24px;  /* Adjust the size to match your design */
-    width: 24px;   /* Ensure it's square if that fits your design */
+    height: 24px;  
+    width: 24px;   
     border-radius: 50%; /* Makes the image circular */
-    cursor: pointer; /* Maintains the pointer cursor as with the icon */
-    margin-left: 10px; /* Adds space between the bell icon and the profile image */
+    cursor: pointer; /* Shows pointer cursor on hover */
+    margin-left: 10px; /* Adds spacing between bell icon and profile picture */
 }
 
 .profile-container {
-    position: relative;
+    position: relative; /* Allows dropdown to position relative to this container */
     cursor: pointer;
 }
 
 .profile-dropdown {
-    position: absolute;
+    position: absolute; /* Dropdown positioning */
     background-color: #fff;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    padding: 12px 16px;
-    z-index: 1;
-    right: 0;
-    display: none;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); /* Adds shadow for depth */
+    padding: 12px 16px;  /* Spacing inside dropdown */
+    z-index: 1; /* Ensures dropdown appears on top */
+    right: 0; /* Aligns dropdown to the right */
+    display: none; /* Hidden by default */
     border-radius: 5px;
 }
 .profile-container img {
@@ -89,24 +90,24 @@ body {
 
 
 .profile-container:hover .profile-dropdown {
-    display: block;
+    display: block; /* Shows dropdown on hover */
 }
 
 .profile-dropdown a {
-    display: block;
+    display: block; /* Makes links block elements */
     color: black;
     padding: 8px 16px;
-    text-decoration: none;
+    text-decoration: none; /* Removes underline */
 }
 
 .profile-dropdown a:hover {
-    background-color: #f1f1f1;
+    background-color: #f1f1f1;  /* Light gray background on hover */
 }
 
 
 /*create album button*/
 .modal {
-    display: none;
+    display: none; /* Hidden by default */
     position: fixed;
     z-index: 1000;
     left: 0;
@@ -114,14 +115,14 @@ body {
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: rgba(0, 0, 0, 0.4); /* Semi-transparent background */
 }
 
 .modal-content {
-    background-color: #fff;
-    margin: 15% auto;
+    background-color: #fff;  /* White modal background */
+    margin: 15% auto; /* Center it vertically */
     padding: 20px;
-    border-radius: 10px;
+    border-radius: 10px; /* Rounded corners */
     width: 30%;
     text-align: center;
 }
@@ -140,6 +141,112 @@ body {
     text-decoration: none;
     cursor: pointer;
 }
+
+/* Share Album Modal Styles */
+#shareAlbumModal .modal-content {
+    background-color: #fff; /* White background */
+    margin: 10% auto; /* Center the modal vertically */
+    padding: 20px;
+    border-radius: 10px; /* Rounded corners */
+    width: 30%;
+    max-width: 500px; /* Responsive max-width */
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    font-family: 'Inter', sans-serif;
+}
+
+#shareAlbumModal h3 {
+    color: #6a0dad; /* Purple header color */
+    font-size: 24px;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+#shareAlbumModal label {
+    display: block;
+    text-align: left;
+    font-weight: 600;
+    margin: 10px 0 5px;
+    color: #333; /* Dark gray */
+}
+
+#shareAlbumModal input,
+#shareAlbumModal textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    box-sizing: border-box; /* Include padding in width */
+    font-family: 'Inter', sans-serif;
+}
+
+#shareAlbumModal input:focus,
+#shareAlbumModal textarea:focus {
+    outline: none;
+    border-color: #6a0dad; /* Highlight border in purple */
+    box-shadow: 0 0 5px rgba(106, 13, 173, 0.3);
+}
+
+#autocomplete-results {
+    position: absolute;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-height: 150px;
+    overflow-y: auto;
+    z-index: 1001;
+}
+
+#autocomplete-results div {
+    padding: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+#autocomplete-results div:hover {
+    background-color: #f4f4f4;
+}
+
+#autocomplete-results img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+#sendShare {
+    width: 100%;
+    background-color: #6a0dad; /* Purple button background */
+    color: #fff; /* White text */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#sendShare:hover {
+    background-color: #5c00b3; /* Darker purple on hover */
+}
+
+#closeShareModal {
+    color: #aaa; /* Light gray close button */
+    float: right;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+#closeShareModal:hover {
+    color: #000; /* Darker close button on hover */
+}
+
+
 
 .logo {
     font-size: 24px;
@@ -169,24 +276,23 @@ body {
     margin: 0; /* Remove any default margin on the title */
 }
 
-
+/* Search bar section */
 .search-bar {
-    display: flex;
-    align-items: center;
-    background-color: #e0e0f8;
-    border-radius: 20px;
-    padding: 5px 10px;
+    display: flex; /* Flexbox for input and button alignment */
+    align-items: center; /* Vertically centers items */
+    background-color: #e0e0f8; /* Light purple background */
+    border-radius: 20px; /* Rounded edges */
+    padding: 5px 10px; /* Spacing inside the bar */
     flex: 1;
-    max-width: 500px;
-    width: 50%;
+    max-width: 500px; /* Limits maximum width */
+    width: 50%; /* Takes up 50% of the available space */
     margin-bottom: 10px;
 }
 .search-bar input {
-    border: none;
-    background: transparent;
-    outline: none;
-    
-    flex: 1;
+    border: none; /* Removes border */
+    background: transparent; /* Makes input background transparent */
+    outline: none;  /* Removes focus outline */
+    flex: 1; /* Allows the input to take up remaining space */
     min-width: 0;
 }
 
@@ -200,13 +306,13 @@ body {
     margin-right: 10px; /* Space between elements */
 }
 .search-bar button, .icons button {
-    background-color: #6a0dad;
-    color: #fff;
-    border: none;
-    border-radius: 20px;
-    padding: 10px 20px;
+    background-color: #6a0dad; /* Purple button background */
+    color: #fff;  /* White text */
+    border: none; /* Removes border */
+    border-radius: 20px; /* Rounded edges */
+    padding: 10px 20px; /* Spacing inside the button */
     margin-left: 10px;
-    cursor: pointer;
+    cursor: pointer; /* Pointer cursor on hover */
     font-size: 16px;
     font-weight: 500;
 }
@@ -235,15 +341,16 @@ body {
     border-radius: 50%; /* Makes the profile image circular */
     height: 40px; /* Adjust size as needed */
 }
+
 /* Main Content */
 .main-content {
-    flex: 1;
-    padding: 20px;
+    flex: 1; /* Allows it to grow and fill space */
+    padding: 20px; /* Adds spacing around content */
     padding-bottom: 40px; /* Add some space at the bottom to keep albums away from the footer */
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
+    display: flex; /* Flexbox for layout */
+    flex-wrap: wrap; /* Allows items to wrap onto the next row */
+    gap: 20px; /* Adds space between items */
+    justify-content: center; /* Centers items horizontally */
     align-items: flex-start; /* Align items at the top to avoid stretching */
 }
 
@@ -312,115 +419,117 @@ body {
 .album-card {
     position: relative; /* Ensure proper positioning for child elements */
     display: flex;
-    flex-direction: column;
-    align-items: center;
-   
-    background-color: #fff;
+    flex-direction: column; /* Aligns content vertically */
+    align-items: center; /* Centers items horizontally */
+    background-color: #fff; /* White card background */
     padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 10px; /* Rounded edges */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);  /* Subtle shadow for depth */
     width: 100%;
     max-width: 250px; /* Limit width for better responsiveness */
     overflow: hidden;
-    text-align: center;
-    transition: transform 0.2s, box-shadow 0.2s;
+    text-align: center; /* Centers text inside the card */
+    transition: transform 0.2s, box-shadow 0.2s; /* Smooth animation on hover */
     margin: 15px;
 }
 .album-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transform: translateY(-5px); /* Moves card slightly up */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Adds stronger shadow */
 }
 .album-options {
-    position: absolute;
-    top: 15px; /* Align with the top padding of the card */
-    right: 15px; /* Move it to the far-right */
-    z-index: 10;
+    position: absolute; /* Position the container relative to the card */
+    top: 10px; /* Distance from the top */
+    right: 10px; /* Distance from the right */
+    z-index: 10; /* Ensure it appears above other content */
     cursor: pointer;
 }
 
 .options-menu {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background: white;
+    position: absolute; /* Position relative to .album-options */
+    top: 30px; /* Distance below the icon */
+    right: 0; /* Align to the right edge */
+    background-color: #fff;
     border: 1px solid #ccc;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add subtle shadow */
     border-radius: 5px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    z-index: 1000;
-    width: 150px;
+    z-index: 1000; /* Ensure it appears above other elements */
+    min-width: 150px;
 }
 
 .options-menu.hidden {
-    display: none;
+    display: none; /* Ensure the menu stays hidden when the 'hidden' class is applied */
+}
+
+.options-menu.show {
+    display: block; /* Show the menu when toggled */
 }
 
 .options-btn {
     background: none;
     border: none;
+    width: 100%; /* Make the button full width */
+    text-align: left; /* Align text to the left */
     padding: 10px;
-    text-align: left;
     font-size: 14px;
     cursor: pointer;
-    width: 100%;
+    transition: background-color 0.2s ease;
 }
 
 .options-btn:hover {
-    background: #f1f1f1;
-    color: #333;
+    background-color: #f4f4f4; /* Light gray background on hover */
 }
 
+
 .album-card img {
-    width: 100%;
+    width: 100%; /* Makes image responsive */
     height: 150px;
-    object-fit: cover;
+    object-fit: cover; /* Ensures image fits nicely inside the space */
 }
 .album-card .info {
     padding: 10px;
 }
 .album-card .info h3 {
-    margin: 10px 0 5px;
-    font-size: 18px;
+    margin: 10px 0 5px; /* Adds spacing */
+    font-size: 18px; /* Font size for album title */
     font-weight: 600;
 }
 .album-card .info p {
-    margin: 0;
-    color: #666;
+    margin: 0;  /* Removes margin */
+    color: #666; /* Light gray text */
 }
 
 /*edit option*/
 .modal {
-    display: none;
-    position: fixed;
+    display: none; /* Hidden by default */
+    position: fixed; /* Covers the full screen */
     z-index: 1000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: rgba(0, 0, 0, 0.4); /* Semi-transparent background */
     overflow: auto;
 }
 
 .modal-content {
     background-color: #fff;
-    margin: 15% auto;
+    margin: 15% auto; /* Center modal vertically */
     padding: 20px;
     border: none;
-    width: 90%;
+    width: 90%; /* Set modal width */
     max-width: 500px;
     border-radius: 5px;
 }
 
 .close {
-    color: #aaa;
+    color: #aaa; /* Gray close button color */
     float: right;
     font-size: 28px;
     cursor: pointer;
 }
 
 .close:hover {
-    color: black;
+    color: black; /* Black close button on hover */
 }
 
 #editAlbumTitle {
@@ -578,35 +687,16 @@ body {
 }
 
 .options-icon {
-    position: absolute;
-    top: 10px; /* Aligns icon 10px from the top */
-    right: 10px; /* Aligns icon 10px from the right */
-    font-size: 18px;
-    color: #6a0dad;
-    cursor: pointer;
-    z-index: 10; /* Ensure it appears above other elements in the card */
+    font-size: 18px; /* Adjust size of the 3 dots */
+    color: #6a0dad; /* Set color of the 3 dots */
+    cursor: pointer; /* Show pointer cursor on hover */
+    transition: color 0.2s; /* Smooth hover effect */
 }
 
-/* Dropdown menu */
-.options-menu {
-    position: absolute;
-    top: 40px; /* Dropdown starts below the icon */
-    right: 10px; /* Aligns with the icon's right edge */
-    background: white;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-    display: none; /* Initially hidden */
-    flex-direction: column;
-    width: 150px;
-    padding: 5px 0;
+.options-icon:hover {
+    color: #5c00b3; /* Slightly darker purple on hover */
 }
 
-/* Show dropdown when the menu is toggled */
-.options-menu.show {
-    display: flex;
-}
 
 .options-btn {
     padding: 10px 15px;
