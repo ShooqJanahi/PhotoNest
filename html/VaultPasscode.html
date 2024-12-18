@@ -1,44 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+    <!-- Specifies the character encoding for the document -->
     <meta charset="UTF-8">
+
+    <!-- Ensures the page is responsive and scales well on different devices -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Passcode Vault</title>
+
+    <!-- Title of the page shown in the browser tab -->
+    <title>Vault Passcode</title>
+
+    <!-- Font Awesome stylesheet for icons (key icon in this case) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
-    
+
+    <!-- Google Fonts: Inter font family for better typography -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+
+    <!-- Link to external CSS file for styling -->
     <link rel="stylesheet" href="../css/VaultPasscode.css">
 
+    <!-- Favicon: Small icon displayed in the browser tab -->
     <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png">
-    
-    
+
+
     <script type="module" src="../js/firebaseConfig.js"></script>
-    <script type="module" src="../js/login.js"></script> <!-- define the session storage-->
+    <!-- Import Firebase configuration file for database setup -->
+    <script type="module" src="../js/login.js"></script>
+    <!-- JavaScript file for handling user login and session storage -->
     <script type="module" src="../js/VaultPasscode.js"></script>
+    <!-- JavaScript file for the vault passcode functionality -->
 
 
 </head>
-<body>
-    <div class="container">
-        <div class="image-section"></div>
-        <div class="form-section">
-            <h1>Passcode</h1>
-            <p>Enter passcode to access vault</p>
-            <div class="form-group">
-                <input type="password" id="passcodeInput" placeholder="Enter your passcode" />
-                <i class="fas fa-key"></i>
-            </div>
-            <a href="forgotPasscode.html">Forgot passcode?</a>
 
-            <button id="unlockButton">Unlock</button>
-            
-        </a>
+<body>
+    <div class="container"> <!-- Main container for the entire content -->
+
+        <!-- Section for an image -->
+        <div class="image-section"></div>
+
+        <!-- Section for the form where the user inputs their passcode -->
+        <div class="form-section">
+            <h1>Passcode</h1> <!-- Page heading -->
+            <p>Enter passcode to access vault</p> <!-- Short description below the heading -->
+
+            <!-- Group for the password input field and an icon -->
+            <div class="form-group">
+
+                <input type="password" id="passcodeInput" placeholder="Enter your passcode" />
+                <!-- Input field for the user to enter the passcode -->
+                <i class="fas fa-key"></i> <!-- Key icon displayed next to the input field -->
+            </div>
+
+            <!-- Forgot Passcode Trigger -->
+            <a href="#" id="forgotPasscodeLink">Forgot passcode?</a>
+
+
+            <!-- Unlock button wrapped in an anchor tag -->
+            <a class="button-link">
+                <button id="unlockButton">Unlock</button> <!-- Button to unlock the vault (functionality defined in JS) -->
+            </a>
+
+           <!-- Link to redirect the user back to the user dashboard page -->
             <a href="UserDashboard.html" class="button-link">
-                <button>Back to Home</button>
+                <button>Back to Home</button> <!-- Button labeled "Back to Home" -->
             </a>
 
         </div>
     </div>
 
 </body>
+
 </html>

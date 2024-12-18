@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const albumId = albumDoc.id;
 
                 // Default thumbnail if no photos exist
-                let thumbnailUrl = 'https://placehold.co/250x150'; 
+                let thumbnailUrl = '../assets/PhotoNest_Logo.jpg'; 
 
                 // Fetch the first photo if photo IDs are available
                 if (albumData.photoIds && albumData.photoIds.length > 0) {
@@ -300,6 +300,7 @@ function setupAlbumCardListeners() {
             area.addEventListener('click', () => {
                 const albumId = card.getAttribute('data-album-id');
                 localStorage.setItem('currentAlbumId', albumId);
+                localStorage.setItem('currentAlbumIdTimestamp', Date.now());
                 window.location.href = 'PhotoGallery.html'; // Redirection
             });
         });

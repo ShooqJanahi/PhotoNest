@@ -1,114 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+    <!-- Meta information for character encoding and responsiveness -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Photo Gallery</title>
+
+    <!-- Page title and favicon -->
+    <title>Vault Gallery</title>
+    <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png">
+
+    <!-- External CSS for fonts, icons, and custom styles -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
     <link rel="stylesheet" href="../css/Photo.css">
     <link rel="stylesheet" href="../css/Notification.css">
 
+    <!-- Import JavaScript modules for Firebase and functionality -->
     <script type="module" src="../js/firebaseConfig.js"></script>
     <script type="module" src="../js/login.js"></script>
     <script type="module" src="../js/VaultPhotoGallery.js"></script>
     <script type="module" src="../js/Notification.js"></script>
 
-    <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png">
+
 </head>
+
 <body>
+    <!-- Wrapper for the entire page content -->
     <div class="wrapper">
-        <!-- Header -->
-    <div class="header">
-        <div class="logo">
-            <img src="../assets/PhotoNest_Transparent.png" alt="PhotoNest Logo" class="logo-image">
-            PhotoNest
-        </div>
-        
-
-        <div class="search-bar">
-            <input type="text" id="search-input" placeholder="Search photos (date, location, hashtag, caption)...">
-            <select id="sort-select">
-               
-                <option value="latest">Latest</option>
-                <option value="oldest">Oldest</option>
-            </select>
-            <button id="search-button">Search</button>
-        </div>
-        
-
-        <div class="icons">
-            
-            <i class="fas fa-bell" id="notification-bell"></i>
-
-
-
-            <div class="profile-container">
-                <img src="../assets/Default_profile_icon.jpg" alt="User Profile" id="profile-image">
-                <div class="profile-dropdown hidden">
-                    <a href="Settings.html">Settings</a>
-                    <a href="#" id="logout-button">Logout</a>
-                </div>
+        <!-- Header Section -->
+        <div class="header">
+            <!-- Logo Section -->
+            <div class="logo">
+                <img src="../assets/PhotoNest_Transparent.png" alt="PhotoNest Logo" class="logo-image">
+                PhotoNest
             </div>
 
+            <!-- Search and Sort Section -->
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Search photos (date, location, hashtag, caption)...">
+                <select id="sort-select">
 
-        </div>
-    </div>
+                    <option value="latest">Latest</option>
+                    <option value="oldest">Oldest</option>
+                </select>
+                <button id="search-button">Search</button>
+            </div>
 
-    <div class="gallery">
-        <div class="card" data-photo-id="PHOTO_ID">
-            <img src="https://placehold.co/300x200" alt="Photo Description">
-            <div class="card-footer">
-                <div class="user-info">
-                    <div class="profile-circle">
-                        <img src="../assets/Default_profile_icon.jpg" alt="User Profile">
+            <!-- Notifications and Profile Section -->
+            <div class="icons">
+                <!-- Notification Bell -->
+                <i class="fas fa-bell" id="notification-bell"></i>
+
+                <!-- User Profile -->
+                <div class="profile-container">
+                    <img src="../assets/Default_profile_icon.jpg" alt="User Profile" id="profile-image">
+                    <!-- Dropdown for profile settings -->
+                    <div class="profile-dropdown hidden">
+                        <a href="Settings.html">Settings</a>
+                        <a href="#" id="logout-button">Logout</a>
                     </div>
-                    <span class="username">@username</span>
                 </div>
-                <div class="photo-caption">
-                    <span>Photo Caption</span>
-                </div>
-                <i class="fas fa-ellipsis-v options-icon"></i>
-                <div class="options-menu hidden">
-                    <button class="options-btn" data-action="delete">Delete Photo</button>
-                    <button class="options-btn" data-action="edit">Edit Photo</button>
-                    <button class="options-btn" data-action="download">Download</button>
-                    <button class="options-btn" data-action="share">Share</button>
+            </div>
+        </div>
+
+        <div id="photo-gallery-page"></div>
+        <!-- Photo Gallery Section -->
+        <div class="gallery">
+            <!-- Example Photo Card -->
+            <div class="card" data-photo-id="PHOTO_ID">
+                <img src="https://placehold.co/300x200" alt="Photo Description">
+                <div class="card-footer">
+                    <!-- User Info -->
+                    <div class="user-info">
+                        <div class="profile-circle">
+                            <img src="../assets/Default_profile_icon.jpg" alt="User Profile">
+                        </div>
+                        <span class="username">@username</span>
+                    </div>
+                    <!-- Photo Caption -->
+                    <div class="photo-caption">
+                        <span>Photo Caption</span>
+                    </div>
+                    <!-- Options Menu (3 dots) -->
+                    <i class="fas fa-ellipsis-v options-icon"></i>
+                    <div class="options-menu hidden">
+                        <button class="options-btn" data-action="delete">Delete Photo</button>
+                        <button class="options-btn" data-action="edit">Edit Photo</button>
+                        <button class="options-btn" data-action="download">Download</button>
+                        <button class="options-btn" data-action="share">Share</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    
+
     </div>
     <!-- Footer Section -->
     <div class="footer">
+        <!-- Quick Links -->
         <div>
             <h4>Quick Links</h4>
             <a href="UserDashboard.html#Home">Home</a> <!-- Link to privacy policy -->
             <a href="UserDashboard.html#Home">Explore</a>
             <a href="Album.html">Album</a>
-            <a href="">Messages</a>
-    
+            <a href="Messages.html">Messages</a>
+
         </div>
+        <!-- Social Media and Copyright -->
         <div>
             <h4>Follow Us</h4>
             <div class="social-icons"> <!-- Social media icons -->
                 <a href="https://www.facebook.com/profile.php?id=61566861417599"><i class="fab fa-facebook-f"></i></a>
-    
+
                 <a href="https://www.instagram.com/photonest.bh/"><i class="fab fa-instagram"></i></a>
             </div>
             <div class="copyright">
                 &copy; 2024 PhotoNest <!-- Copyright notice -->
             </div>
         </div>
-    
+        <!-- Legal Links -->
         <div>
             <h4>Legal</h4>
             <a href="terms.html#privacy-policy">Privacy Policy</a> <!-- Link to privacy policy -->
             <a href="terms.html#TermsAndCondition">Terms and Conditions</a> <!-- Link to terms and conditions -->
         </div>
-    
-    
+
+
     </div>
 </body>
+
 </html>

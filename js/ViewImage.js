@@ -546,7 +546,7 @@ async function removeLike(photoId, currentUser, photoRef, likeDoc) {
         // Delete the notification for this like
         await deleteNotification(currentUser.uid, photoId, "Like");
 
-         // Log the remove like activity
+        // Log the remove like activity
         await logActivity(currentUser.uid, photoId, "removed_like");
 
         console.log("Photo unliked successfully.");
@@ -869,21 +869,29 @@ function createEditPhotoPopup(photoId, currentCaption, currentHashtags) {
                     const photoData = photoDoc.data(); // Extract the photo data
                     const oldHashtags = photoData.hashtags || []; // Retrieve the current hashtags or default to an empty array
 
-                    // Determine hashtags to remove (present in oldHashtags but not in newHashtags)
-                    const hashtagsToRemove = oldHashtags.filter(tag => !newHashtags.includes(tag));
-                    for (const hashtag of hashtagsToRemove) {
-                        await reduceHashtagCount(hashtag); // Decrement the count for removed hashtags
-                    }
 
-                    // Update the Firestore document with new caption and hashtags
+
+                    // Step 1: Update Firestore Photo document
                     await updateDoc(photoRef, {
                         caption: newCaption,
-                        hashtags: newHashtags,
+                        hashtags: newHashtags
                     });
 
-                    // Determine hashtags to add (present in newHashtags but not in oldHashtags)
+                    // Step 2: Manage old hashtags (remove photo ID)
+                    const hashtagsToRemove = oldHashtags.filter(tag => !newHashtags.includes(tag));
+                    for (const hashtag of hashtagsToRemove) {
+                        await removePhotoFromHashtagAlbum(photoId, hashtag);
+                    }
+
+                    // Step 3: Manage new hashtags (add photo ID)
                     const hashtagsToAdd = newHashtags.filter(tag => !oldHashtags.includes(tag));
-                    await processHashtags(hashtagsToAdd); // Increment the count for new hashtags
+                    for (const hashtag of hashtagsToAdd) {
+                        await addPhotoToHashtagAlbum(photoId, hashtag);
+                    }
+
+                    // Determine hashtags to add (present in newHashtags but not in oldHashtags)
+
+                    await processHashtags(hashtagsToAdd, photoId); // Increment the count for new hashtags
 
                     // Notify the user of success and close the popup
                     alert("Photo updated successfully!");
@@ -904,6 +912,73 @@ function createEditPhotoPopup(photoId, currentCaption, currentHashtags) {
         }
     });
 }
+
+
+/**
+ * Add the photo ID to a hashtag album. Create the album if it doesn't exist.
+ */
+async function addPhotoToHashtagAlbum(photoId, hashtag) {
+    try {
+        const albumsRef = collection(db, "Albums");
+        const q = query(albumsRef, where("name", "==", hashtag));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+            // If album doesn't exist, create it
+            await addDoc(albumsRef, {
+                name: hashtag,
+                photoIds: [photoId],
+                public: true, // Public field for hashtag albums
+                createdAt: new Date().toISOString(),
+            });
+            console.log(`Created new album for hashtag: ${hashtag}`);
+        } else {
+            // If album exists, update it by adding photoId
+            const albumDoc = querySnapshot.docs[0];
+            const albumRef = doc(db, "Albums", albumDoc.id);
+            await updateDoc(albumRef, {
+                photoIds: firebase.firestore.FieldValue.arrayUnion(photoId),
+            });
+            console.log(`Added photo ${photoId} to existing album: ${hashtag}`);
+        }
+    } catch (error) {
+        console.error(`Error adding photo to hashtag album ${hashtag}:`, error);
+    }
+}
+
+/**
+ * Remove the photo ID from a hashtag album. Delete the album if no photos remain.
+ */
+async function removePhotoFromHashtagAlbum(photoId, hashtag) {
+    try {
+        const albumsRef = collection(db, "Albums");
+        const q = query(albumsRef, where("name", "==", hashtag));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+            const albumDoc = querySnapshot.docs[0];
+            const albumRef = doc(db, "Albums", albumDoc.id);
+            const albumData = albumDoc.data();
+
+            // Remove the photoId from the album
+            const updatedPhotoIds = albumData.photoIds.filter(id => id !== photoId);
+
+            if (updatedPhotoIds.length > 0) {
+                // Update the album with the remaining photo IDs
+                await updateDoc(albumRef, { photoIds: updatedPhotoIds });
+                console.log(`Removed photo ${photoId} from album: ${hashtag}`);
+            } else {
+                // Delete the album if no photos remain
+                await deleteDoc(albumRef);
+                console.log(`Deleted album ${hashtag} as no photos remain.`);
+            }
+        }
+    } catch (error) {
+        console.error(`Error removing photo from hashtag album ${hashtag}:`, error);
+    }
+}
+
+
 
 //delete photo
 async function deletePhoto(photoId) {
@@ -1026,7 +1101,7 @@ async function deletePhotoReferences(photoId) {
 //This function will copy the photo's document from the Photos collection to the VaultPhoto collection and then delete it from the Photos collection.
 async function moveToVault(photoId) {
     try {
-         // Reference to the photo document in the Photos collection
+        // Reference to the photo document in the Photos collection
         const photoRef = doc(db, "Photos", photoId);
         const photoDoc = await getDoc(photoRef);
 
@@ -1040,19 +1115,19 @@ async function moveToVault(photoId) {
         console.log("Photo document fetched successfully.");
 
         // Extract photo data
-        const photoData = photoDoc.data(); 
+        const photoData = photoDoc.data();
         console.log("Photo data:", photoData);
 
         // Reference to the VaultPhoto collection
         const vaultPhotoRef = doc(db, "VaultPhoto", photoId); // Target document in VaultPhoto collection
         console.log("Attempting to add photo to VaultPhoto collection...");
 
-         // Copy the photo data to the VaultPhoto collection
-        await setDoc(vaultPhotoRef, photoData); 
+        // Copy the photo data to the VaultPhoto collection
+        await setDoc(vaultPhotoRef, photoData);
         console.log("Photo added to VaultPhoto collection successfully.");
 
         // Delete the photo from the Photos collection
-        await deleteDoc(photoRef); 
+        await deleteDoc(photoRef);
         console.log("Photo deleted from Photos collection successfully.");
 
         // Notify the user of success
@@ -1142,7 +1217,7 @@ async function createMoveToAlbumPopup() {
 
         createViewImagePopup(popupContent, "Move to Album");
 
-         // Search functionality
+        // Search functionality
         document.getElementById("album-search").addEventListener("input", (e) => {
             const searchQuery = e.target.value.toLowerCase();
             const albumOptions = document.querySelectorAll(".album-option");
@@ -1406,7 +1481,7 @@ async function createReportPhotoPopup(photoId) {
                     status: "Pending Review",
                 });
 
-                
+
                 console.log("Report submitted successfully");
 
                 alert("Report submitted successfully.");
@@ -1442,7 +1517,7 @@ async function createReportPhotoPopup(photoId) {
 async function deleteComment(commentId) {
     try {
         console.log("Deleting comment with ID:", commentId); // Debug log to show the comment ID being deleted
-        
+
         // Validate if the comment ID is provided
         if (!commentId) {
             throw new Error("Comment ID is missing."); // Throw an error if no comment ID is provided
@@ -1475,9 +1550,9 @@ async function deleteComment(commentId) {
         console.log("Comments count decremented successfully!"); // Log success message for decrement
 
         // Delete the notification related to this comment
-        await deleteNotification(commentData.userId, photoId, "Comment"); 
+        await deleteNotification(commentData.userId, photoId, "Comment");
 
-         // Log the delete action for tracking purposes
+        // Log the delete action for tracking purposes
         await logActivity(sessionStorage.getItem("userId"), photoId, "deleted_comment");
 
         // Refresh the comments section to reflect the deletion
@@ -1531,7 +1606,7 @@ async function reportComment(commentId) {
         }
 
         console.log("Comment data fetched successfully.");
-        
+
         // Extract the comment's data
         const commentData = commentDoc.data();
         const commentOwnerId = commentData.userId; // ID of the comment's creator
@@ -1562,7 +1637,7 @@ async function reportComment(commentId) {
         document.getElementById("report-comment-form").addEventListener("submit", async (e) => {
             console.log("Report form submitted"); // Debugging log to confirm event is firing
             e.preventDefault(); // Prevent the default form submission behavior
-            
+
             const reason = document.getElementById("report-reason").value.trim(); // Retrieve the report reason
 
             // Check if the reason field is not empty
@@ -1572,9 +1647,9 @@ async function reportComment(commentId) {
             }
 
             try {
-             
-                 // Add a new report document to Firestore with the report details
-                 await addDoc(collection(db, "Reports"), {
+
+                // Add a new report document to Firestore with the report details
+                await addDoc(collection(db, "Reports"), {
                     category: "Comment", // The type of content being reported
                     messageId: commentId, // The ID of the reported comment
                     reason: reason,  // Reason provided by the user
@@ -1589,7 +1664,7 @@ async function reportComment(commentId) {
                 console.log("Report successfully submitted to Firestore.");
                 alert("Comment reported successfully."); // Notify user of success
 
-                 // Log the reporting action for analytics
+                // Log the reporting action for analytics
                 await logActivity(sessionStorage.getItem("userId"), photoId, "report_comment");
 
 
@@ -1962,9 +2037,17 @@ async function deleteNotification(senderId, photoId, category) {
 
 // Function to manage hashtags
 async function handleHashtag(hashtag) {
+    const photoId = localStorage.getItem("photoId"); // Check if this is null/undefined
+
     try {
+        // Validate hashtag and photoId
+        if (!hashtag || !photoId) {
+            console.error("Invalid hashtag or photoId:", { hashtag, photoId });
+            return;
+        }
         // Reference the "Hashtag" collection in Firestore
         const hashtagRef = collection(db, "Hashtag");
+        const albumsRef = collection(db, "Albums");
 
         // Query to find the document where the "hashtag" field matches the provided hashtag
         const hashtagQuery = query(hashtagRef, where("hashtag", "==", hashtag));
@@ -1981,17 +2064,57 @@ async function handleHashtag(hashtag) {
             });
         } else {
             // If the hashtag doesn't exist, create a new document with photoCount = 1
-            await addDoc(hashtagRef, { hashtag: hashtag, photoCount: 1 });
+            await addDoc(hashtagRef, {
+                hashtag: hashtag,
+                photoCount: 1,
+                photoIds: [photoId],
+            });
             console.log(`Hashtag '${hashtag}' created with photoCount = 1.`);
         }
+
+
+ // ======== Handle Albums Collection ========
+ const albumQuery = query(albumsRef, where("name", "==", hashtag), where("category", "==", "Hashtag"));
+ const albumSnapshot = await getDocs(albumQuery);
+
+ if (!albumSnapshot.empty) {
+     // Add the photo ID to the existing album
+     const albumDoc = albumSnapshot.docs[0];
+     await updateDoc(albumDoc.ref, {
+         photoIds: arrayUnion(photoId),
+     });
+     console.log(`Photo '${photoId}' added to existing album '${hashtag}' in Albums collection.`);
+ } else {
+     // Create a new album for the hashtag
+     await addDoc(albumsRef, {
+        category: "Hashtag",
+        name: hashtag,
+        category: "Hashtag",
+        photoIds: [photoId],
+        createdAt: new Date().toISOString(),
+        
+    });
+    
+     console.log(`New album created for hashtag '${hashtag}' in Albums collection.`);
+ }
+
+
     } catch (error) {
         // Log any errors that occur during the process
         console.error("Error handling hashtag:", error);
     }
 }
 
+/**
+ * Function to process multiple hashtags:
+ * 1. Removes duplicates.
+ * 2. Calls `handleHashtag` for each unique hashtag.
+ * @param {Array} hashtags - Array of hashtags to process.
+ * @param {string} photoId - The ID of the uploaded photo.
+ */
+
 // Function to process multiple hashtags
-async function processHashtags(hashtags) {
+async function processHashtags(hashtags, photoId) {
 
     // Remove duplicates by converting the array to a Set and back to an array
     const uniqueHashtags = [...new Set(hashtags)]; // Remove duplicates

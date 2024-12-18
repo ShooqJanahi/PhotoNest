@@ -1,7 +1,7 @@
 //UserDashboard.js
 
 // Import Firebase services
-import { writeBatch, collection, query, where, getDocs, orderBy, doc, getDoc, addDoc, updateDoc, deleteDoc, increment  } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+import { writeBatch, collection, query, where, getDocs, orderBy, doc, getDoc, addDoc, updateDoc, deleteDoc, increment } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
 import { db } from './firebaseConfig.js';
 
@@ -11,78 +11,66 @@ const auth = getAuth();
 google.charts.load('current', { packages: ['bar'] });
 google.charts.setOnLoadCallback(() => console.log("Google Charts Loaded"));
 
-
+// Define these variables globally at the top
+const searchBar = document.getElementById("search-bar");
 const suggestionsContainer = document.getElementById("search-suggestions");
 
 document.addEventListener('DOMContentLoaded', async function () {
     await checkUserAuthentication(); // Ensure the user is authenticated
     updateNotificationCounts(); // Fetch and update counts
 
-    const searchBar = document.getElementById("search-bar");
-   
+    const currentHash = window.location.hash || '#home'; // Define currentHash here
+    navigateToSection(currentHash); // Handles the initial call to fetchPhotos()
 
-    // Debounce to reduce Firestore queries
-    let debounceTimeout;
-    searchBar.addEventListener("input", (event) => {
-        const searchText = event.target.value.trim();
-        clearTimeout(debounceTimeout);
-    
-        if (searchText.length > 0) {
-            debounceTimeout = setTimeout(() => performSearch(searchText), 300);
-        } else {
-            suggestionsContainer.innerHTML = ""; // Clear suggestions
-            suggestionsContainer.style.display = "none"; // Hide the dropdown
-        }
+    // Listen for hash changes
+    window.addEventListener('hashchange', () => {
+        const newHash = window.location.hash;
+        navigateToSection(newHash);
     });
 
+    setupPage(); // Set up other event listeners and UI interactions
 
-    searchBar.addEventListener("keydown", (event) => {
-        if (event.key === "Enter") { // Check if the Enter key is pressed
-            event.preventDefault(); // Prevent default form submission (if inside a form)
+    /**
+     * Event listener for handling 'Enter' key press on search bar
+     */
+
+    searchBar.addEventListener("keydown", async (event) => {
+        if (event.key === "Enter") {
+            event.preventDefault(); // Prevent default behavior
+
             const searchText = searchBar.value.trim();
             if (searchText.length > 0) {
-                performSearch(searchText);
-                suggestionsContainer.style.display = "block"; // Ensure dropdown is visible
-            } else {
-                suggestionsContainer.innerHTML = ""; // Clear suggestions
-                suggestionsContainer.style.display = "none"; // Hide the dropdown
+                performSearch(searchText); // Perform the album search
             }
         }
     });
-    
-    
+
+
+
     // Hide the dropdown when the search bar loses focus
     searchBar.addEventListener("blur", () => {
         suggestionsContainer.style.display = "none";
     });
-    
+
     // Show the dropdown when the search bar gains focus (if there are suggestions)
     searchBar.addEventListener("focus", () => {
         if (suggestionsContainer.innerHTML.trim() !== "") {
             suggestionsContainer.style.display = "block";
         }
     });
-    
+
 
     const searchInput = document.getElementById("search");
 
-searchInput.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") { // Check if the Enter key is pressed
-        event.preventDefault(); // Prevent default behavior
-        const searchText = searchInput.value.trim().toLowerCase();
-        filterAndDisplayFeeds(searchText); // Filter the feeds displayed on the page
-    }
-});
-
-
-
-
-
-
-
-
+    searchInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") { // Check if the Enter key is pressed
+            event.preventDefault(); // Prevent default behavior
+            const searchText = searchInput.value.trim().toLowerCase();
+            filterAndDisplayFeeds(searchText); // Filter the feeds displayed on the page
+        }
+    });
     // Get the hash value (e.g., #explore or #home) and navigate
-    const currentHash = window.location.hash || '#home';
+    
     navigateToSection(currentHash);
 
     // Listen for hash changes
@@ -94,6 +82,125 @@ searchInput.addEventListener("keydown", (event) => {
     // Initialize the rest of the page
     setupPage();
 });
+
+
+/**
+ * Function to perform autocomplete search
+ * @param {string} searchText - The text entered in the search bar.
+ */
+async function fetchAutocompleteSuggestions(searchText) {
+    // Show loading state
+    suggestionsContainer.innerHTML = `<p>Loading...</p>`;
+    suggestionsContainer.style.display = "block";
+
+    const searchQuery = searchText.toLowerCase();
+    let suggestions = [];
+
+    try {
+        // Firestore queries for users, hashtags, and locations
+        const usersQuery = query(collection(db, "users"), where("username", ">=", searchQuery));
+        const hashtagsQuery = query(collection(db, "Hashtag"), where("hashtag", ">=", searchQuery));
+        const locationsQuery = query(collection(db, "Location"), where("city", ">=", searchQuery));
+
+        // Fetch and filter matching data
+        const [usersSnapshot, hashtagsSnapshot, locationsSnapshot] = await Promise.all([
+            getDocs(usersQuery),
+            getDocs(hashtagsQuery),
+            getDocs(locationsQuery),
+        ]);
+
+        // Parse user suggestions
+        usersSnapshot.forEach((doc) => {
+            const user = doc.data();
+            suggestions.push({
+                type: "user",
+                displayText: `@${user.username}`,
+                id: doc.id,
+            });
+        });
+
+        // Parse hashtag suggestions
+        hashtagsSnapshot.forEach((doc) => {
+            const hashtag = doc.data();
+            suggestions.push({
+                type: "hashtag",
+                displayText: `#${hashtag.hashtag}`,
+                id: doc.id,
+            });
+        });
+
+        // Parse location suggestions
+        locationsSnapshot.forEach((doc) => {
+            const location = doc.data();
+            suggestions.push({
+                type: "location",
+                displayText: `${location.city}, ${location.country}`,
+                id: doc.id,
+            });
+        });
+
+        // Display suggestions
+        displayAutocompleteSuggestions(suggestions);
+    } catch (error) {
+        console.error("Error fetching autocomplete suggestions:", error);
+        suggestionsContainer.innerHTML = `<p>Error loading suggestions</p>`;
+    }
+}
+
+/**
+ * Function to display autocomplete suggestions
+ * @param {Array} suggestions - Array of suggestion objects.
+ */
+function displayAutocompleteSuggestions(suggestions) {
+    suggestionsContainer.innerHTML = ""; // Clear previous suggestions
+
+    if (suggestions.length === 0) {
+        suggestionsContainer.innerHTML = `<p>No suggestions found</p>`;
+        return;
+    }
+
+    suggestions.forEach((suggestion) => {
+        const suggestionItem = document.createElement("div");
+        suggestionItem.className = "suggestion-item";
+        suggestionItem.innerHTML = `<span>${suggestion.displayText} <small>(${suggestion.type})</small></span>`;
+
+        // Click event to handle suggestion selection
+        suggestionItem.addEventListener("click", () => {
+            if (suggestion.type === "user") {
+                window.location.href = `../html/UserProfile.html?userId=${suggestion.id}`;
+            } else if (suggestion.type === "hashtag") {
+                localStorage.setItem('currentAlbumId', suggestion.displayText);
+                window.location.href = "PhotoGallery.html";
+            } else if (suggestion.type === "location") {
+                window.location.href = `../html/LocationDetails.html?locationId=${suggestion.id}`;
+            }
+        });
+
+        suggestionsContainer.appendChild(suggestionItem);
+    });
+}
+
+/**
+ * Event listener for real-time autocomplete as the user types.
+ */
+searchBar.addEventListener("input", () => {
+    const searchText = searchBar.value.trim();
+    if (searchText.length > 0) {
+        fetchAutocompleteSuggestions(searchText);
+    } else {
+        suggestionsContainer.innerHTML = "";
+        suggestionsContainer.style.display = "none";
+    }
+});
+
+// Hide suggestions when clicking outside
+document.addEventListener("click", (event) => {
+    if (!event.target.closest("#search-bar") && !event.target.closest("#search-suggestions")) {
+        suggestionsContainer.style.display = "none";
+    }
+});
+
+
 
 
 // Function to filter and display feeds based on search term
@@ -192,42 +299,42 @@ function navigateToSection(hash) {
         feedsContainer.innerHTML = ''; // Clear the container
     }
 
-    
+
     updateActiveMenu(hash); // Highlight the correct menu item
 
-   // Clear content and show appropriate section
-   if (hash === '#home') {
-    feedsContainer.style.display = 'block';
-    analyticsContainer.style.display = 'none';
-    sortDropdown.style.display = 'inline-block'; // Show the dropdown
-    searchInput.setAttribute('placeholder', 'Search for photos or users, Diana?');
-    searchInput.oninput = null; // Remove analytics-specific behavior
-    fetchPhotos(true);
-} else if (hash === '#explore') {
-    feedsContainer.style.display = 'block';
-    analyticsContainer.style.display = 'none';
-    sortDropdown.style.display = 'inline-block'; // Show the dropdown
-    searchInput.setAttribute('placeholder', 'Search for photos or users, Diana?');
-    searchInput.oninput = null; // Remove analytics-specific behavior
-    fetchPhotos(false);
-} else if (hash === '#analytics') {
-    feedsContainer.style.display = 'none';
-    analyticsContainer.style.display = 'flex';
-    sortDropdown.style.display = 'none'; // Hide the dropdown in analytics
-    searchInput.setAttribute('placeholder', 'Search posts by caption in analytics');
-    searchInput.oninput = (event) => {
-        const searchQuery = event.target.value.toLowerCase();
-        filterChartData(searchQuery); // Call the chart filtering function
-    };
-    drawPostPopularityChart();
-} else {
-    console.warn(`Unknown hash: ${hash}, defaulting to Home.`);
-    window.location.hash = '#home';
-    feedsContainer.style.display = 'block';
-    analyticsContainer.style.display = 'none';
-    sortDropdown.style.display = 'inline-block'; // Show the dropdown
-    fetchPhotos(true);
-}
+    // Clear content and show appropriate section
+    if (hash === '#home') {
+        feedsContainer.style.display = 'block';
+        analyticsContainer.style.display = 'none';
+        sortDropdown.style.display = 'inline-block'; // Show the dropdown
+        searchInput.setAttribute('placeholder', 'Search for photos or users, Diana?');
+        searchInput.oninput = null; // Remove analytics-specific behavior
+        fetchPhotos(true);
+    } else if (hash === '#explore') {
+        feedsContainer.style.display = 'block';
+        analyticsContainer.style.display = 'none';
+        sortDropdown.style.display = 'inline-block'; // Show the dropdown
+        searchInput.setAttribute('placeholder', 'Search for photos or users, Diana?');
+        searchInput.oninput = null; // Remove analytics-specific behavior
+        fetchPhotos(false);
+    } else if (hash === '#analytics') {
+        feedsContainer.style.display = 'none';
+        analyticsContainer.style.display = 'flex';
+        sortDropdown.style.display = 'none'; // Hide the dropdown in analytics
+        searchInput.setAttribute('placeholder', 'Search posts by caption in analytics');
+        searchInput.oninput = (event) => {
+            const searchQuery = event.target.value.toLowerCase();
+            filterChartData(searchQuery); // Call the chart filtering function
+        };
+        drawPostPopularityChart();
+    } else {
+        console.warn(`Unknown hash: ${hash}, defaulting to Home.`);
+        window.location.hash = '#home';
+        feedsContainer.style.display = 'block';
+        analyticsContainer.style.display = 'none';
+        sortDropdown.style.display = 'inline-block'; // Show the dropdown
+        fetchPhotos(true);
+    }
 }
 
 function redirectToLogin() {
@@ -297,7 +404,7 @@ async function setupPage() {
             filterAndSortPosts(searchInput, sortOption);
         });
     }
-    
+
 
     const homeMenuItem = document.querySelector('.menu-item.home');
     const exploreMenuItem = document.querySelector('.menu-item.explore');
@@ -316,11 +423,15 @@ async function setupPage() {
 
     // Event listeners for menu items
     if (homeMenuItem) {
+        homeMenuItem.removeEventListener('click', () => fetchPhotos(true));
         homeMenuItem.addEventListener('click', () => fetchPhotos(true));
     }
+
     if (exploreMenuItem) {
+        exploreMenuItem.removeEventListener('click', () => fetchPhotos(false));
         exploreMenuItem.addEventListener('click', () => fetchPhotos(false));
     }
+
 
     // Like/Unlike event listener
     document.addEventListener('click', async (event) => {
@@ -332,42 +443,42 @@ async function setupPage() {
             const caption = feedElement.querySelector('.caption p').textContent;
             const location = feedElement.querySelector('.info small').textContent;
             const ownerId = feedElement.getAttribute('data-owner-id');
-    
+
             // Store clicked photo details in localStorage
             localStorage.setItem('photoId', photoId);
             localStorage.setItem('photoUrl', photoUrl);
             localStorage.setItem('caption', caption);
             localStorage.setItem('location', location);
             localStorage.setItem('ownerId', ownerId);
-    
+
             // Redirect to ViewImage.html
             window.location.href = 'ViewImage.html';
         }
-        
+
         if (event.target.classList.contains('fas fa-heart')) {
             const photoElement = event.target.closest('.feed');
             if (!photoElement) {
                 console.error("Photo element not found.");
                 return;
             }
-    
+
             const photoId = photoElement.getAttribute('data-photo-id');
             const ownerId = photoElement.getAttribute('data-owner-id');
-    
+
             if (!photoId || !ownerId) {
                 console.error("Missing photoId or ownerId:", { photoId, ownerId });
                 return;
             }
-    
+
             const liked = !event.target.classList.contains('liked'); // Toggle like status
             await toggleLike(photoId, ownerId, liked); // Handle like/unlike logic
             event.target.classList.toggle('liked'); // Update UI state
         }
     });
-    
+
 
     // Initially load the 'Home' feed and sort by latest
-    await fetchPhotos(true);
+
     sortDropdown.value = 'latest'; // Default to 'latest'
     filterAndSortPosts('', 'latest'); // Sort by latest initially
 }
@@ -380,11 +491,11 @@ async function setUserProfilePic() {
     const userDoc = await getDoc(userRef); // Fetch the user document
 
     // Profile elements
-            // Update Sidebar Profile Image
-            const sidebarProfileImage = document.getElementById('sidebar-profile-image');
-    
-            // Update Top Navigation Profile Image
-            const topNavProfileImage = document.getElementById('topnav-profile-image');
+    // Update Sidebar Profile Image
+    const sidebarProfileImage = document.getElementById('sidebar-profile-image');
+
+    // Update Top Navigation Profile Image
+    const topNavProfileImage = document.getElementById('topnav-profile-image');
 
     const profileNameElement = document.getElementById('profile-name'); // Sidebar profile name
     const profileUsernameElement = document.getElementById('profile-username'); // Sidebar profile username
@@ -446,7 +557,7 @@ function filterAndSortPosts(searchTerm, sortOption) {
         const aDate = aDateElem ? new Date(aDateElem.getAttribute('data-date')) : new Date();
         const bDate = bDateElem ? new Date(bDateElem.getAttribute('data-date')) : new Date();
 
-         if (sortOption === 'latest') {
+        if (sortOption === 'latest') {
             return bDate - aDate; // Descending by date
         } else if (sortOption === 'oldest') {
             return aDate - bDate; // Ascending by date
@@ -492,6 +603,7 @@ function getRelativeTime(dateString) {
 let fetchInProgress = false;
 
 async function fetchPhotos(isHome) {
+
     if (fetchInProgress) return; // Prevent duplicate calls
     fetchInProgress = true;
 
@@ -514,7 +626,7 @@ async function fetchPhotos(isHome) {
     photosContainer.innerHTML = '';
 
 
-   
+
 
     // Get all photos liked by the current user
     const userLikesQuery = query(
@@ -542,56 +654,56 @@ async function fetchPhotos(isHome) {
 
     const snapshot = await getDocs(photosRef);
     for (let docSnapshot of snapshot.docs) {
-            const photo = docSnapshot.data();
-        
-            const userRef = doc(db, 'users', photo.userId); // Reference to the user document
-            const userDoc = await getDoc(userRef); // Fetch the user document
-            const user = userDoc.data() || {}; // Extract user data
+        const photo = docSnapshot.data();
 
-            const relativeTime = getRelativeTime(photo.uploadDate); // Get the relative time
-             
-           // Check if the current user has liked this photo
-           const isLikedByCurrentUser = likedPhotoIds.includes(docSnapshot.id);
+        const userRef = doc(db, 'users', photo.userId); // Reference to the user document
+        const userDoc = await getDoc(userRef); // Fetch the user document
+        const user = userDoc.data() || {}; // Extract user data
 
-           // Fetch the last user who liked the photo
-           let lastLikedByUsername = '';
-           let likesCount = 0;
-           const likesRef = collection(db, 'Likes');
-           const likesQuery = query(
-               likesRef,
-               where('photoId', '==', docSnapshot.id),
-               orderBy('timestamp', 'desc')
-           );
+        const relativeTime = getRelativeTime(photo.uploadDate); // Get the relative time
 
+        // Check if the current user has liked this photo
+        const isLikedByCurrentUser = likedPhotoIds.includes(docSnapshot.id);
 
-           const likesSnapshot = await getDocs(likesQuery);
-            if (!likesSnapshot.empty) {
-                likesCount = likesSnapshot.size; // Count of total likes
-                const lastLike = likesSnapshot.docs[0].data();
-                const lastLikerRef = doc(db, 'users', lastLike.userId);
-                const lastLikerDoc = await getDoc(lastLikerRef);
-                lastLikedByUsername = lastLikerDoc.exists()
-                    ? `@${lastLikerDoc.data().username || 'Anonymous'}`
-                    : 'Anonymous';
-            }
-
-            // Determine the "Liked by" text
-            let likedByText = '';
-            if (likesCount === 1) {
-                likedByText = `Liked by ${lastLikedByUsername}`;
-            } else if (likesCount > 1) {
-                likedByText = `Liked by ${lastLikedByUsername} and ${likesCount - 1} others`;
-            }
+        // Fetch the last user who liked the photo
+        let lastLikedByUsername = '';
+        let likesCount = 0;
+        const likesRef = collection(db, 'Likes');
+        const likesQuery = query(
+            likesRef,
+            where('photoId', '==', docSnapshot.id),
+            orderBy('timestamp', 'desc')
+        );
 
 
-            // Format hashtags
-            const hashtagsHTML = photo.hashtags && photo.hashtags.length
-                ? photo.hashtags.map(tag => `#${tag}`).join(' ')
-                : '';
+        const likesSnapshot = await getDocs(likesQuery);
+        if (!likesSnapshot.empty) {
+            likesCount = likesSnapshot.size; // Count of total likes
+            const lastLike = likesSnapshot.docs[0].data();
+            const lastLikerRef = doc(db, 'users', lastLike.userId);
+            const lastLikerDoc = await getDoc(lastLikerRef);
+            lastLikedByUsername = lastLikerDoc.exists()
+                ? `@${lastLikerDoc.data().username || 'Anonymous'}`
+                : 'Anonymous';
+        }
+
+        // Determine the "Liked by" text
+        let likedByText = '';
+        if (likesCount === 1) {
+            likedByText = `Liked by ${lastLikedByUsername}`;
+        } else if (likesCount > 1) {
+            likedByText = `Liked by ${lastLikedByUsername} and ${likesCount - 1} others`;
+        }
+
+
+        // Format hashtags
+        const hashtagsHTML = photo.hashtags && photo.hashtags.length
+            ? photo.hashtags.map(tag => `#${tag}`).join(' ')
+            : '';
 
 
 
-                const photoHTML = `
+        const photoHTML = `
                 <div class="feed" data-photo-id="${docSnapshot.id}" data-owner-id="${photo.userId}">
                     <div class="head">
                         <div class="user">
@@ -632,9 +744,9 @@ async function fetchPhotos(isHome) {
                     <div class="comments text-muted">View all ${photo.commentsCount || 0} comments</div>
                 </div>
             `;
-            photosContainer.innerHTML += photoHTML;
-            
-        
+        photosContainer.innerHTML += photoHTML;
+
+
     }
 }
 
@@ -665,7 +777,7 @@ async function toggleLike(photoId, ownerId, liked) {
     const currentUserId = auth.currentUser.uid; // Current logged-in user ID
     const currentUsername = sessionStorage.getItem('username') || 'Anonymous'; // Assuming username is stored
 
-     try {
+    try {
         // Check if the like already exists
         const likeQuery = query(
             likesRef,
@@ -700,17 +812,17 @@ async function toggleLike(photoId, ownerId, liked) {
                 likesCount: increment(1),
             });
 
-          // Save like details in the ActivityLogs
-          await addDoc(activityLogsRef, {
-            action: 'like',
-            photoId: photoId,
-            senderId: currentUserId, // The user who liked
-            receiverId: ownerId, // The photo owner
-            timestamp: new Date(),
-        });
+            // Save like details in the ActivityLogs
+            await addDoc(activityLogsRef, {
+                action: 'like',
+                photoId: photoId,
+                senderId: currentUserId, // The user who liked
+                receiverId: ownerId, // The photo owner
+                timestamp: new Date(),
+            });
 
-        console.log(`Photo ${photoId} liked by ${currentUsername}`);
-    } else {
+            console.log(`Photo ${photoId} liked by ${currentUsername}`);
+        } else {
             // Remove a like
             const likeQuery = query(
                 likesRef,
@@ -720,8 +832,8 @@ async function toggleLike(photoId, ownerId, liked) {
             const likeSnapshot = await getDocs(likeQuery);
             likeSnapshot.forEach((doc) => deleteDoc(doc.ref));
 
-             // Log the "removeLike" activity
-             await addDoc(activityLogsRef, {
+            // Log the "removeLike" activity
+            await addDoc(activityLogsRef, {
                 action: 'removeLike',
                 photoId: photoId,
                 senderId: currentUserId, // The user who unliked
@@ -752,70 +864,50 @@ async function performSearch(searchText) {
 
     const lowerCaseText = searchText.toLowerCase();
 
-    // Firestore queries for users, locations, and hashtags
-    const userQuery = query(
-        collection(db, "users"),
-        where("role", "==", "user"),
-        where("status", "==", "active")
-    );
-    const locationQuery = collection(db, "Location");
-    const hashtagQuery = collection(db, "Hashtag");
-
     try {
-        // Fetch matching users
-        const userSnapshot = await getDocs(userQuery);
-        const userResults = userSnapshot.docs
-            .map((doc) => doc.data())
-            .filter(
-                (user) =>
-                    user.username.toLowerCase().includes(lowerCaseText) ||
-                    user.firstName.toLowerCase().includes(lowerCaseText) ||
-                    user.lastName.toLowerCase().includes(lowerCaseText)
-            )
-            .map((user) => ({
-                type: "user",
-                displayText: `${user.firstName} ${user.lastName} (@${user.username})`,
-                id: doc.id,
-            }));
+        // Firestore query to fetch all albums
+        const albumsRef = collection(db, "Albums");
+        const albumsSnapshot = await getDocs(albumsRef);
 
-        // Fetch matching locations
-        const locationSnapshot = await getDocs(locationQuery);
-        const locationResults = locationSnapshot.docs
-            .map((doc) => doc.data())
-            .filter(
-                (location) =>
-                    location.city.toLowerCase().includes(lowerCaseText) ||
-                    location.country.toLowerCase().includes(lowerCaseText)
-            )
-            .map((location) => ({
-                type: "location",
-                displayText: `${location.city}, ${location.country}`,
-                id: doc.id,
-            }));
+        // Filter album results based on the search text
+        const matchingAlbums = albumsSnapshot.docs
+            .map(doc => ({
+                id: doc.id, // Album ID
+                name: doc.data().name // Album name
+            }))
+            .filter(album => album.name.toLowerCase().includes(lowerCaseText));
 
-        // Fetch matching hashtags
-        const hashtagSnapshot = await getDocs(hashtagQuery);
-        const hashtagResults = hashtagSnapshot.docs
-            .map((doc) => doc.data())
-            .filter((hashtag) =>
-                hashtag.hashtag.toLowerCase().includes(lowerCaseText.replace("#", ""))
-            )
-            .map((hashtag) => ({
-                type: "hashtag",
-                displayText: `#${hashtag.hashtag}`,
-                id: doc.id,
-            }));
+        // Generate album suggestions
+        const suggestions = albumResults.map((album) => ({
+            type: "album",
+            displayText: `Album: ${album.name}`,
+            id: album.id,
+        }));
 
-        // Combine all results
-        const results = [...userResults, ...locationResults, ...hashtagResults];
+        // Check if any albums match
+        if (matchingAlbums.length > 0) {
+            // Assuming only the first matching album is selected
+            const selectedAlbum = matchingAlbums[0];
 
-        // Display the suggestions
-        displaySuggestions(results);
+            // Save the album ID to localStorage
+            localStorage.setItem('currentAlbumId', selectedAlbum.id);
+
+            console.log(`Album found: ${selectedAlbum.name} (ID: ${selectedAlbum.id})`);
+
+            // Redirect to the PhotoGallery page
+            window.location.href = "PhotoGallery.html";
+        } else {
+            suggestionsContainer.innerHTML = `<p>No albums found matching "${searchText}".</p>`;
+        }
+
+        // Display the album suggestions
+        displaySuggestions(suggestions);
     } catch (error) {
-        console.error("Error performing search:", error);
+        console.error("Error performing album search:", error);
         suggestionsContainer.innerHTML = `<p>Error loading suggestions.</p>`;
     }
 }
+
 
 function displaySuggestions(results) {
     suggestionsContainer.innerHTML = ""; // Clear previous suggestions
@@ -830,20 +922,27 @@ function displaySuggestions(results) {
         suggestionItem.className = "suggestion-item";
 
         suggestionItem.innerHTML = `
-    <div class="suggestion-content">
-        <span class="suggestion-text">${result.displayText}</span>
-        <span class="suggestion-type">(${result.type})</span>
-    </div>
-`;
-
+            <div class="suggestion-content">
+                <span class="suggestion-text">${result.displayText}</span>
+                <span class="suggestion-type">(${result.type})</span>
+            </div>
+        `;
 
         suggestionItem.addEventListener("click", () => {
-            handleSuggestionClick(result);
+            if (result.type === "album") {
+                // Save album ID to localStorage and redirect
+                localStorage.setItem("currentAlbumId", result.id);
+                console.log(`Album selected: ${result.displayText} with ID ${result.id}`);
+                window.location.href = "PhotoGallery.html";
+            } else {
+                console.error("Unknown suggestion type:", result.type);
+            }
         });
 
         suggestionsContainer.appendChild(suggestionItem);
     });
 }
+
 
 function handleSuggestionClick(result) {
     switch (result.type) {
@@ -1118,60 +1217,60 @@ document.getElementById("notifications").addEventListener("click", async () => {
 
         const notificationsRef = collection(db, "Notifications");
 
-      // Query to get notifications with status 'unopen'
-      const unopenNotificationsQuery = query(
-        notificationsRef,
-        where("receiverId", "==", userId),
-        where("status", "==", "unopen")
-    );
+        // Query to get notifications with status 'unopen'
+        const unopenNotificationsQuery = query(
+            notificationsRef,
+            where("receiverId", "==", userId),
+            where("status", "==", "unopen")
+        );
 
-    const notificationsSnapshot = await getDocs(unopenNotificationsQuery);
-
-
-    if (notificationsSnapshot.empty) {
-        console.log("No 'unopen' notifications found.");
-        return;
-    }
-
-    // Batch update: Mark all notifications as "open"
-    const batch = writeBatch(db); // Correct batch initialization
-    notificationsSnapshot.forEach((doc) => {
-        const notificationRef = doc.ref;
-        batch.update(notificationRef, { status: "open" });
-    });
-
-    await batch.commit(); // Commit the batch operation
-    console.log("All 'unopen' notifications marked as 'open'.");
-
-    // Refresh the notification count after the update
-    updateNotificationCounts();
+        const notificationsSnapshot = await getDocs(unopenNotificationsQuery);
 
 
-       // Display the notifications in the popup or UI
-       const notificationList = document.getElementById("notification-list");
-       if (notificationList) {
-           notificationList.innerHTML = ""; // Clear previous notifications
+        if (notificationsSnapshot.empty) {
+            console.log("No 'unopen' notifications found.");
+            return;
+        }
 
-           if (notificationsSnapshot.empty) {
-               notificationList.innerHTML = `<p>No new notifications.</p>`;
-           } else {
-               notificationsSnapshot.forEach((doc) => {
-                   const notificationData = doc.data();
-                   const notificationItem = document.createElement("div");
-                   notificationItem.className = "notification-item";
-                   notificationItem.innerHTML = `
+        // Batch update: Mark all notifications as "open"
+        const batch = writeBatch(db); // Correct batch initialization
+        notificationsSnapshot.forEach((doc) => {
+            const notificationRef = doc.ref;
+            batch.update(notificationRef, { status: "open" });
+        });
+
+        await batch.commit(); // Commit the batch operation
+        console.log("All 'unopen' notifications marked as 'open'.");
+
+        // Refresh the notification count after the update
+        updateNotificationCounts();
+
+
+        // Display the notifications in the popup or UI
+        const notificationList = document.getElementById("notification-list");
+        if (notificationList) {
+            notificationList.innerHTML = ""; // Clear previous notifications
+
+            if (notificationsSnapshot.empty) {
+                notificationList.innerHTML = `<p>No new notifications.</p>`;
+            } else {
+                notificationsSnapshot.forEach((doc) => {
+                    const notificationData = doc.data();
+                    const notificationItem = document.createElement("div");
+                    notificationItem.className = "notification-item";
+                    notificationItem.innerHTML = `
                        <p><strong>${notificationData.category}</strong>: Related to photo ID ${notificationData.photoId}</p>
                        <p>${new Date(notificationData.timestamp.toDate()).toLocaleString()}</p>
                    `;
-                   notificationList.appendChild(notificationItem);
-               });
-           }
-       }
+                    notificationList.appendChild(notificationItem);
+                });
+            }
+        }
 
-      
-   } catch (error) {
-       console.error("Error handling notifications:", error);
-   }
+
+    } catch (error) {
+        console.error("Error handling notifications:", error);
+    }
 });
 
 

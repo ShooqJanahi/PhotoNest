@@ -2,7 +2,7 @@
 
 // Import Firebase services
 import { db, storage } from './firebaseConfig.js'; //Imports db (Firestore) and storage (Firebase Storage)
-import { collection, addDoc, query, where, getDocs, doc, updateDoc, increment, getDoc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js'; //Firestore methods for database operations
+import { collection, addDoc, query, where, getDocs, doc, updateDoc, increment, getDoc, arrayUnion } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js'; //Firestore methods for database operations
 import { ref, uploadBytesResumable, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js'; //Firebase Storage methods to handle file uploads and retrieve URLs
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js'; //Firebase Authentication methods to manage user sessions and verify authentication
 
@@ -87,138 +87,56 @@ function redirectToLogin() {
 }
 
 
-// Handle file upload and save data to Firestore
-document.querySelector('.upload-btn').addEventListener('click', async () => {
 
-    //Collects form data such as caption, location, privacy status, and user ID
-    const caption = document.getElementById('caption').value;
-    const city = document.getElementById('city').value.trim().toLowerCase();
-    const country = document.getElementById('country').value.trim().toLowerCase();
-    const isPrivate = document.getElementById('private').checked;
-    const userId = auth.currentUser?.uid;
 
-    //Validates that a user is logged in and a file is selected
-    if (!userId || !document.getElementById('fileInput').files[0]) {
-        alert('Please select an image to upload and ensure you are logged in.');
-        return;
+
+/**
+ * Function to add a photo to the Album collection.
+ * @param {string} albumName - The name of the album (e.g., city and country).
+ * @param {string} photoId - The ID of the uploaded photo.
+ * @param {string} category - The default category (e.g., "Hashtag", "Location").
+ */
+async function addPhotoToAlbum(albumName, photoId, category) {
+    const albumRef = collection(db, "Albums");
+    const q = query(albumRef, where("name", "==", albumName));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+        // If the album doesn't exist, create it
+        await addDoc(albumRef, {
+            name: albumName,
+            photoIds: [photoId],
+            category: category, // Add default category
+            createdAt: new Date().toISOString(),
+        });
+        console.log(`New album created: ${albumName} with photoId: ${photoId}`);
+    } else {
+        // If album exists, update its photoIds array
+        const albumDoc = querySnapshot.docs[0];
+        const albumDocRef = doc(db, "Albums", albumDoc.id);
+
+        await updateDoc(albumDocRef, {
+            photoIds: incrementArray(photoId), // Add photo ID to the array
+        });
+
+        console.log(`PhotoId added to existing album: ${albumName}`);
     }
+}
 
-    if (!city || !country) {
-        alert('Please provide both city and country.');
-        return;
-    }
-
-    //Creates a unique filename and reference for Firebase Storage
-    const file = document.getElementById('fileInput').files[0];
-    const fileName = `${userId}_${Date.now()}_${file.name}`;
-    const storageRef = ref(storage, `photos/${fileName}`);
-
-    if (!file) {
-        alert('Please select a file to upload.');
-        return;
-    }
-
-    if (!allowedImageFormats.includes(file.type)) {
-        alert('Invalid file format. Please select a valid image file (JPEG, PNG, GIF).');
-        return;
-    }
-
-    if (file.size > maxFileSizeMB * 1024 * 1024) {
-        alert(`File size exceeds ${maxFileSizeMB}MB. Please select a smaller file.`);
-        return;
-    }
-
-    // Check if location exists and add it if necessary, and update photo count
-    await checkAndAddOrUpdateLocation(city, country);
-
-    // Start the upload process
-    const uploadTask = uploadBytesResumable(storageRef, file);
-    console.log("Starting upload for file:", file.name);
+/**
+ * Utility to add a value to an array (Firestore array union).
+ * @param {string} value - The value to add to the array.
+ */
+function incrementArray(value) {
+    return arrayUnion(value);
+}
 
 
-    // Monitor upload progress, by Updating the progress bar and text during file upload
-    uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            console.log("Upload is " + progress + "% done");
-            document.getElementById("progress-bar").style.width = progress + "%"; // Update the progress bar width
-            document.getElementById("progress-text").textContent = "Upload " + Math.round(progress) + "%"; // Update the progress text
-        },
-
-        (error) => {
-            console.error("Error uploading file:", error);
-            alert('Failed to upload photo. Please try again.');
-        },
-
-        //Saves the uploaded photo's metadata in Firestore. Resets the form after successful upload
-        async () => {
-            // Handle upload success
-            try {
-                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                const status = isPrivate ? 'Private' : 'Public';
-
-                // Retrieve hashtags from the input
-                const hashtags = getHashtagsFromInput(); // Extract hashtags from the input
 
 
-                if (isPrivate) {
-                    // Add the photo to VaultPhoto collection if marked as private
-                    await addDoc(collection(db, 'VaultPhoto'), {
-                        caption,
-                        city,
-                        country,
-                        imageUrl: downloadURL,
-                        userId,
-                        uploadDate: new Date().toISOString(),
-                        hashtags, // Save hashtags in the VaultPhoto document
-                    });
-                    console.log("Photo added to VaultPhoto collection.");
-                } else { 
-                    await addDoc(collection(db, 'Photos'), {
-                    caption,
-                    city,
-                    country,
-                    imageUrl: downloadURL,
-                    
-                    userId,
-                    uploadDate: new Date().toISOString(),
-                    likesCount: 0,
-                    commentsCount: 0,
-                    hashtags, // Save hashtags in the photo document
-
-                });
-                console.log("Photo added to Photos collection.");
-                }
-
-                // Increment the user's posts count
-                await incrementUserPostsCount(userId);
-
-                // Log the activity
-                const username = sessionStorage.getItem("username") || "unknown user";
-                await logActivity(userId, "photoUploaded", `Photo uploaded with caption: ${caption}`);
-
-                // Update the label text with the uploaded photo name
-                document.querySelector('.upload-label span').textContent = file.name;
-
-                // Save hashtags to Firestore and increment their photo count
-                await saveHashtagsToFirestore(hashtags);
-
-                // Update the label text with the uploaded photo name
-                document.querySelector('.upload-label span').textContent = file.name;
-
-                alert('Photo uploaded successfully!');
-                resetUploadForm();
-            } catch (error) {
-                console.error('Error saving photo details to Firestore:', error);
-                alert('Failed to save photo details. Please try again.');
-            }
-        }
-    );
-});
 
 // Function to check and add/update location and photo count
-async function checkAndAddOrUpdateLocation(city, country) {
+async function checkAndAddOrUpdateLocation(city, country, photoId) {
 
     const locationsRef = collection(db, "Location");
     const q = query(locationsRef, where("city", "==", city), where("country", "==", country));
@@ -229,8 +147,8 @@ async function checkAndAddOrUpdateLocation(city, country) {
         await addDoc(locationsRef, {
             city,
             country,
-            photoCount: 1
-
+            photoCount: 1,
+            photoIds: [photoId],
         });
         const username = sessionStorage.getItem("username") || "unknown user";
         await logActivity(auth.currentUser?.uid, "locationCreated", `Location created: ${city}, ${country}`);
@@ -240,14 +158,15 @@ async function checkAndAddOrUpdateLocation(city, country) {
         const locationDoc = querySnapshot.docs[0];
         const locationRef = doc(db, "Location", locationDoc.id);
         await updateDoc(locationRef, {
-            photoCount: increment(1)
+            photoCount: increment(1),
+            photoIds: incrementArray(photoId),
         });
     }
 }
 
 
 // Save hashtags to Firestore
-async function saveHashtagsToFirestore(hashtags) {
+async function saveHashtagsToFirestore(hashtags, photoId) {
     const hashtagRef = collection(db, 'Hashtag');
 
     for (const hashtag of hashtags) {
@@ -255,7 +174,11 @@ async function saveHashtagsToFirestore(hashtags) {
         const querySnapshot = await getDocs(q);
 
         if (querySnapshot.empty) {
-            await addDoc(hashtagRef, { hashtag, photoCount: 1 });
+            await addDoc(hashtagRef, {
+                hashtag,
+                photoCount: 1,
+                photoIds: [photoId]
+            });
             const username = sessionStorage.getItem("username") || "unknown user";
             await logActivity(auth.currentUser?.uid, "hashtagCreated", `Hashtag created: ${hashtag}`);
 
@@ -263,7 +186,10 @@ async function saveHashtagsToFirestore(hashtags) {
         } else {
             const hashtagDoc = querySnapshot.docs[0];
             const hashtagDocRef = doc(db, 'Hashtag', hashtagDoc.id);
-            await updateDoc(hashtagDocRef, { photoCount: increment(1) });
+            await updateDoc(hashtagDocRef, {
+                photoCount: increment(1),
+                photoIds: incrementArray(photoId),
+            });
         }
     }
 }
@@ -535,5 +461,184 @@ async function incrementUserPostsCount(userId) {
         console.log(`Successfully incremented postsCount for userId: ${userId}`);
     } catch (error) {
         console.error("Error incrementing postsCount:", error);
+    }
+}
+
+
+
+// Handle file upload and save data to Firestore
+document.querySelector('.upload-btn').addEventListener('click', async () => {
+
+    //Collects form data such as caption, location, privacy status, and user ID
+    const caption = document.getElementById('caption').value;
+    const city = document.getElementById('city').value.trim().toLowerCase();
+    const country = document.getElementById('country').value.trim().toLowerCase();
+    const isPrivate = document.getElementById('private').checked;
+    const userId = auth.currentUser?.uid;
+
+    //Validates that a user is logged in and a file is selected
+    if (!userId || !document.getElementById('fileInput').files[0]) {
+        alert('Please select an image to upload and ensure you are logged in.');
+        return;
+    }
+
+    if (!city || !country) {
+        alert('Please provide both city and country.');
+        return;
+    }
+
+    //Creates a unique filename and reference for Firebase Storage
+    const file = document.getElementById('fileInput').files[0];
+    const fileName = `${userId}_${Date.now()}_${file.name}`;
+    const storageRef = ref(storage, `photos/${fileName}`);
+
+    if (!file) {
+        alert('Please select a file to upload.');
+        return;
+    }
+
+    if (!allowedImageFormats.includes(file.type)) {
+        alert('Invalid file format. Please select a valid image file (JPEG, PNG, GIF).');
+        return;
+    }
+
+    if (file.size > maxFileSizeMB * 1024 * 1024) {
+        alert(`File size exceeds ${maxFileSizeMB}MB. Please select a smaller file.`);
+        return;
+    }
+
+
+
+    // Start the upload process
+    const uploadTask = uploadBytesResumable(storageRef, file);
+    console.log("Starting upload for file:", file.name);
+
+
+    // Monitor upload progress, by Updating the progress bar and text during file upload
+    uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log("Upload is " + progress + "% done");
+            document.getElementById("progress-bar").style.width = progress + "%"; // Update the progress bar width
+            document.getElementById("progress-text").textContent = "Upload " + Math.round(progress) + "%"; // Update the progress text
+        },
+
+        (error) => {
+            console.error("Error uploading file:", error);
+            alert('Failed to upload photo. Please try again.');
+        },
+
+        //Saves the uploaded photo's metadata in Firestore. Resets the form after successful upload
+        async () => {
+            // Handle upload success
+            try {
+                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                const status = isPrivate ? 'Private' : 'Public';
+
+                // Retrieve hashtags from the input
+                const hashtags = getHashtagsFromInput(); // Extract hashtags from the input
+                let photoId; // Declare photoId at a higher scope
+
+                if (isPrivate) {
+                    // Add the photo to VaultPhoto collection if marked as private
+                    await addDoc(collection(db, 'VaultPhoto'), {
+                        caption,
+                        city,
+                        country,
+                        imageUrl: downloadURL,
+                        userId,
+                        uploadDate: new Date().toISOString(),
+                        hashtags, // Save hashtags in the VaultPhoto document
+                    });
+                    console.log("Photo added to VaultPhoto collection.");
+                } else {
+                    const photoDocRef = await addDoc(collection(db, 'Photos'), {
+                        caption,
+                        city,
+                        country,
+                        imageUrl: downloadURL,
+                        userId,
+                        uploadDate: new Date().toISOString(),
+                        likesCount: 0,
+                        commentsCount: 0,
+                        hashtags, // Save hashtags in the photo document
+                    });
+                    photoId = photoDocRef.id; // Correctly retrieve the document ID
+                    console.log("Photo added to Photos collection.");
+                }
+                // Ensure photoId is defined before calling dependent functions
+                if (photoId) {
+                    // Save hashtags and locations, including the photoId
+                    await saveHashtagsToFirestore(hashtags, photoId);
+                    await checkAndAddOrUpdateLocation(city, country, photoId);
+
+                    // Save to Album collection
+                    const albumName = `${city}, ${country}`; // Default album name
+                    await addPhotoToAlbum(albumName, photoId, "Location");
+
+                    // Save to Album collection for hashtags
+                    await checkAndAddOrUpdateAlbumWithHashtags(hashtags, photoId);
+
+                    // Increment the user's posts count
+                    await incrementUserPostsCount(userId);
+
+                    // Log the activity
+                    const username = sessionStorage.getItem("username") || "unknown user";
+                    await logActivity(userId, "photoUploaded", `Photo uploaded with caption: ${caption}`);
+                }
+                // Update the label text with the uploaded photo name
+                document.querySelector('.upload-label span').textContent = file.name;
+
+                // Save hashtags to Firestore and increment their photo count
+                await saveHashtagsToFirestore(hashtags, photoId);
+
+                // Update the label text with the uploaded photo name
+                document.querySelector('.upload-label span').textContent = file.name;
+
+                alert('Photo uploaded successfully!');
+                resetUploadForm();
+            } catch (error) {
+                console.error('Error saving photo details to Firestore:', error);
+                alert('Failed to save photo details. Please try again.');
+            }
+        }
+    );
+
+});
+
+/**
+ * Function to check for existing albums with matching hashtags and add/update them.
+ * If no matching album is found, create a new one.
+ * @param {array} hashtags - Array of hashtags input by the user.
+ * @param {string} photoId - The ID of the uploaded photo.
+ */
+async function checkAndAddOrUpdateAlbumWithHashtags(hashtags, photoId) {
+    const albumRef = collection(db, "Albums"); // Reference to Albums collection
+
+    for (const hashtag of hashtags) {
+        const q = query(albumRef, where("name", "==", hashtag), where("category", "==", "Hashtag"));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+            // If no matching album is found, create a new album
+            await addDoc(albumRef, {
+                name: hashtag,
+                photoIds: [photoId],
+                category: "Hashtag",
+                createdAt: new Date().toISOString(),
+                
+            });
+            console.log(`New album created for hashtag: #${hashtag}`);
+        } else {
+            // If a matching album exists, update its photoIds array
+            const albumDoc = querySnapshot.docs[0];
+            const albumDocRef = doc(db, "Albums", albumDoc.id);
+
+            await updateDoc(albumDocRef, {
+                photoIds: arrayUnion(photoId), // Add the photoId to the album's photoIds array
+            });
+            console.log(`PhotoId added to existing album for hashtag: #${hashtag}`);
+        }
     }
 }

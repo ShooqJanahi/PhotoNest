@@ -1,187 +1,188 @@
+/* Apply general styles for the entire body */
 body {
-    margin: 0;
-    font-family: 'Inter', sans-serif;
-    display: flex;
-    height: 100vh;
-    background-color: #f4f3f8;
+    margin: 0; /* Remove default margin */
+    font-family: 'Inter', sans-serif; /* Use 'Inter' font for consistent typography */
+    display: flex; /* Make the body a flex container */
+    height: 100vh; /* Full viewport height */
+    background-color: #f4f3f8; /* Light background color */
 }
-
+/* Main container for all content */
 .container {
-    display: flex;
-    width: 100%;
+    display: flex; /* Flexbox layout for horizontal sections */
+    width: 100%; /* Full width */
 }
-
+/* Left-side image section */
 .image-section {
-    flex: 1;
-    background-image: url('../assets/Vault.png');
-    background-size: cover;
-    background-position: center;
+    flex: 1; /* Take up 50% of the screen width */
+    background-image: url('../assets/Vault.png'); /* Set background image */
+    background-size: cover; /* Ensure the image covers the entire section */
+    background-position: center; /* Center the background image */
 }
-
+/* Right-side form section */
 .form-section {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 40px;
-    background-color: #f4f3f8;
+    flex: 1; /* Take up the remaining 50% */
+    display: flex; /* Flexbox layout for centering */
+    flex-direction: column; /* Arrange items in a column */
+    justify-content: center; /* Vertically center the content */
+    align-items: center; /* Horizontally center the content */
+    padding: 40px; /* Add spacing around the content */
+    background-color: #f4f3f8; /* Background color matches body */
 }
-
+/* Header (title) styling in the form section */
 .form-section h1 {
-    font-size: 2.5rem;
-    font-weight: 800;
-    margin-bottom: 10px;
+    font-size: 2.5rem; /* Large font size */
+    font-weight: 800; /* Bold weight */
+    margin-bottom: 10px;  /* Space below the heading */
 }
-
+/* Description text below the title */
 .form-section p {
-    font-size: 1rem;
-    margin-bottom: 30px;
-    color: #555;
+    font-size: 1rem; /* Standard font size */
+    margin-bottom: 30px; /* Space below the text */
+    color: #555; /* Light gray text */
 }
-
+/* Styling for form input group (passcode input) */
 .form-group {
-    width: 100%;
-    max-width: 300px;
-    margin-bottom: 20px;
-    position: relative;
+    width: 100%; /* Full width */
+    max-width: 300px; /* Limit input width */
+    margin-bottom: 20px; /* Space below the input */
+    position: relative; /* Allow positioning of the icon */
 }
-
+/* Input field styling */
 .form-group input {
-    width: 100%;
-    padding: 10px 40px 10px 15px;
-    border-radius: 25px;
-    border: 1px solid #ddd;
-    font-size: 1rem;
+    width: 100%; /* Full width */
+    padding: 10px 40px 10px 15px; /* Add padding (left/right spacing) */
+    border-radius: 25px; /* Rounded corners */
+    border: 1px solid #ddd; /* Light gray border */
+    font-size: 1rem; /* Font size */
 }
-
+/* Icon inside the input field */
 .form-group i {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #888;
+    position: absolute; /* Position the icon within the container */
+    right: 15px; /* Distance from the right edge */
+    top: 50%; /* Center vertically */
+    transform: translateY(-50%); /* Adjust for exact center alignment */
+    color: #888; /* Gray color */
 }
-
+/* Styling for links in the form section */
 .form-section a {
-    color: #888;
-    font-size: 0.9rem;
-    text-decoration: none;
-    margin-bottom: 30px;
+    color: #888; /* Gray text color */
+    font-size: 0.9rem; /* Small font size */
+    text-decoration: none; /* Remove underline */
+    margin-bottom: 30px; /* Space below the link */
 }
-
+/* Styling for button links (anchor tags with buttons) */
 .form-section a.button-link {
-    display: inline-block;
-    width: 100%;
-    max-width: 300px;
-    text-decoration: none;
-    margin-bottom: 10px;
+    display: inline-block; /* Block-level anchor with button styling */
+    width: 100%; /* Full width */
+    max-width: 300px; /* Limit width */
+    text-decoration: none; /* Remove underline */
+    margin-bottom: 10px; /* Space between buttons */
 }
-
+/* Button styling */
 .form-section a.button-link button {
-    width: 100%;
-    padding: 10px;
-    border-radius: 25px;
-    border: none;
-    background-color: #6c63ff;
-    color: #fff;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s;
+    width: 100%; /* Full button width */
+    padding: 10px;  /* Padding for better spacing */
+    border-radius: 25px; /* Rounded corners */
+    border: none; /* Remove border */
+    background-color: #6c63ff; /* Primary color (purple) */
+    color: #fff; /* White text */
+    font-size: 1rem; /* Font size */
+    font-weight: 600; /* Semi-bold */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s;  /* Smooth color transition */
 }
-
+/* Hover effect for buttons */
 .form-section a.button-link button:hover {
-    background-color: #5753c9;
+    background-color: #5753c9; /* Darker purple on hover */
 }
 
-/* Overlay for grey background */
+/* Overlay background for popups */
 .overlay {
-    position: fixed;
+    position: fixed; /* Fixed to cover the entire screen */
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    z-index: 999;
+    background: rgba(0, 0, 0, 0.6); /* Semi-transparent black */
+    z-index: 999; /* Below the popup but above other content */
 }
 
 /* Popup container */
 .popup {
-    position: fixed;
+    position: fixed; /* Center the popup */
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    padding: 20px;
-    z-index: 1000;
-    width: 90%;
-    max-width: 400px;
-    text-align: center;
+    transform: translate(-50%, -50%); /* Adjust to center */
+    background: #fff; /* White background */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow effect */
+    padding: 20px; /* Padding inside the popup */
+    z-index: 1000; /* Above the overlay */
+    width: 90%; /* Responsive width */
+    max-width: 400px; /* Limit maximum width */
+    text-align: center; /* Center text */
 }
 
-/* Popup content */
+/* Popup title styling */
 .popup-content h2 {
-    font-size: 1.5rem;
-    margin-bottom: 10px;
+    font-size: 1.5rem; /* Font size for title */
+    margin-bottom: 10px; /* Space below title */
 }
-
+/* Popup description text */
 .popup-content p {
-    font-size: 1rem;
-    margin-bottom: 20px;
+    font-size: 1rem; /* Standard font size */
+    margin-bottom: 20px; /* Space below paragraph */
 }
-
+/* Popup input labels */
 .popup-content label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 600;
+    display: block; /* Display on new line */
+    margin-bottom: 5px; /* Space below label */
+    font-weight: 600; /* Semi-bold text */
 }
-
+/* Input fields inside popup */
 .popup-content input {
-    width: calc(100% - 20px);
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 1rem;
+    width: calc(100% - 20px); /* Full width with padding adjustment */
+    padding: 10px; /* Padding inside input */
+    margin-bottom: 15px; /* Space below each input */
+    border: 1px solid #ccc; /* Gray border */
+    border-radius: 5px; /* Rounded corners */
+    font-size: 1rem; /* Font size */
 }
 
-/* Popup buttons */
+/* Popup buttons container */
 .popup-buttons {
-    display: flex;
-    justify-content: space-between;
+    display: flex; /* Arrange buttons horizontally */
+    justify-content: space-between; /* Space between buttons */
 }
-
+/* General styling for popup buttons */
 .popup-buttons button {
-    background-color: #6a1b9a;
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
+    background-color: #6a1b9a; /* Purple color */
+    color: #fff; /* White text */
+    padding: 10px 20px; /* Button padding */
+    border: none; /* Remove border */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    font-weight: bold; /* Bold text */
 }
-
+/* Hover effect for popup buttons */
 .popup-buttons button:hover {
-    background-color: #8e3aad;
+    background-color: #8e3aad; /* Darker purple */
 }
-
+/* Cancel button styling */
 .popup-buttons button[type="button"] {
-    background-color: #ccc;
-    color: #333;
+    background-color: #ccc; /* Light gray color */
+    color: #333; /* Darker text */
 }
 
 .popup-buttons button[type="button"]:hover {
-    background-color: #aaa;
+    background-color: #aaa; /* Darker gray */
 }
 
 
 /* Responsive layout for tablets */
 @media (max-width: 768px) {
     .container {
-        flex-direction: column;
+        flex-direction: column; /* Stack sections vertically */
         width: 90%;
         height: auto;
     }
@@ -191,11 +192,11 @@ body {
     }
 
     .form-section {
-        padding: 20px;
+        padding: 20px; /* Reduce padding */
     }
 
     .form-section h1 {
-        font-size: 2rem;
+        font-size: 2rem; /* Smaller title size */
     }
 
     .form-group input {
@@ -206,30 +207,30 @@ body {
 /* Responsive layout for mobile */
 @media (max-width: 480px) {
     .form-section h1 {
-        font-size: 1.8rem;
+        font-size: 1.8rem; /* Smaller font size for title */
     }
 
     .form-section p {
-        font-size: 0.9rem;
+        font-size: 0.9rem; /* Smaller paragraph text */
     }
 
     .form-group input {
-        padding: 8px 30px 8px 15px;
-        font-size: 0.9rem;
+        padding: 8px 30px 8px 15px; /* Adjust padding */
+        font-size: 0.9rem; /* Smaller input text */
     }
 
     .form-section button {
-        padding: 8px;
-        font-size: 0.9rem;
+        padding: 8px; /* Smaller button padding */
+        font-size: 0.9rem; /* Smaller font size */
     }
 }
-
+/* Input container for password visibility toggle */
 .input-container {
     position: relative;
-    display: flex;
-    align-items: center;
+    display: flex; /* Align icon and input inline */
+    align-items: center; /* Vertically center items */
 }
-
+/* Input styling inside input container */
 .input-container input {
     width: 100%;
     padding: 10px 15px 10px 15px;
@@ -237,7 +238,7 @@ body {
     border: 1px solid #ddd;
     font-size: 1rem;
 }
-
+/* Icon styling for toggle visibility */
 .input-container i.toggle-visibility {
     position: absolute;
     right: 15px;
@@ -249,5 +250,5 @@ body {
 }
 
 .input-container i.toggle-visibility:hover {
-    color: #5753c9;
+    color: #5753c9; /* Change icon color on hover */
 }

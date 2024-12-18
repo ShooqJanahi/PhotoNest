@@ -1,34 +1,37 @@
-// Import Firebase services
+// Import Firebase services for authentication and Firestore database
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js'; // Firebase Auth import
 import { collection, doc, getDoc, getDocs, query, where, deleteDoc, updateDoc, setDoc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
-import { db } from './firebaseConfig.js'; // Firebase configuration import
-import { logout } from './login.js';
-import { createNotificationPopup, openPopup } from './Notification.js';
+import { db } from './firebaseConfig.js'; // Import Firebase configuration
+import { logout } from './login.js'; // Import logout functionality
+import { createNotificationPopup, openPopup } from './Notification.js';  // Import notification popup functions
 
+//=================================== Notification section =========================
 // Attach an event listener to the bell icon
 document.querySelector('.fa-bell').addEventListener('click', () => {
-    let popup = document.getElementById('notification-popup');
-    let overlay = document.getElementById('popup-overlay');
+    let popup = document.getElementById('notification-popup'); // Notification popup
+    let overlay = document.getElementById('popup-overlay'); // Overlay for the popup
 
-    // Create the popup if it doesn't exist
+    // If the popup doesn't exist, create it dynamically
     if (!popup || !overlay) {
-        createNotificationPopup();
+        createNotificationPopup(); // Function to create the popup
     }
 
-    // Open the popup
+    // Open the notification popup
     openPopup();
 });
 
+//=================================== END of Notification section =========================
 
+// gallery container to render photos
 const galleryContainer = document.querySelector('.gallery');
 
-// DOM elements
+// DOM elements for profile dropdown functionality
 const profileDropdown = document.querySelector('.profile-dropdown');
 
-// Initialize Firebase Auth
+// Initialize Firebase authentication
 const auth = getAuth();
 
-// Listen for auth state changes
+// Listen for changes in user authentication state
 onAuthStateChanged(auth, (user) => {
     if (user) {
         // Save user data to sessionStorage
@@ -39,23 +42,24 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-// Show/hide dropdown on hover
+// Profile Dropdown: Show dropdown menu when hovering over the profile container
 const profileContainer = document.querySelector('.profile-container');
 
 profileContainer.addEventListener('mouseenter', () => {
-    profileDropdown.classList.remove('hidden'); // Show dropdown
+    profileDropdown.classList.remove('hidden'); // Show the dropdown menu
 });
 
 profileContainer.addEventListener('mouseleave', () => {
-    profileDropdown.classList.add('hidden'); // Hide dropdown
+    profileDropdown.classList.add('hidden'); // Hide the dropdown menu
 });
 
+// Handle the logout action when the logout button is clicked
 document.getElementById('logout-button').addEventListener('click', async (event) => {
     event.preventDefault();
-    await logout();
+    await logout(); // Call the logout function
 });
 
-
+// Fetch the user's profile image from Firestore and display it
 async function fetchUserProfileImage() {
     const user = JSON.parse(sessionStorage.getItem('user')); // Get the logged-in user from session storage
     if (!user || !user.uid) {
@@ -67,10 +71,10 @@ async function fetchUserProfileImage() {
         // Fetch the user's document from Firestore
         const userDoc = await getDoc(doc(db, "users", user.uid));
         if (userDoc.exists()) {
-            const userData = userDoc.data();
+            const userData = userDoc.data(); // Get user data
             console.log("User data fetched successfully:", userData); // Debugging step
 
-            // Check if the profilePic field exists
+            // If profilePic exists, set it to the profile image element
             if (userData.profilePic) {
                 const profileImageElement = document.getElementById('profile-image');
                 if (profileImageElement) {
@@ -92,13 +96,14 @@ async function fetchUserProfileImage() {
 
 // Function to toggle the visibility of the options menu
 document.addEventListener('DOMContentLoaded', async () => {
+    await fetchPhotos();
     const galleryContainer = document.querySelector('.gallery');
 
-     // Fetch and display the profile image
-     await fetchUserProfileImage();
-     await loadVaultPhotosForUser(); // Load vault photos for the current user
+    // Fetch and display the profile image
+    await fetchUserProfileImage();
+    await loadVaultPhotosForUser(); // Load vault photos for the current user
 
-     galleryContainer.addEventListener('click', (event) => {
+    galleryContainer.addEventListener('click', (event) => {
         // Check if the click is on the ellipsis icon
         if (event.target.classList.contains('options-icon')) {
             const optionsMenu = event.target.nextElementSibling;
@@ -133,23 +138,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 });
 
-
-// Handle dropdown menu actions
+// Function to handle gallery options (delete, edit, make public)
 function handleOptionsAction(action, photoId) {
     switch (action) {
         case 'delete':
-            deletePhoto(photoId);
+            deletePhoto(photoId); // Call the delete function
             break;
         case 'edit':
-            editPhoto(photoId);
+            editPhoto(photoId); // Call the edit function
             break;
-       
-            
         case 'public':
-            turnPhotoPublic(photoId);
+            turnPhotoPublic(photoId); // Call the make public function
             break;
         default:
-            console.error('Unknown action:', action);
+            console.error('Unknown action:', action); // Log unknown actions
     }
 }
 
@@ -160,7 +162,6 @@ async function editPhoto(photoId) {
         console.error("Photo ID is required to edit the photo.");
         return;
     }
-
     try {
         // Fetch the current photo data
         const photoDoc = await getDoc(doc(db, "VaultPhoto", photoId));
@@ -169,7 +170,6 @@ async function editPhoto(photoId) {
             alert("Photo not found.");
             return;
         }
-
         const photoData = photoDoc.data();
 
         // Create a popup for editing
@@ -192,7 +192,6 @@ async function editPhoto(photoId) {
                 </div>
             </div>
         `;
-
         document.body.appendChild(popup);
 
         // Add event listeners for Save and Cancel buttons
@@ -203,7 +202,6 @@ async function editPhoto(photoId) {
                 .split(",")
                 .map(tag => tag.trim())
                 .filter(tag => tag !== "");
-
             try {
                 // Update the photo data in Firestore
                 await updateDoc(doc(db, "VaultPhoto", photoId), {
@@ -235,16 +233,8 @@ async function editPhoto(photoId) {
 }
 
 
-
-
-
-
-
-
-
-
-
-
+// =================================== Load Photos for User =====================================
+// Load and render the vault photos for the logged-in user
 async function loadVaultPhotosForUser() {
     const currentUser = JSON.parse(sessionStorage.getItem('user')); // Get the logged-in user from session storage
 
@@ -255,11 +245,13 @@ async function loadVaultPhotosForUser() {
     }
 
     try {
+        // Query Firestore for photos uploaded by the current user
         const photosRef = collection(db, 'VaultPhoto');
         // Query only photos where `userId` matches the current user's UID
         const userPhotosQuery = query(photosRef, where('userId', '==', currentUser.uid));
         const photosSnapshot = await getDocs(userPhotosQuery);
 
+        // Map photo documents into an array of photo data
         const photos = photosSnapshot.docs.map((doc) => ({
             id: doc.id,
             ...doc.data(),
@@ -276,22 +268,22 @@ async function loadVaultPhotosForUser() {
     }
 }
 
+// =================================== END of Load Photos for User =====================================
 
-
-
-
-
+// =================================== Render Photos =====================================
 
 
 /**
- * Function to render photos in the gallery and handle redirection to ViewImage.html.
+ * // Render photos dynamically into the gallery
  * @param {Array} photos - Array of photo objects.
  */
 async function renderPhotos(photos) {
-    galleryContainer.innerHTML = ''; // Clear the container before rendering
+    galleryContainer.innerHTML = ''; // Clear existing content in the gallery container
 
+    // Loop through each photo and render it
     for (const photo of photos) {
-        let userData = { username: 'Unknown', profilePic: '../assets/Default_profile_icon.jpg' }; // Default values
+        let userData = { username: 'Unknown', profilePic: '../assets/Default_profile_icon.jpg' }; // Default user data
+        // Fetch user data if available
         if (photo.userId) {
             const userDoc = await getDoc(doc(db, 'users', photo.userId));
             if (userDoc.exists()) {
@@ -299,26 +291,24 @@ async function renderPhotos(photos) {
                 userData.username = userData.username || 'Unknown';
             }
         }
+        // Format the timestamp into a relative time format
+        const timestamp = photo.uploadDate
+            ? new Date(photo.uploadDate).toLocaleString('en-US', {
+                timeZone: 'UTC',
+                hour: 'numeric',
+                minute: 'numeric',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            })
+            : 'Unknown time';
+        // Generate hashtags if available
+        const hashtags = photo.hashtags
+            ? photo.hashtags.map(tag => `<span class="hashtag">#${tag}</span>`).join(' ')
+            : '';
 
-         // Format the timestamp into a relative time format
-         const timestamp = photo.uploadDate
-         ? new Date(photo.uploadDate).toLocaleString('en-US', { 
-             timeZone: 'UTC', 
-             hour: 'numeric', 
-             minute: 'numeric', 
-             year: 'numeric', 
-             month: '2-digit', 
-             day: '2-digit' 
-         })
-         : 'Unknown time';
-     
-     
-
-     const hashtags = photo.hashtags
-         ? photo.hashtags.map(tag => `<span class="hashtag">#${tag}</span>`).join(' ')
-         : '';
-
-         const photoCard = `
+        // Photo card HTML
+        const photoCard = `
          <div class="card" data-photo-id="${photo.id}">
              <!-- User Info -->
              <div class="user-info">
@@ -356,21 +346,20 @@ async function renderPhotos(photos) {
              </div>
          </div>
          `;
-
-
-    
-        galleryContainer.innerHTML += photoCard;
+        galleryContainer.innerHTML += photoCard; // Append the photo card to the container
     }
-
     // Add click event listeners to the options menu icons
     addDropdownEventListeners();
 }
 
-//================ Photo Dropdown =================
+// =================================== END of Render Photos =====================================
+
+
+// =================================== Add Dropdown Event Listeners =====================================
+// Handle toggling the options menu
 function addDropdownEventListeners() {
     const optionsIcons = document.querySelectorAll('.options-icon');
 
-    // Add click event listeners to each options icon
     optionsIcons.forEach((icon) => {
         icon.addEventListener('click', (event) => {
             event.stopPropagation(); // Prevent click from bubbling to the document
@@ -383,7 +372,7 @@ function addDropdownEventListeners() {
                 }
             });
 
-            // Toggle visibility of the clicked menu
+            // Toggle visibility of the current options menu
             optionsMenu.classList.toggle('show');
         });
     });
@@ -398,17 +387,12 @@ function addDropdownEventListeners() {
 
 //================ END of Photo Dropdown =================
 
-
-
-// DOM elements
-const searchInput = document.getElementById('search-input');
-const sortSelect = document.getElementById('sort-select');
-const searchButton = document.getElementById('search-button');
-const photosContainer = document.getElementById('photos-container');
+const searchButton = document.getElementById('search-button'); // Target the search button
+const searchInput = document.getElementById('search-input');   // Target the search input
+const sortSelect = document.getElementById('sort-select');     // Target the sorting dropdown
 
 // Global variable to store displayed photos
 let displayedPhotos = [];
-
 
 // Fetch and display photos based on search and sort criteria
 async function fetchPhotos() {
@@ -422,95 +406,56 @@ async function fetchPhotos() {
             ...doc.data()
         }));
 
-        // Initially render all photos
-        const sortOption = sortSelect.value; // Get current sort option
-        const sortedPhotos = sortPhotos(displayedPhotos, sortOption); // Apply sorting
-        renderPhotos(sortedPhotos);
+        // Render the initial photos with sorting applied
+        renderFilteredAndSortedPhotos();
     } catch (error) {
         console.error("Error fetching photos:", error);
         galleryContainer.innerHTML = `<p>Error loading photos. Please try again later.</p>`;
     }
 }
 
-// Function to filter photos based on the search query
-async function filterPhotos(searchQuery) {
-    // If the search query is empty, render all photos
-    if (!searchQuery) {
-        renderPhotos(displayedPhotos);
-        return;
+// Combined Function: Filter and Sort Photos
+function renderFilteredAndSortedPhotos() {
+    const searchQuery = searchInput.value.trim().toLowerCase(); // Get search input
+    const sortOption = sortSelect.value; // Get selected sort option
+
+    // Apply search filtering
+    let filteredPhotos = displayedPhotos.filter(photo => {
+        const caption = photo.caption?.toLowerCase() || '';
+        const hashtags = photo.hashtags?.map(tag => tag.toLowerCase()).join(' ') || '';
+        const city = photo.city?.toLowerCase() || '';
+        const country = photo.country?.toLowerCase() || '';
+        const uploadDate = photo.uploadDate
+            ? new Date(photo.uploadDate).toLocaleString('en-US').toLowerCase() // Converts date to searchable string
+            : '';
+
+        return (
+            caption.includes(searchQuery) || // Search caption
+            hashtags.includes(searchQuery) || // Search hashtags
+            city.includes(searchQuery) || // Search city
+            country.includes(searchQuery) || // Search country
+            uploadDate.includes(searchQuery) // Search date and time
+        );
+    });
+
+    // Apply sorting
+    if (sortOption === "latest") {
+        filteredPhotos.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate));
+    } else if (sortOption === "oldest") {
+        filteredPhotos.sort((a, b) => new Date(a.uploadDate) - new Date(b.uploadDate));
     }
 
-    const filteredPhotos = [];
-    const userCache = new Map(); // Initialize the user cache
-
-    for (const photo of displayedPhotos) {
-        // Check if hashtags, city, country, or caption match the query
-        const matchesCaption = photo.caption?.toLowerCase().includes(searchQuery);
-        const matchesCity = photo.city?.toLowerCase().includes(searchQuery);
-        const matchesCountry = photo.country?.toLowerCase().includes(searchQuery);
-        const matchesHashtags = photo.hashtags?.some(tag => tag.toLowerCase().includes(searchQuery));
-
-        // Fetch user document to check username, using cache to avoid redundant fetches
-        let matchesUsername = false;
-        if (photo.userId) {
-            if (userCache.has(photo.userId)) {
-                const userData = userCache.get(photo.userId);
-                matchesUsername = userData.username?.toLowerCase().includes(searchQuery);
-            } else {
-                const userDoc = await getDoc(doc(db, "users", photo.userId));
-                if (userDoc.exists()) {
-                    const userData = userDoc.data();
-                    userCache.set(photo.userId, userData); // Cache the user data
-                    matchesUsername = userData.username?.toLowerCase().includes(searchQuery);
-                }
-            }
-        }
-
-        // Add the photo to filtered results if any condition matches
-        if (matchesCaption || matchesCity || matchesCountry || matchesHashtags || matchesUsername) {
-            filteredPhotos.push(photo);
-        }
-    }
-
-    // Render the filtered photos
+    // Render the filtered and sorted photos
     renderPhotos(filteredPhotos);
 }
 
-
-
-// Trigger search and sort when the user interacts with input
-searchButton.addEventListener('click', async () => {
-    const searchQuery = searchInput.value.trim().toLowerCase();
-    const sortOption = sortSelect.value;
-    const sortedPhotos = sortPhotos(displayedPhotos, sortOption); // Apply sort to all photos
-    await filterPhotos(searchQuery, sortedPhotos); // Filter the sorted photos
+// Event Listeners for Search and Sort
+searchButton.addEventListener('click', renderFilteredAndSortedPhotos);
+searchInput.addEventListener('keypress', (event) => {
+    if (event.key === 'Enter') renderFilteredAndSortedPhotos();
 });
+sortSelect.addEventListener('change', renderFilteredAndSortedPhotos);
 
-// Apply sorting when sort option changes
-sortSelect.addEventListener('change', async () => {
-    const searchQuery = searchInput.value.trim().toLowerCase();
-    const sortOption = sortSelect.value;
-    const sortedPhotos = sortPhotos(displayedPhotos, sortOption); // Sort photos
-    await filterPhotos(searchQuery, sortedPhotos); // Filter sorted photos
-});
-
-// Trigger search when the user presses 'Enter' in the search input
-searchInput.addEventListener('keypress', async (event) => {
-    if (event.key === 'Enter') {
-        const searchQuery = searchInput.value.trim().toLowerCase();
-        await filterPhotos(searchQuery);
-    }
-});
-
-// Helper function to sort photos
-function sortPhotos(photos, sortOption) {
-    if (sortOption === "latest") {
-        return photos.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate)); // Newest first
-    } else if (sortOption === "oldest") {
-        return photos.sort((a, b) => new Date(a.uploadDate) - new Date(b.uploadDate)); // Oldest first
-    }
-    return photos; // Default: no sorting
-}
 
 
 

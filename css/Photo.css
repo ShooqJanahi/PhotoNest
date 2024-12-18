@@ -553,7 +553,58 @@ body {
     background-color: #5c00b3;
 }
 
+/*Vault */
+/* Options Menu Icon - Specific to #photo-gallery-page */
+#photo-gallery-page .options-icon {
+    position: absolute; /* Position relative to the card */
+    top: 10px; /* Distance from the top */
+    right: 10px; /* Distance from the right */
+    font-size: 20px; /* Size of the 3-dot menu icon */
+    color: #6a0dad; /* Purple color for branding */
+    cursor: pointer; /* Change cursor on hover */
+    z-index: 10; /* Ensure it appears above the photo */
+    transition: color 0.2s ease; /* Smooth hover effect */
+}
 
+#photo-gallery-page .options-icon:hover {
+    color: #5c00b3; /* Darker purple on hover */
+}
+
+/* Options Menu - Specific to #photo-gallery-page */
+#photo-gallery-page .options-menu {
+    position: absolute;
+    top: 35px; /* Below the options icon */
+    right: 10px; /* Align with the icon */
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: none; /* Hidden by default */
+    z-index: 1000;
+    min-width: 150px;
+}
+
+#photo-gallery-page .options-menu.show {
+    display: block; /* Show the menu */
+}
+
+#photo-gallery-page .options-btn {
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    padding: 10px;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#photo-gallery-page .options-btn:hover {
+    background-color: #f4f4f4;
+}
+
+/*Vault*/
 
 
 
@@ -687,10 +738,14 @@ body {
 }
 
 .options-icon {
-    font-size: 18px; /* Adjust size of the 3 dots */
-    color: #6a0dad; /* Set color of the 3 dots */
-    cursor: pointer; /* Show pointer cursor on hover */
-    transition: color 0.2s; /* Smooth hover effect */
+    position: absolute; /* Position relative to the .card container */
+    top: 10px; /* Space from the top */
+    right: 10px; /* Space from the right */
+    font-size: 20px; /* Size of the 3-dot menu icon */
+    color: #6a0dad; /* Purple color for branding */
+    cursor: pointer; /* Pointer cursor on hover */
+    z-index: 10; /* Ensure it stays above other content */
+    transition: color 0.2s ease; /* Smooth color change on hover */
 }
 
 .options-icon:hover {
