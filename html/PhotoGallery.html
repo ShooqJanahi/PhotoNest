@@ -1,68 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8"> <!-- Character encoding and viewport settings for responsive design -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Photo Gallery</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
-    <link rel="stylesheet" href="../css/Photo.css">
-    <link rel="stylesheet" href="../css/Notification.css">
+    <title>Photo Gallery</title> <!-- Page title -->
 
-    <script type="module" src="../js/firebaseConfig.js"></script>
-    <script type="module" src="../js/login.js"></script>
-    <script type="module" src="../js/PhotoGallery.js"></script>
-    <script type="module" src="../js/Notification.js"></script>
+    <!-- External CSS for icons, fonts, and custom styles -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"> <!-- Google Fonts -->
+    <link rel="stylesheet" href="../css/Photo.css"> <!-- Custom styles for the photo gallery -->
+    <link rel="stylesheet" href="../css/Notification.css"> <!-- Custom styles for notifications -->
 
+    <!-- JavaScript modules for functionality -->
+    <script type="module" src="../js/firebaseConfig.js"></script> <!-- Firebase configuration -->
+    <script type="module" src="../js/login.js"></script> <!-- Login/logout logic -->
+    <script type="module" src="../js/PhotoGallery.js"></script> <!-- Gallery-specific functionality -->
+    <script type="module" src="../js/Notification.js"></script> <!-- Notification logic -->
+
+    <!-- Favicon for browser tab -->
     <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png">
 </head>
 <body>
-    <div class="wrapper">
-        <!-- Header -->
+    <div class="wrapper"> <!-- Main wrapper for the page -->
+       <!-- Header Section -->
     <div class="header">
+        <!-- Logo Section -->
         <div class="logo">
-            <img src="../assets/PhotoNest_Transparent.png" alt="PhotoNest Logo" class="logo-image">
+            <img src="../assets/PhotoNest_Transparent.png" alt="PhotoNest Logo" class="logo-image"> <!-- Logo image -->
             PhotoNest
         </div>
         
-
+        <!-- Search Bar Section -->
         <div class="search-bar">
             <input type="text" id="search-input" placeholder="Search photos (username, date, location, hashtag, caption)...">
-            <select id="sort-select">
+            <select id="sort-select"> <!-- Dropdown for sorting options -->
                 <option value="popularity">Most Popular</option>
                 <option value="latest">Latest</option>
                 <option value="oldest">Oldest</option>
             </select>
-            <button id="search-button">Search</button>
+            <button id="search-button">Search</button> <!-- Search button -->
         </div>
         
-
+        <!-- Icons Section -->
         <div class="icons">
-            
+            <!-- Notification Bell -->
             <i class="fas fa-bell" id="notification-bell"></i>
 
-
-
+             <!-- Profile Section -->
             <div class="profile-container">
-                <img src="../assets/Default_profile_icon.jpg" alt="User Profile" id="profile-image">
-                <div class="profile-dropdown hidden">
+                <img src="../assets/Default_profile_icon.jpg" alt="User Profile" id="profile-image"> <!-- Default user profile image -->
+                <div class="profile-dropdown hidden"> <!-- Dropdown for user settings -->
                     <a href="Settings.html">Settings</a>
                     <a href="#" id="logout-button">Logout</a>
                 </div>
             </div>
-
-
         </div>
     </div>
 
+    <!-- Gallery Section -->
     <div class="gallery">
+         <!-- Example Photo Card -->
         <div class="card">
-            <img src="https://placehold.co/300x200" alt="Beautiful landscape with green hills and a lake">
-            <div class="card-footer">
-                <span>Photo Title</span>
-                <i class="fas fa-ellipsis-v options-icon"></i>
-                <div class="options-menu hidden">
-                    <button class="options-btn remove-btn">Remove from Album</button>
+            <img src="https://placehold.co/300x200" alt="Beautiful landscape with green hills and a lake"> <!-- Photo preview -->
+            <div class="card-footer"> <!-- Footer containing photo info -->
+                <span>Photo Title</span> <!-- Placeholder for the photo title -->
+                <i class="fas fa-ellipsis-v options-icon"></i> <!-- Options icon for additional actions -->
+                <div class="options-menu hidden"> <!-- Hidden options menu -->
+                    <button class="options-btn remove-btn">Remove from Album</button> <!-- Button to remove photo -->
                 </div>
             </div>
         </div>
@@ -71,14 +75,16 @@
     </div>
     <!-- Footer Section -->
     <div class="footer">
+         <!-- Quick Links -->
         <div>
             <h4>Quick Links</h4>
-            <a href="UserDashboard.html#Home">Home</a> <!-- Link to privacy policy -->
-            <a href="UserDashboard.html#Home">Explore</a>
-            <a href="Album.html">Album</a>
-            <a href="">Messages</a>
+            <a href="UserDashboard.html#Home">Home</a> <!-- Link to home section -->
+            <a href="UserDashboard.html#Explore">Explore</a> <!-- Link to explore section -->
+            <a href="Album.html">Album</a> <!-- Link to album page -->
+            <a href="Messages.html">Messages</a> <!-- Placeholder for messages link -->
     
         </div>
+         <!-- Social Media Links -->
         <div>
             <h4>Follow Us</h4>
             <div class="social-icons"> <!-- Social media icons -->

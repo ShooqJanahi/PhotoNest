@@ -3,11 +3,13 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap");
 
 :root {
+  /* Theme colors */
   --primary-color-hue: 252;
   --dark-color-lightness: 17%;
   --light-color-lightness: 95%;
   --white-color-lightness: 100%;
 
+   /* Color variables */
   --color-white: hsl(252, 30%, var(--white-color-lightness));
   --color-light: hsl(252, 30%, var(--light-color-lightness));
   --color-gray: hsl(var(--primary-color-hue), 15%, 65%);
@@ -18,6 +20,7 @@
   --color-dark: hsl(252, 30%, var(--dark-color-lightness));
   --color-black: hsl(252, 30%, 10%);
 
+  /* Sizing variables */
   --border-radius: 2rem;
   --card-border-radius: 1rem;
   --btn-padding: 0.6rem 2rem;
@@ -31,6 +34,7 @@
 *,
 *::before,
 *::after {
+  /* Apply universal styles */
   margin: 0;
   padding: 0;
   outline: 0;

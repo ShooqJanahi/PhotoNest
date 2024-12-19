@@ -300,7 +300,7 @@ function setupAlbumCardListeners() {
             area.addEventListener('click', () => {
                 const albumId = card.getAttribute('data-album-id');
                 localStorage.setItem('currentAlbumId', albumId);
-                localStorage.setItem('currentAlbumIdTimestamp', Date.now());
+              
                 window.location.href = 'PhotoGallery.html'; // Redirection
             });
         });

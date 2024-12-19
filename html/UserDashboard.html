@@ -4,62 +4,62 @@
 <html lang="en">
 
 <head>
-    <!-- Meta tags -->
-    <meta charset="UTF-8">
+
+    <meta charset="UTF-8"> <!-- Meta tags for character encoding, compatibility, and responsiveness -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+    <title>Home</title> <!-- Page title -->
 
     <!-- ICONSCOUT CDN for icons -->
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v2.1.6/css/unicons.css">
     <link href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" rel="stylesheet">
-<link href="https://unicons.iconscout.com/release/v4.0.0/css/solid.css" rel="stylesheet">
+    <link href="https://unicons.iconscout.com/release/v4.0.0/css/solid.css" rel="stylesheet">
 
 
-    <!-- Custom stylesheet -->
+    <!-- Custom stylesheets for the dashboard and notification popups -->
     <link rel="stylesheet" href="../css/UserDashboard.css">
     <link rel="stylesheet" href="../css/Notification.css"> <!-- notification popup style sheet-->
-    
-    <!--font Awesome CDN-->
-    <link rel="stylesheet" href= "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
-    
 
-    <!--Google Chart-->
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
+
+
+    <!-- Google Charts for displaying analytics -->
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
-    <!-- Favicon -->
+    <!-- Favicon for the browser tab -->
     <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png">
 
-    <!-- jQuery -->
+    <!-- jQuery for DOM manipulation and AJAX -->
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-    <!-- Firebase SDKs -->
+    <!-- Firebase SDKs for authentication, Firestore, and app initialization -->
     <script type="module" src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
     <script type="module" src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
     <script type="module" src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
 
-    <!-- Firebase Initialization and app scripts as modules -->
+    <!-- App-specific JavaScript files -->
     <script type="module" src="../js/firebaseConfig.js"></script>
     <script type="module" src="../js/login.js"></script>
-    
     <script type="module" src="../js/UserDashboard.js"></script>
     <script type="module" src="../js/Notification.js"></script> <!-- notificatioion popup-->
-    
-
 </head>
 
 
 <body>
     <nav>
         <div class="container">
+             <!-- Logo section -->
             <div class="logo">
                 <img src="../assets/PhotoNest_Transparent.png" alt="PhotoNest Logo" class="logo-image">
                 <h2 class="log">PhotoNest</h2>
             </div>
 
+            <!-- Search bar -->
             <div class="search-bar">
-                <i class="uil uil-search"></i>
-                <input type="search"  id="search-bar" placeholder="Search for creators, inspirations, and projects" autocomplete="off"/>
+                <i class="uil uil-search"></i> <!-- Search icon -->
+                <input type="search" id="search-bar" placeholder="Search for creators and inspirations"
+                    autocomplete="off" />
                 <div id="search-suggestions" class="suggestions"></div>
             </div>
 
@@ -83,7 +83,8 @@
             <div class="left">
                 <a class="profile">
                     <div class="profile-photo">
-                        <img src="../assets/Default_profile_icon.jpg" id="sidebar-profile-image" alt="User Profile Picture">
+                        <img src="../assets/Default_profile_icon.jpg" id="sidebar-profile-image"
+                            alt="User Profile Picture">
                     </div>
                     <div class="handle">
                         <h4 id="profile-name">Loading...</h4>
@@ -105,15 +106,17 @@
                         <h3>Explore</h3>
                     </a>
                     <a class="menu-item" id="notifications">
-                        <span><i class="uil uil-bell"><small class="notification-count" id="notification-count"></small></i></span>
+                        <span><i class="uil uil-bell"><small class="notification-count"
+                                    id="notification-count"></small></i></span>
                         <h3>Notifications</h3>
                     </a>
                     <a class="menu-item" id="messages-notification" href="Messages.html">
-                        <span><i class="uil uil-envelope-alt"><small class="notification-count" id="message-count"></small></i></span>
+                        <span><i class="uil uil-envelope-alt"><small class="notification-count"
+                                    id="message-count"></small></i></span>
                         <h3>Messages</h3>
                     </a>
-                    
-                    
+
+
                     <a class="menu-item" href="VaultPasscode.html">
                         <span><i class="uis uis-padlock"></i></span>
                         <h3>Vault</h3>
@@ -122,12 +125,12 @@
                         <span><i class="uis uis-scenery"></i></span>
                         <h3>Album</h3>
                     </a>
-                    
+
                     <a class="menu-item" href="UserDashboard.html#analytics">
                         <span><i class="uil uil-chart-line"></i></span>
                         <h3>Analytics</h3>
                     </a>
-                   
+
                     <a class="menu-item" href="Settings.html">
                         <span><i class="uil uil-setting"></i></span>
                         <h3>Settings</h3>
@@ -137,59 +140,59 @@
                         <span><i class="uis uis-signout"></i></span>
                         <h3>Logout</h3>
                     </a>
-                    
+
                 </div>
                 <!------------------- END OF SIDEBAR -------------------->
                 <a href="UploadPhoto.html" class="btn btn-primary">Create Post</a>
             </div>
             <!------------------- END OF LEFT -------------------->
 
-           <!--======================== MIDDLE ==========================-->
-<div class="middle">
-    <form class="create-post">
-        
-        <input type="text" placeholder="Search for photos or users, Diana?" id="search">
-        <!-- Sort Dropdown -->
-        <select id="sort-options" class="btn btn-primary">
-            <option value="latest">Sort by Latest</option>
-            <option value="oldest">Sort by Oldest</option>
-            <option value="popular">Sort by Most Popular</option>
-        </select>
-        <input type="submit" value="Search" class="btn btn-primary">
-    </form>
+            <!--======================== MIDDLE ==========================-->
+            <div class="middle">
+                <form class="create-post">
 
-    <!------------------- FEEDS --------------------->
-    <!---------------------For home and explore --------------->
-    <div class="feeds" data-photo-id="PHOTO_ID" data-owner-id="OWNER_ID">
-        <!-- Dynamic feeds will be loaded here -->
-    </div>
+                    <input type="text" placeholder="Search for photos or users, Diana?" id="search">
+                    <!-- Sort Dropdown -->
+                    <select id="sort-options" class="btn btn-primary">
+                        <option value="latest">Sort by Latest</option>
+                        <option value="oldest">Sort by Oldest</option>
+                        <option value="popular">Sort by Most Popular</option>
+                    </select>
+                    <input type="submit" value="Search" class="btn btn-primary">
+                </form>
 
- <!-------------------- Analytics Section --------------->
- <div class="analytics hidden" id="analytics-section">
-    <div class="analytics-card">
-        <!-- Placeholder card for graphs and charts -->
-       
-       
-        <div id="post-popularity-chart-wrapper" style="overflow-x: auto; white-space: nowrap;">
-            <!-- Placeholder for Google Chart -->
-            <div id="post-popularity-chart" style="display: inline-block; width: 100%;"></div>
+                <!------------------- FEEDS --------------------->
+                <!---------------------For home and explore --------------->
+                <div class="feeds" data-photo-id="PHOTO_ID" data-owner-id="OWNER_ID">
+                    <!-- Dynamic feeds will be loaded here -->
+                </div>
+
+                <!-------------------- Analytics Section --------------->
+                <div class="analytics hidden" id="analytics-section">
+                    <div class="analytics-card">
+                        <!-- Placeholder card for graphs and charts -->
+
+
+                        <div id="post-popularity-chart-wrapper" style="overflow-x: auto; white-space: nowrap;">
+                            <!-- Placeholder for Google Chart -->
+                            <div id="post-popularity-chart" style="display: inline-block; width: 100%;"></div>
+                        </div>
+
+                        <!-- Buttons for zoom control -->
+                        <div class="zoom-controls">
+                            <button id="zoom-in" class="btn btn-primary">+</button>
+                            <button id="zoom-out" class="btn btn-primary">-</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
         </div>
-        
-         <!-- Buttons for zoom control -->
-         <div class="zoom-controls">
-            <button id="zoom-in" class="btn btn-primary">+</button>
-            <button id="zoom-out" class="btn btn-primary">-</button>
-        </div>
-    
-    </div>
-    </div>
-</div>
+        <!------------------------ END OF MIDDLE ------------------------>
 
-</div>
-<!------------------------ END OF MIDDLE ------------------------>
 
-           
-                    
+
         </div>
     </main>
 

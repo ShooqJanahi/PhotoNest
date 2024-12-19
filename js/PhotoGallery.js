@@ -1,14 +1,14 @@
-// Import Firebase services
+// Import Firebase services for authentication and Firestore
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js'; // Firebase Auth import
 import { collection, doc, getDoc, getDocs, query, where } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
 import { db } from './firebaseConfig.js'; // Firebase configuration import
-import { logout } from './login.js';
-import { createNotificationPopup, openPopup } from './Notification.js';
+import { logout } from './login.js';  // Logout function import
+import { createNotificationPopup, openPopup } from './Notification.js'; // Notification popup functions
 
-// Attach an event listener to the bell icon
+// click event listener to the bell icon to show notifications
 document.querySelector('.fa-bell').addEventListener('click', () => {
-    let popup = document.getElementById('notification-popup');
-    let overlay = document.getElementById('popup-overlay');
+    let popup = document.getElementById('notification-popup'); // Get notification popup element
+    let overlay = document.getElementById('popup-overlay'); // Get overlay element
 
     // Create the popup if it doesn't exist
     if (!popup || !overlay) {
@@ -19,19 +19,19 @@ document.querySelector('.fa-bell').addEventListener('click', () => {
     openPopup();
 });
 
-
+// Select the gallery container element for displaying photos
 const galleryContainer = document.querySelector('.gallery');
 
-// DOM elements
+// Select the profile dropdown for user-related actions
 const profileDropdown = document.querySelector('.profile-dropdown');
 
-// Initialize Firebase Auth
+// Initialize Firebase Authentication
 const auth = getAuth();
 
-// Listen for auth state changes
+// Listen for authentication state changes (user login)
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        // Save user data to sessionStorage
+        // Save logged-in user data to sessionStorage
         sessionStorage.setItem('user', JSON.stringify({ uid: user.uid, email: user.email }));
         console.log("User data stored in sessionStorage:", user);
     } else {
@@ -39,23 +39,24 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-// Show/hide dropdown on hover
+// Show profile dropdown on hover
 const profileContainer = document.querySelector('.profile-container');
 
 profileContainer.addEventListener('mouseenter', () => {
-    profileDropdown.classList.remove('hidden'); // Show dropdown
+    profileDropdown.classList.remove('hidden'); // Show dropdown menu
 });
 
 profileContainer.addEventListener('mouseleave', () => {
-    profileDropdown.classList.add('hidden'); // Hide dropdown
+    profileDropdown.classList.add('hidden'); // Hide dropdown menu
 });
 
+// Handle logout button click
 document.getElementById('logout-button').addEventListener('click', async (event) => {
-    event.preventDefault();
-    await logout();
+    event.preventDefault(); // Prevent default form submission
+    await logout(); // Call the logout function
 });
 
-
+// Fetch and display the user's profile image
 async function fetchUserProfileImage() {
     const user = JSON.parse(sessionStorage.getItem('user')); // Get the logged-in user from session storage
     if (!user || !user.uid) {
@@ -67,14 +68,14 @@ async function fetchUserProfileImage() {
         // Fetch the user's document from Firestore
         const userDoc = await getDoc(doc(db, "users", user.uid));
         if (userDoc.exists()) {
-            const userData = userDoc.data();
+            const userData = userDoc.data(); // Extract user data
             console.log("User data fetched successfully:", userData); // Debugging step
 
-            // Check if the profilePic field exists
+            // Check if a profile picture is set for the user
             if (userData.profilePic) {
-                const profileImageElement = document.getElementById('profile-image');
+                const profileImageElement = document.getElementById('profile-image'); // Get profile image DOM element
                 if (profileImageElement) {
-                    profileImageElement.src = userData.profilePic; // Set the profile picture
+                    profileImageElement.src = userData.profilePic; // Update the profile image source
                     console.log("Profile picture set:", userData.profilePic); // Debugging step
                 } else {
                     console.error("Profile image element not found in the DOM.");
@@ -90,37 +91,34 @@ async function fetchUserProfileImage() {
     }
 }
 
-// Function to toggle the visibility of the options menu
+// Handle document-ready actions
 document.addEventListener('DOMContentLoaded', async () => {
-    const gallery = document.querySelector('.gallery');
+    const gallery = document.querySelector('.gallery'); // Select gallery container
 
-     // Fetch and display the profile image
-     await fetchUserProfileImage();
-     await determinePhotoSource();  // Add this below existing logic
+    // Fetch and display the user's profile image
+    await fetchUserProfileImage();
+    await determinePhotoSource();  // Decide which photos to load (default or album)
 
+    // Handle click events for showing/hiding options menus
     gallery.addEventListener('click', (event) => {
         // Check if the click is on an ellipsis icon
         if (event.target.classList.contains('options-icon')) {
-            const optionsMenu = event.target.nextElementSibling;
-
-            // Toggle visibility of the menu
+            const optionsMenu = event.target.nextElementSibling; // Get the corresponding options menu
             if (optionsMenu) {
-                optionsMenu.classList.toggle('hidden');
+                optionsMenu.classList.toggle('hidden');  // Toggle menu visibility
             }
         }
 
         // Close any open menu when clicking outside
         if (!event.target.classList.contains('options-icon')) {
             document.querySelectorAll('.options-menu').forEach(menu => {
-                menu.classList.add('hidden');
+                menu.classList.add('hidden');  // Hide all open menus
             });
         }
     });
 });
-
+// Determine the source of photos to display (album or default collection)
 async function determinePhotoSource() {
-   
-
     const albumId = localStorage.getItem('currentAlbumId'); // Check if an album is selected
     if (albumId) {
         console.log('Album selected, loading album photos...');
@@ -131,24 +129,21 @@ async function determinePhotoSource() {
     }
 }
 
-
-
-
-
-
+// Load photos from a specified Firestore collection
 async function loadPhotosFromCollection(collectionName) {
     try {
-        const photosRef = collection(db, collectionName);
-        const photosSnapshot = await getDocs(photosRef);
+        const photosRef = collection(db, collectionName); // Get reference to collection
+        const photosSnapshot = await getDocs(photosRef); // Fetch all documents
 
+        // Map the documents into an array of photo objects
         const photos = photosSnapshot.docs.map((doc) => ({
             id: doc.id,
             ...doc.data(),
         }));
-        renderPhotos(photos);
+        renderPhotos(photos); // Render the photos in the gallery
     } catch (error) {
         console.error(`Error loading photos from ${collectionName}:`, error);
-        galleryContainer.innerHTML = `<p>Error loading photos. Please try again later.</p>`;
+        galleryContainer.innerHTML = `<p>Error loading photos. Please try again later.</p>`; // Show error message
     }
 }
 
@@ -158,20 +153,22 @@ async function loadPhotosFromCollection(collectionName) {
 const albumId = localStorage.getItem('currentAlbumId');
 if (!albumId) {
     console.error('No album selected.');
-    galleryContainer.innerHTML = '<p>No album selected. Please return to the Albums page and try again.</p>';
+    galleryContainer.innerHTML = '<p>No album selected. Please return to the Albums page and try again.</p>'; // Show warning message
 } else {
-    loadPhotosForAlbum(albumId);
+    loadPhotosForAlbum(albumId); // Load photos for the selected album
 }
 
 /**
  * Function to load photos for a selected album.
  * @param {string} albumId - The ID of the selected album.
  */
+// Global variable to store displayed photos
+let displayedPhotos = []; // Declare early to prevent ReferenceError
+
 async function loadPhotosForAlbum(albumId) {
     try {
-        // Fetch the album document from Firestore
-        const albumDocRef = doc(db, 'Albums', albumId);
-        const albumDoc = await getDoc(albumDocRef);
+        const albumDocRef = doc(db, 'Albums', albumId); // Get the album document reference
+        const albumDoc = await getDoc(albumDocRef); // Fetch the album document
 
         if (!albumDoc.exists()) {
             console.error('Album does not exist.');
@@ -179,8 +176,8 @@ async function loadPhotosForAlbum(albumId) {
             return;
         }
 
-        const albumData = albumDoc.data();
-        const photoIds = albumData.photoIds;
+        const albumData = albumDoc.data(); // Extract album data
+        const photoIds = albumData.photoIds; // Get photo IDs in the album
 
         if (!photoIds || photoIds.length === 0) {
             galleryContainer.innerHTML = '<p>No photos found in this album.</p>';
@@ -189,12 +186,12 @@ async function loadPhotosForAlbum(albumId) {
 
         // Fetch all photos by their IDs
         const photoPromises = photoIds.map(async (photoId) => {
-            const photoDocRef = doc(db, 'Photos', photoId);
-            const photoDoc = await getDoc(photoDocRef);
+            const photoDocRef = doc(db, 'Photos', photoId); // Get photo document reference
+            const photoDoc = await getDoc(photoDocRef); // Fetch the photo document
             return photoDoc.exists() ? { id: photoId, ...photoDoc.data() } : null;
         });
 
-        const photos = (await Promise.all(photoPromises)).filter(photo => photo !== null);
+        const photos = (await Promise.all(photoPromises)).filter(photo => photo !== null); // Filter out invalid photos
 
         if (photos.length === 0) {
             galleryContainer.innerHTML = '<p>No valid photos found in this album.</p>';
@@ -204,7 +201,7 @@ async function loadPhotosForAlbum(albumId) {
         }
     } catch (error) {
         console.error('Error loading photos:', error);
-        galleryContainer.innerHTML = '<p>Error loading photos. Please try again later.</p>';
+        galleryContainer.innerHTML = '<p>Error loading photos. Please try again later.</p>'; // Show error message
     }
 }
 
@@ -214,18 +211,18 @@ async function loadPhotosForAlbum(albumId) {
  * @param {Array} photos - Array of photo objects.
  */
 async function renderPhotos(photos) {
-    galleryContainer.innerHTML = ''; // Clear the container before rendering
-
+    galleryContainer.innerHTML = ''; // Clear previous gallery content
+    
     for (const photo of photos) {
-        let userData = { username: 'Unknown', profilePic: '../assets/Default_profile_icon.jpg' }; // Default values
+        let userData = { username: 'Unknown', profilePic: '../assets/Default_profile_icon.jpg' }; // Default user data
         if (photo.userId) {
-            const userDoc = await getDoc(doc(db, 'users', photo.userId));
+            const userDoc = await getDoc(doc(db, 'users', photo.userId)); // Fetch user data
             if (userDoc.exists()) {
-                userData = userDoc.data();
-                userData.username = userData.username || 'Unknown';
+                userData = userDoc.data(); // Extract user data
+                userData.username = userData.username || 'Unknown'; // Fallback to "Unknown" if no username
             }
         }
-
+        // Create a card for each photo
         const photoCard = `
         <div class="card" data-photo-id="${photo.id}">
             <img src="${photo.imageUrl}" alt="${photo.caption || 'Photo'}">
@@ -242,20 +239,18 @@ async function renderPhotos(photos) {
             </div>
         </div>
     `;
-    
-        galleryContainer.innerHTML += photoCard;
+        galleryContainer.innerHTML += photoCard; // Append the card to the gallery
     }
 
-    // Add click event listeners to photo cards
+    // Adding click event listeners to photo cards
     const photoCards = document.querySelectorAll('.card');
     photoCards.forEach(card => {
         card.addEventListener('click', () => {
-            const photoId = card.getAttribute('data-photo-id');
+            const photoId = card.getAttribute('data-photo-id'); // Get the photo ID
             if (!photoId) {
                 console.error('Photo ID not found on card.');
                 return;
             }
-
             // Save the photo ID in localStorage
             localStorage.setItem('photoId', photoId);
 
@@ -274,30 +269,13 @@ const searchInput = document.getElementById('search-input');
 const sortSelect = document.getElementById('sort-select');
 const searchButton = document.getElementById('search-button');
 const photosContainer = document.getElementById('photos-container');
+const sortOption = sortSelect.value; // Get selected sort option
+const sortedPhotos = sortPhotos(displayedPhotos || [], sortOption);
+renderPhotos(sortedPhotos);
 
-// Global variable to store displayed photos
-let displayedPhotos = [];
 
 
-// Fetch and display photos based on search and sort criteria
-async function fetchPhotos() {
-    try {
-        // Fetch all photos from Firestore
-        const photosRef = collection(db, "Photos");
-        const photosSnapshot = await getDocs(photosRef);
 
-        displayedPhotos = photosSnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        }));
-
-        // Initially render all photos
-        renderPhotos(displayedPhotos);
-    } catch (error) {
-        console.error("Error fetching photos:", error);
-        galleryContainer.innerHTML = `<p>Error loading photos. Please try again later.</p>`;
-    }
-}
 
 // Function to filter photos based on the search query
 async function filterPhotos(searchQuery) {
@@ -363,19 +341,6 @@ searchInput.addEventListener('keypress', async (event) => {
 
 
 
-
-
-// Helper function to check if username matches the search query
-async function doesUsernameMatch(userId, query) {
-    const userDoc = await getDoc(doc(db, "users", userId));
-    if (userDoc.exists()) {
-        const userData = userDoc.data();
-        return userData.name && userData.name.toLowerCase().includes(query);
-    }
-    return false;
-}
-
-// Helper function to sort photos
 function sortPhotos(photos, sortOption) {
     if (sortOption === "popularity") {
         return photos.sort((a, b) => (b.likesCount || 0) - (a.likesCount || 0)); // Most likes first
@@ -386,4 +351,5 @@ function sortPhotos(photos, sortOption) {
     }
     return photos;
 }
+
 
