@@ -42,9 +42,6 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
         }
     });
-
-
-
     // Hide the suggestions dropdown when search bar loses focus
     searchBar.addEventListener("blur", (event) => {
         setTimeout(() => {
@@ -53,15 +50,12 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
         }, 150); // Delay to allow the click event to complete
     });
-    
-
     // Show suggestions when search bar gains focus
     searchBar.addEventListener("focus", () => {
         if (suggestionsContainer.innerHTML.trim() !== "") {
             suggestionsContainer.style.display = "block"; // Show dropdown
         }
     });
-
 
     const searchInput = document.getElementById("search");
 
@@ -73,7 +67,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     });
     // Get the hash value (e.g., #explore or #home) and navigate
-    
     navigateToSection(currentHash);
 
     // Listen for hash changes
@@ -81,7 +74,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         const newHash = window.location.hash;
         navigateToSection(newHash);
     });
-
     // Initialize the rest of the page
     setupPage();
 });
@@ -114,11 +106,6 @@ document.addEventListener("click", (event) => {
         suggestionsContainer.style.display = "none";  // Hide dropdown
     }
 });
-
-
-
-
-
 
 
 
@@ -162,13 +149,9 @@ function filterAndDisplayFeeds(searchTerm) {
 }
 
 
-
-
-
 //Ensure the user is authenticated.
 async function checkUserAuthentication() {
     console.log("Session storage on authentication check:", sessionStorage);
-
 
     document.body.style.display = "none"; // Hide the page content initially
 
@@ -213,16 +196,13 @@ function navigateToSection(hash) {
         return; // Prevent navigation if no user is authenticated
     }
 
-
     // Do not clear elements outside the feeds section
     if (!document.getElementById("notification-popup")) {
         feedsContainer.innerHTML = ''; // Clear the container
     }
 
-
     feedsContainer.innerHTML = ''; // Clear the container
     updateActiveMenu(hash); // Highlight the correct menu item
-
 
     // Clear content and show appropriate section
     if (hash === '#home') {
@@ -302,7 +282,6 @@ function updateActiveMenu(hash) {
 
 //Set up event listeners and initialize the page
 async function setupPage() {
-
     const searchForm = document.querySelector('.create-post'); // Search form element
     const sortDropdown = document.getElementById('sort-options'); // Sort dropdown element
 
@@ -315,7 +294,6 @@ async function setupPage() {
             filterAndSortPosts(searchInput, sortOption); // Filter and sort posts
         });
     }
-
      // Handle sorting changes
     if (sortDropdown) {
         sortDropdown.addEventListener('change', () => {
@@ -324,11 +302,8 @@ async function setupPage() {
             filterAndSortPosts(searchInput, sortOption); // Filter and sort posts
         });
     }
-
-
     const homeMenuItem = document.querySelector('.menu-item.home');
     const exploreMenuItem = document.querySelector('.menu-item.explore');
-
 
     // Wait for authentication to complete
     await new Promise((resolve) => {
@@ -339,8 +314,6 @@ async function setupPage() {
             }
         });
     });
-
-
     // Event listeners for menu items
     if (homeMenuItem) {
         homeMenuItem.removeEventListener('click', () => fetchPhotos(true));
@@ -351,8 +324,6 @@ async function setupPage() {
         exploreMenuItem.removeEventListener('click', () => fetchPhotos(false));
         exploreMenuItem.addEventListener('click', () => fetchPhotos(false));
     }
-
-
     // Like/Unlike event listener
     document.addEventListener('click', async (event) => {
 
@@ -395,7 +366,6 @@ async function setupPage() {
             event.target.classList.toggle('liked'); // Update UI state
         }
     });
-
 
     // Default to sorting posts by latest
     sortDropdown.value = 'latest'; // Default to 'latest'
@@ -446,7 +416,6 @@ function filterAndSortPosts(searchTerm, sortOption) {
         console.error("Feeds container not found.");
         return;
     }
-
     const allPosts = Array.from(feedsContainer.children); // Get all post elements
 
     // Filter posts based on the search term (if provided)
@@ -464,7 +433,6 @@ function filterAndSortPosts(searchTerm, sortOption) {
             caption.includes(searchTerm)
         );
     });
-
     // Sort posts based on the selected option
     const sortedPosts = filteredPosts.sort((a, b) => {
         const aDateElem = a.querySelector('.info small');
@@ -485,7 +453,6 @@ function filterAndSortPosts(searchTerm, sortOption) {
             return bLikes - aLikes; // Descending by likes
         }
     });
-
     // Clear and re-render the feeds with filtered and sorted posts
     feedsContainer.innerHTML = '';
     sortedPosts.forEach((post) => feedsContainer.appendChild(post));
@@ -539,9 +506,6 @@ async function fetchPhotos(isHome) {
 
     // Clear the container before appending new photos
     photosContainer.innerHTML = '';
-
-
-
 
     // Get all photos liked by the current user
     const userLikesQuery = query(
@@ -604,7 +568,6 @@ async function fetchPhotos(isHome) {
             fetchInProgress = false;
             return;
         }
-
         // Render posts
         photosSnapshot.forEach(async (docSnapshot) => {
             const photo = docSnapshot.data();
@@ -774,7 +737,6 @@ async function toggleLike(photoId, ownerId, liked) {
  * @param {string} searchText - The text entered in the search bar.
  */
 
-
 //header search bar
 async function performSearch(searchText) {
     suggestionsContainer.innerHTML = `<p>Searching...</p>`; // Show loading message
@@ -937,7 +899,7 @@ function displaySuggestions(results) {
         } else if (result.type === "user") {
             displayText = `
                 <div style="display: flex; align-items: center;">
-                    <img src="${result.profilePic}" alt="Profile Picture" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
+                    <img src="${result.profilePic}" alt="Profile Picture" class="suggestion-profile-pic">
                     <span>${result.displayText}</span>
                 </div>`;
         }
@@ -1007,7 +969,6 @@ let zoomLevel = 1;
 async function drawPostPopularityChart() {
     const chartContainer = document.getElementById('post-popularity-chart');
     chartContainer.innerHTML = '<p>Loading chart...</p>'; // Loading message
-
     try {
         const photosRef = collection(db, 'Photos');
         const photosSnapshot = await getDocs(photosRef);
@@ -1029,12 +990,10 @@ async function drawPostPopularityChart() {
                 fullCaption, // Tooltip with full text
             ]);
         });
-
         if (chartData.getNumberOfRows() === 0) {
             chartContainer.innerHTML = '<p>No posts available to display popularity.</p>';
             return;
         }
-
         chartOptions = {
             chart: {
                 title: 'Post Popularity',
@@ -1057,7 +1016,6 @@ async function drawPostPopularityChart() {
                 textStyle: { fontSize: 14 },
             },
         };
-
         // Draw the chart
         chart = new google.charts.Bar(chartContainer);
         chart.draw(chartData, google.charts.Bar.convertOptions(chartOptions));
@@ -1328,18 +1286,6 @@ document.getElementById("messages-notification").addEventListener("click", async
         console.error("Error marking messages as read:", error);
     }
 });
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

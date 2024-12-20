@@ -1,143 +1,143 @@
 /* Popup Overlay to block background interactions */
 .popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    position: fixed; /* Makes the overlay stick to the viewport regardless of scrolling */
+    top: 0; /* Aligns the overlay to the top of the viewport */
+    left: 0; /* Aligns the overlay to the left of the viewport */
+    width: 100%; /* Makes the overlay span the full width of the viewport */
+    height: 100%; /* Makes the overlay span the full height of the viewport */
     background: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
-    z-index: 999; /* Below the popup but above other elements */
-    display: none; /* Hidden by default */
+    z-index: 999; /* Ensures the overlay appears above most elements but below the popup */
+    display: none; /* Keeps the overlay hidden by default */
 }
 
 /* Show overlay when popup is active */
 .popup-overlay.active {
-    display: block;
+    display: block; /* Makes the overlay visible when the "active" class is applied */
 }
 
 /* Popup styling */
 .popup {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #5A0C8A; /* Purple background */
-    color: white;
-    width: 90%;
-    max-width: 500px;
-    border-radius: 10px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    display: none; /* Hidden by default */
+    position: fixed; /* Positions the popup relative to the viewport */
+    top: 50%; /* Centers the popup vertically */
+    left: 50%; /* Centers the popup horizontally */
+    transform: translate(-50%, -50%); /* Adjusts the popup's position to be exactly in the center */
+    background: #5A0C8A; /* Sets a purple background color for the popup */
+    color: white; /* Makes the text inside the popup white */
+    width: 90%; /* Sets the popup width to 90% of the viewport */
+    max-width: 500px; /* Limits the maximum width to 500px */
+    border-radius: 10px; /* Rounds the corners of the popup */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Adds a subtle shadow for depth */
+    z-index: 1000; /* Ensures the popup appears above the overlay */
+    padding: 1.5rem; /* Adds padding inside the popup */
+    display: flex; /* Makes the popup a flex container for easy layout management */
+    flex-direction: column; /* Arranges child elements vertically */
+    display: none; /* Keeps the popup hidden by default */
 }
 
 /* Show popup when active */
 .popup.active {
-    display: flex;
+    display: flex; /* Makes the popup visible when the "active" class is applied */
 }
 
 /* Popup Header */
 .popup-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
+    display: flex; /* Aligns header content (title and close button) horizontally */
+    justify-content: space-between; /* Pushes the title and close button to opposite ends */
+    align-items: center; /* Vertically aligns the title and close button */
+    margin-bottom: 1rem; /* Adds space below the header */
 }
 
 .popup-header h3 {
-    font-size: 1.5rem;
-    font-weight: bold;
+    font-size: 1.5rem; /* Sets a large font size for the title */
+    font-weight: bold; /* Makes the title bold */
 }
 
 .popup-header .close-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 1.4rem;
-    color: white;
+    background: none; /* Removes the button's background */
+    border: none; /* Removes the button's border */
+    cursor: pointer; /* Changes the cursor to indicate the button is clickable */
+    font-size: 1.4rem; /* Sets the font size for the close icon */
+    color: white; /* Makes the close icon white */
 }
 
 .popup-header .close-btn:hover {
-    color: #FFD700; /* Gold color for hover effect */
+    color: #FFD700; /* Changes the close button color to gold when hovered */
 }
 
 /* Search and Filter */
 .popup-search {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
+    display: flex; /* Aligns the search input and filter dropdown horizontally */
+    gap: 1rem; /* Adds space between the input and dropdown */
+    margin-bottom: 1rem; /* Adds space below the search area */
 }
 
 .popup-search input,
 .popup-search select {
-    flex: 1;
-    padding: 0.6rem;
-    border: 1px solid white;
-    border-radius: 8px;
-    background: #7C2986; /* A lighter purple */
-    color: white;
-    outline: none;
+    flex: 1; /* Makes the input and dropdown take equal space */
+    padding: 0.6rem; /* Adds padding inside the input and dropdown */
+    border: 1px solid white; /* Adds a white border */
+    border-radius: 8px; /* Rounds the corners */
+    background: #7C2986; /* Sets a lighter purple background */
+    color: white; /* Makes the text inside white */
+    outline: none; /* Removes the focus outline */
 }
 
 .popup-search input::placeholder,
 .popup-search select {
-    color: #D1B3E5; /* Lighter text */
+    color: #D1B3E5; /* Sets a light purple color for placeholder text */
 }
 
 /* Notification List */
 .popup-content {
-    max-height: 300px;
-    overflow-y: auto;
-    scrollbar-width: thin; /* Firefox */
-    scrollbar-color: #FFD700 #5A0C8A;
+    max-height: 300px; /* Limits the height of the notification list */
+    overflow-y: auto; /* Enables vertical scrolling for overflow content */
+    scrollbar-width: thin; /* Sets a thin scrollbar for Firefox */
+    scrollbar-color: #FFD700 #5A0C8A; /* Customizes scrollbar colors (gold and purple) */
 }
 
 .popup-content::-webkit-scrollbar {
-    width: 6px;
+    width: 6px; /* Sets the scrollbar width for WebKit browsers */
 }
 
 .popup-content::-webkit-scrollbar-thumb {
-    background-color: #FFD700;
-    border-radius: 10px;
+    background-color: #FFD700; /* Sets the color of the scrollbar thumb to gold */
+    border-radius: 10px; /* Rounds the edges of the scrollbar thumb */
 }
 
 .popup-content::-webkit-scrollbar-track {
-    background-color: #5A0C8A;
+    background-color: #5A0C8A; /* Sets the scrollbar track color to purple */
 }
 
 .notification-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.8rem;
-    margin-bottom: 0.6rem;
-    border: 1px solid white;
-    border-radius: 8px;
-    background: #6C2A8A;
-    cursor: pointer;
+    display: flex; /* Aligns the notification text and button horizontally */
+    justify-content: space-between; /* Pushes the text and button to opposite ends */
+    align-items: center; /* Vertically aligns the text and button */
+    padding: 0.8rem; /* Adds padding inside the notification item */
+    margin-bottom: 0.6rem; /* Adds space below each notification */
+    border: 1px solid white; /* Adds a white border around the notification */
+    border-radius: 8px; /* Rounds the corners */
+    background: #6C2A8A; /* Sets a darker purple background */
+    cursor: pointer; /* Changes the cursor to indicate the item is clickable */
 }
 
 .notification-item:hover {
-    background: #FFD700; /* Highlight with gold */
-    color: black;
+    background: #FFD700; /* Changes the background to gold when hovered */
+    color: black; /* Changes the text color to black when hovered */
 }
 
 .notification-item span {
-    font-size: 1rem;
+    font-size: 1rem; /* Sets the font size for the notification text */
 }
 
 .delete-notification {
-    background: red;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 0.4rem 0.8rem;
-    cursor: pointer;
+    background: red; /* Sets a red background for the delete button */
+    color: white; /* Makes the text inside white */
+    border: none; /* Removes the button's border */
+    border-radius: 8px; /* Rounds the corners of the button */
+    padding: 0.4rem 0.8rem; /* Adds padding inside the button */
+    cursor: pointer;  /* Changes the cursor to indicate the button is clickable */
 }
 
 .delete-notification:hover {
-    background: darkred;
+    background: darkred; /* Changes the background to a darker red when hovered */
 }

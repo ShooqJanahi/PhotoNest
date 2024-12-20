@@ -2,46 +2,46 @@ import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/
 import { serverTimestamp, orderBy, collection, query, where, getDocs, doc, getDoc, addDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import { db } from "./firebaseConfig.js"; // Firebase configuration import
 
+// Initialize Firebase Authentication
 const auth = getAuth();
 
-// Popup elements
-const createMessagePopup = document.getElementById("createMessagePopup");
-const createMessageForm = document.getElementById("createMessageForm");
-const receiverUsernameInput = document.getElementById("receiverUsername");
-const autocompleteList = document.getElementById("autocompleteList");
-const messageSubjectInput = document.getElementById("messageSubject");
-const messageTextInput = document.getElementById("messageText");
-const cancelCreateMessageButton = document.getElementById("cancelCreateMessage");
-const createMessageButton = document.getElementById("createNewMessage");
+//Defining and access UI elements from the DOM
+const createMessagePopup = document.getElementById("createMessagePopup"); // Popup modal for creating a new message
+const createMessageForm = document.getElementById("createMessageForm"); // Form element within the popup
+const receiverUsernameInput = document.getElementById("receiverUsername"); // Input field for entering the recipient's username
+const autocompleteList = document.getElementById("autocompleteList"); // List element to display autocomplete suggestions for usernames
+const messageSubjectInput = document.getElementById("messageSubject"); // Input field for the message subject
+const messageTextInput = document.getElementById("messageText"); // Text area for entering the message text
+const cancelCreateMessageButton = document.getElementById("cancelCreateMessage"); // Button to cancel and close the popup
+const createMessageButton = document.getElementById("createNewMessage"); // Button to open the "Create New Message" popup
 
-// Event listener for the "Create New Message" button
+// Show the popup when the "Create New Message" button is clicked
 createMessageButton.addEventListener("click", () => {
-    createMessagePopup.classList.remove("hidden"); // Show the popup
+    createMessagePopup.classList.remove("hidden"); // Make the popup visible
 });
 
-// Cancel button to hide the popup
+// Hide the popup when the cancel button is clicked
 cancelCreateMessageButton.addEventListener("click", () => {
-    createMessagePopup.classList.add("hidden");
+    createMessagePopup.classList.add("hidden");  // Hide the popup
 });
 
-// Autocomplete logic for recipient username
+// Handle input for recipient's username to implement autocomplete functionality
 receiverUsernameInput.addEventListener("input", async () => {
-    const searchQuery = receiverUsernameInput.value.trim().toLowerCase();
+    const searchQuery = receiverUsernameInput.value.trim().toLowerCase(); // Get the text the user has typed, in lowercase for case-insensitive search
     if (!searchQuery) {
-        autocompleteList.innerHTML = "";
+        autocompleteList.innerHTML = ""; // If input is empty, clear the autocomplete suggestions
         return;
     }
-
-    const usersRef = collection(db, "users");
+    const usersRef = collection(db, "users"); // Reference the "users" collection in Firestore
     const q = query(usersRef, where("role", "==", "user")); // Only fetch users with role 'user'
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await getDocs(q); // Fetch users from Firestore
 
-    // Filter users by username
+    // Filter users whose usernames match the input text
     const matchingUsers = querySnapshot.docs
         .map((doc) => ({ id: doc.id, ...doc.data() }))
         .filter((user) => user.username?.toLowerCase().includes(searchQuery));
 
-    // Render autocomplete options
+    // Render the list of matching usernames as suggestions
     autocompleteList.innerHTML = matchingUsers
         .map(
             (user) =>
@@ -55,26 +55,27 @@ receiverUsernameInput.addEventListener("input", async () => {
     // Handle selection of username from autocomplete
     autocompleteList.querySelectorAll("li").forEach((item) => {
         item.addEventListener("click", () => {
-            receiverUsernameInput.value = item.querySelector("span").textContent; // Set the input value
-            receiverUsernameInput.dataset.userId = item.dataset.userId; // Save the userId for sending the message
-            autocompleteList.innerHTML = ""; // Clear the list
+            receiverUsernameInput.value = item.querySelector("span").textContent; // Set the input field to the selected username
+            receiverUsernameInput.dataset.userId = item.dataset.userId; // Save the userId in a custom data attribute 
+            autocompleteList.innerHTML = ""; // Clear the autocomplete list after selection
         });
     });
 });
 
-// Handle form submission
+// Handle form submission to send the message
 createMessageForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
+    event.preventDefault(); // Prevent the default form submission behavior (page reload)
 
     const senderId = auth.currentUser?.uid; // Get the current logged-in user's ID
-    const receiverUsername = receiverUsernameInput.value.trim();
+    const receiverUsername = receiverUsernameInput.value.trim(); // Get the recipient's username from the input field
     const receiverId = receiverUsernameInput.dataset.userId; // Retrieve the userId from the dataset
-    const subject = messageSubjectInput.value.trim();
-    const messageText = messageTextInput.value.trim();
+    const subject = messageSubjectInput.value.trim(); // Get the subject from the input field
+    const messageText = messageTextInput.value.trim(); // Get the message content from the text area
 
+    // Validate if sender and receiver IDs are present
     if (!senderId || !receiverId) {
         alert("Please select a valid recipient.");
-        return;
+        return; // Exit the function if validation fails
     }
 
     try {
@@ -84,14 +85,15 @@ createMessageForm.addEventListener("submit", async (event) => {
             receiverId,
             subject,
             messageText,
-            status: "Unread",
-            timestamp: serverTimestamp(), // Use server-generated timestamp
+            status: "Unread", // Mark the message as unread initially
+            timestamp: serverTimestamp(), // Add a server-generated timestamp
         });
 
-        alert("Message sent successfully!");
+        alert("Message sent successfully!"); // Notify the user
         createMessagePopup.classList.add("hidden"); // Close the popup
-        createMessageForm.reset(); // Reset the form
+        createMessageForm.reset(); // Reset the form inputs
 
+        // Send a notification to the recipient
         await sendNotification(receiverId, senderId, "message", {
             messageId: messageRef.id,
         });
@@ -104,26 +106,6 @@ createMessageForm.addEventListener("submit", async (event) => {
         alert("Failed to send the message. Please try again.");
     }
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -182,25 +164,25 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
- // Fetch messages based on field and user ID
-async function fetchMessages(field, userId) {
-    try {
-        const messagesRef = collection(db, "Messages");
-        const q = query(
-            messagesRef,
-            where(field, "==", userId),
-            orderBy("timestamp", "desc") // Fetch messages in descending order
-        );
-        const querySnapshot = await getDocs(q);
-        return querySnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-        }));
-    } catch (error) {
-        console.error(`Error fetching ${field} messages:`, error);
-        return [];
+    // Fetch messages based on field and user ID
+    async function fetchMessages(field, userId) {
+        try {
+            const messagesRef = collection(db, "Messages");
+            const q = query(
+                messagesRef,
+                where(field, "==", userId),
+                orderBy("timestamp", "desc") // Fetch messages in descending order
+            );
+            const querySnapshot = await getDocs(q);
+            return querySnapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+        } catch (error) {
+            console.error(`Error fetching ${field} messages:`, error);
+            return [];
+        }
     }
-}
 
 
     // Resolve usernames for senderId and receiverId
@@ -257,42 +239,43 @@ async function fetchMessages(field, userId) {
         const searchQuery = searchBarInput.value.trim().toLowerCase();
         const userId = auth.currentUser?.uid;
 
-      // Filter messages by search query and deletion flags
-    const filteredMessages = tabMessages.filter((msg) => {
-        const isDeleted =
-            (msg.senderId === userId && msg.deletedBySender) ||
-            (msg.receiverId === userId && msg.deletedByReceiver);
+        // Filter messages by search query and deletion flags
+        const filteredMessages = tabMessages.filter((msg) => {
+            const isDeleted =
+                (msg.senderId === userId && msg.deletedBySender) ||
+                (msg.receiverId === userId && msg.deletedByReceiver);
 
-        return (
-            !isDeleted &&
-            (msg.subject?.toLowerCase().includes(searchQuery) ||
-                msg.messageText?.toLowerCase().includes(searchQuery))
-        );
-    })
-    .sort((a, b) => {
-        // Sort by timestamp in descending order
-        const timeA = new Date(a.timestamp?.toDate ? a.timestamp.toDate() : a.timestamp);
-        const timeB = new Date(b.timestamp?.toDate ? b.timestamp.toDate() : b.timestamp);
-        return timeB - timeA;
-    });
+            const matchesSearchQuery =
+                !isDeleted &&
+                (msg.subject?.toLowerCase().includes(searchQuery) || // Match subject
+                    msg.messageText?.toLowerCase().includes(searchQuery) || // Match message text
+                    msg.senderUsername?.toLowerCase().includes(searchQuery) || // Match sender username
+                    msg.receiverUsername?.toLowerCase().includes(searchQuery)); // Match receiver username
 
+            return matchesSearchQuery;
+        });
+        // Sort messages by timestamp in descending order
+        const sortedMessages = filteredMessages.sort((a, b) => {
+            const timeA = new Date(a.timestamp?.toDate ? a.timestamp.toDate() : a.timestamp);
+            const timeB = new Date(b.timestamp?.toDate ? b.timestamp.toDate() : b.timestamp);
+            return timeB - timeA;
+        });
         // Clear previous messages
         messageCardsContainer.innerHTML = "";
 
-        if (filteredMessages.length === 0) {
+        if (sortedMessages.length === 0) {
             messageCardsContainer.innerHTML = `<p>No messages found.</p>`;
             return;
         }
+        // Render message cards
+        sortedMessages.forEach((msg) => {
+            const messageCard = document.createElement("div");
+            messageCard.classList.add("message-card");
 
-       // Render message cards
-    filteredMessages.forEach((msg) => {
-        const messageCard = document.createElement("div");
-        messageCard.classList.add("message-card");
-
-        // Highlight unread messages only in the Inbox tab
-        if (activeTab === "inbox" && msg.status === "Unread") {
-            messageCard.classList.add("unread");
-        }
+            // Highlight unread messages only in the Inbox tab
+            if (activeTab === "inbox" && msg.status === "Unread") {
+                messageCard.classList.add("unread");
+            }
 
             // Determine which username and profile picture to display
             const isInbox = activeTab === "inbox";
@@ -303,7 +286,6 @@ async function fetchMessages(field, userId) {
 
             // Render the message card
             messageCard.innerHTML = `
-
             <i 
                 class="profile-pic" 
                 style="background-image: url('${displayProfilePic}');"
@@ -329,22 +311,20 @@ async function fetchMessages(field, userId) {
         </div>
 
         `;
-
-        //Mark as read only in the Inbox tab
-        if (activeTab === "inbox") {
-            messageCard.addEventListener("click", async () => {
-                await markMessageAsRead(msg.id); // Mark the message as read in Firestore
-                messageCard.classList.remove("unread"); // Update UI dynamically
-                displayMessage(msg); // Display the full message
-            });
-        } else {
-            // For Sent tab, just display the message details without updating status
-            messageCard.addEventListener("click", () => {
-                displayMessage(msg);
-            });
-        }
-
-        messageCardsContainer.appendChild(messageCard);
+            //Mark as read only in the Inbox tab
+            if (activeTab === "inbox") {
+                messageCard.addEventListener("click", async () => {
+                    await markMessageAsRead(msg.id); // Mark the message as read in Firestore
+                    messageCard.classList.remove("unread"); // Update UI dynamically
+                    displayMessage(msg); // Display the full message
+                });
+            } else {
+                // For Sent tab, just display the message details without updating status
+                messageCard.addEventListener("click", () => {
+                    displayMessage(msg);
+                });
+            }
+            messageCardsContainer.appendChild(messageCard);
 
             // Toggle the options menu visibility on icon click
             const optionsIcon = messageCard.querySelector(".options-icon");
@@ -392,10 +372,9 @@ async function fetchMessages(field, userId) {
             optionsMenu.querySelector(".option-delete").addEventListener("click", async () => {
                 if (confirm("Are you sure you want to delete this message?")) {
                     try {
-                        // Soft delete: Add a flag for the logged-in user to hide the message
-                        const userId = auth.currentUser?.uid;
-                        const messageRef = doc(db, "Messages", msg.id);
-                        const messageSnap = await getDoc(messageRef);
+                        const userId = auth.currentUser?.uid; // Get the logged-in user's ID
+                        const messageRef = doc(db, "Messages", msg.id); // Reference to the message document in Firestore
+                        const messageSnap = await getDoc(messageRef); // Get the message document
 
                         if (messageSnap.exists()) {
                             const messageData = messageSnap.data();
@@ -404,12 +383,18 @@ async function fetchMessages(field, userId) {
                             const updateField =
                                 messageData.senderId === userId ? { deletedBySender: true } : { deletedByReceiver: true };
 
-                            // Update the Firestore document
+                            // Update the Firestore document with the deletion flag
                             await updateDoc(messageRef, updateField);
 
                             alert("Message deleted successfully.");
-                            renderMessages(); // Re-render messages
-                          
+
+                            // Remove the message from the local `messages` array to update the UI.
+                            messages[activeTab] = messages[activeTab].filter(
+                                (m) => m.id !== msg.id // Exclude the deleted message by ID.
+                            );
+
+                            renderMessages(); // Re-render messages without reloading the page.
+
                         } else {
                             alert("Message not found.");
                         }
@@ -418,15 +403,9 @@ async function fetchMessages(field, userId) {
                         alert("Failed to delete the message. Please try again.");
                     }
                 }
-
                 optionsMenu.classList.remove("show"); // Hide the options menu
             });
-
-
-
-
-
-
+            
             // Add click event to show full message
             messageCard.addEventListener("click", () => {
                 displayMessage(msg);
@@ -440,15 +419,15 @@ async function fetchMessages(field, userId) {
         const now = new Date();
         let messageTime;
 
-         // Normalize Firestore Timestamp or ISO string
-    if (typeof timestamp?.toDate === "function") {
-        messageTime = timestamp.toDate(); // Firestore Timestamp
-    } else if (typeof timestamp === "string") {
-        messageTime = new Date(timestamp); // ISO string
-    } else {
-        console.warn("Invalid timestamp format:", timestamp);
-        return "Unknown time";
-    }
+        // Normalize Firestore Timestamp or ISO string
+        if (typeof timestamp?.toDate === "function") {
+            messageTime = timestamp.toDate(); // Firestore Timestamp
+        } else if (typeof timestamp === "string") {
+            messageTime = new Date(timestamp); // ISO string
+        } else {
+            console.warn("Invalid timestamp format:", timestamp);
+            return "Unknown time";
+        }
 
         const diffInSeconds = Math.floor((now - messageTime) / 1000);
 
@@ -476,23 +455,42 @@ async function fetchMessages(field, userId) {
     async function markMessageAsRead(messageId) {
         try {
             const messageRef = doc(db, "Messages", messageId);
-            await updateDoc(messageRef, { status: "Read" });
+            await updateDoc(messageRef, { status: "read" });
             console.log(`Message ${messageId} marked as read.`);
         } catch (error) {
             console.error("Error marking message as read:", error);
         }
     }
-    
-
-
-
 
     // Display full message details
     function displayMessage(message) {
         // Format the timestamp
-        const formattedTimestamp = message.timestamp
-            ? new Date(message.timestamp).toLocaleString()
-            : "Unknown Date";
+        let formattedTimestamp = "Unknown Date";
+        if (message.timestamp) {
+            if (typeof message.timestamp.toDate === "function") {
+                // Firestore Timestamp
+                formattedTimestamp = message.timestamp.toDate().toLocaleString(undefined, {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true, // Optional: Use 12-hour format
+                });
+            } else if (typeof message.timestamp === "string" || message.timestamp instanceof Date) {
+                // ISO string or Date object
+                formattedTimestamp = new Date(message.timestamp).toLocaleString(undefined, {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true, // Optional: Use 12-hour format
+                });
+            } else {
+                console.warn("Unknown timestamp format:", message.timestamp);
+            }
+        }
 
         // Update Subject Card
         messageSubjectCard.innerHTML = `
@@ -504,28 +502,44 @@ async function fetchMessages(field, userId) {
     `;
 
         // Update Content Card
-        let photoLink = "";
+        let linkHTML = "";
         if (message.photoId) {
-            photoLink = `
+            linkHTML = `
             <p>
                 <a href="ViewImage.html" id="viewPhotoLink">View this photo</a>
             </p>
         `;
+        } else if (message.albumId) {
+            // For shared album
+            linkHTML = `
+                <p>
+                    <a href="PhotoGallery.html" id="viewAlbumLink">View this album</a>
+                </p>
+            `;
         }
 
         messageContentCard.innerHTML = `
         <h3>Message</h3>
         <p>${message.messageText || "No message content available."}</p>
-        ${photoLink}
+        ${linkHTML}
     `;
 
-        // Add event listener to the photo link (if it exists)
+        // event listener to the photo link (if it exists)
         const viewPhotoLink = document.getElementById("viewPhotoLink");
         if (viewPhotoLink) {
             viewPhotoLink.addEventListener("click", (event) => {
                 event.preventDefault(); // Prevent default link behavior
                 localStorage.setItem("photoId", message.photoId); // Store photoId in localStorage
                 window.location.href = "ViewImage.html"; // Redirect to ViewImage.html
+            });
+        }
+        //event listener for the album link (if present)
+        const viewAlbumLink = document.getElementById("viewAlbumLink");
+        if (viewAlbumLink) {
+            viewAlbumLink.addEventListener("click", (event) => {
+                event.preventDefault(); // Prevent default behavior
+                localStorage.setItem('currentAlbumId', message.albumId); // Save albumId in localStorage
+                window.location.href = "PhotoGallery.html"; // Redirect to PhotoGallery.html
             });
         }
     }

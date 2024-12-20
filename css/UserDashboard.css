@@ -44,8 +44,7 @@
   border: none;
 }
 
-
-
+/* Body Styling */
 body {
   font-family: "Poppins", sans-serif;
   color: var(--color-dark);
@@ -54,6 +53,7 @@ body {
     scroll-behavior: smooth; /* Smooth scrolling */
 }
 
+/* Custom scrollbar styling */
 body::-webkit-scrollbar {
   width: 10px; /* Set the width of the scrollbar */
 }
@@ -66,6 +66,7 @@ body::-webkit-scrollbar-thumb {
 body::-webkit-scrollbar-track {
   background: var(--color-light); /* Track color */
 }
+
 /* GENERAL STYLES */
 .container {
   width: 80%;
@@ -74,13 +75,14 @@ body::-webkit-scrollbar-track {
 
 .logo {
   display: flex;
-  align-items: center;
+  align-items: center; /* Vertically align logo image and text */
+  gap: 0.5rem; /* Space between logo image and text */
 }
 
 .logo-image {
   width: 40px; /* Adjust the size as needed */
   height: auto;
-  margin-right: 10px; /* Space between the image and the text */
+ 
 }
 
 
@@ -127,37 +129,54 @@ img {
 
 /*================== NAVBAR =================*/
 nav {
+  display: flex;
+  justify-content: space-between; /* Distribute elements across the navbar */
   width: 100%;
+  align-items: center; /* Align all items vertically */
   background: var(--color-white);
-  padding: 0.7rem 0;
+  padding: 0 1rem; /* Padding for spacing */
   position: fixed;
+  height: 4rem; /* Consistent navbar height */
   top: 0;
-  z-index: 10;
+  z-index: 10; /* Ensure navbar stays above other elements */
 }
 
+/* Navbar container */
 nav .container {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-items: center; /* Vertically align child elements */
+  justify-content: space-between; /* Distribute items (logo, search, profile) evenly */
+  width: 100%;
+}
+
+/* Search bar wrapper to center it */
+nav .search-bar-wrapper {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%); /* Center the search bar horizontally */
+  width: 40%; /* Adjust width to fit the design */
+  max-width: 600px; /* Ensure it doesn't grow too large */
 }
 
 .search-bar {
+  display: flex;
+  align-items: center;
   background: var(--color-light);
   border-radius: var(--border-radius);
   padding: var(--search-padding);
-  position: relative;
+  width: 100%; /* Match the width of the wrapper */
 }
 
 .search-bar input[type="search"] {
   background: transparent;
-  width: 30vw;
+  width: 100%; /* Take the full width */
   margin-left: 1rem;
   font-size: 0.9rem;
   color: var(--color-dark);
 }
 
-nav .search-bar input[type="search"]::placeholder {
-  color: var(--color-gray);
+.search-bar input[type="search"]::placeholder {
+  color: var(--color-gray); /* Placeholder text color */
 }
 
 
@@ -176,6 +195,16 @@ nav .search-bar input[type="search"]::placeholder {
   overflow-y: auto; /* Enable scrolling for long lists */
   z-index: 100; /* Ensure it stays above other elements */
   padding: 0.5rem 0; /* Padding around the suggestions */
+}
+
+.suggestion-item img {
+  width: 2.7rem; /* Match the size of profile-photo in feed */
+  height: 2.7rem; /* Maintain aspect ratio */
+  border-radius: 50%; /* Circular shape */
+  border: 2px solid hsl(var(--primary-color-hue), 75%, 60%); /* Thin purple border */
+  display: block;
+  object-fit: cover; /* Ensure image fits inside the container */
+  margin-right: 10px; /* Add spacing between image and text */
 }
 
 /* Suggestion Items */
@@ -208,14 +237,28 @@ nav .search-bar input[type="search"]::placeholder {
 
 nav .create {
   display: flex;
-  align-items: center;
-  gap: 2rem;
+  align-items: center; /* Align items vertically centered */
+  justify-content: flex-end; /* Push items to the right */
+  gap: 1rem; /* Maintain spacing between the camera icon and profile pic */
+  height: 100%; /* Match the height of the navbar for alignment */
 }
 
 nav .create #menu-btn {
   display: none;
 }
 
+/* Adjust the profile-photo */
+.profile-photo {
+  width: 2.7rem;
+  aspect-ratio: 1/1;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center; /* Center image */
+  justify-content: center; /* Center image */
+  cursor: pointer;
+  border: 2px solid hsl(var(--primary-color-hue), 75%, 60%); /* Thin purple border */
+}
 /* ===================== MAIN ======================= */
 main {
   position: relative;

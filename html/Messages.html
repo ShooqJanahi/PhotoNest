@@ -1,39 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Messages</title>
+    <meta charset="UTF-8"> <!-- Set the character encoding to UTF-8 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Enable responsive design -->
+    <title>Messages</title> <!-- Set the title of the page -->
+
+    <!-- Include Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
-    <link rel="stylesheet" href="../css/Messages.css"> <!-- Link to the external CSS file -->
 
-    <script type="module" src="../js/firebaseConfig.js"></script>
-    <script type="module" src="../js/login.js"></script>
-    <script type="module" src="../js/Messages.js"></script>
+    <!-- Include Google Fonts (Inter font family) -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+    <link rel="stylesheet" href="../css/Messages.css"> <!-- Link to the external CSS file for styling -->
 
-    <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png">
+    <!-- Include JavaScript files -->
+    <script type="module" src="../js/firebaseConfig.js"></script> <!-- Firebase configuration -->
+    <script type="module" src="../js/login.js"></script> <!-- Login logic -->
+    <script type="module" src="../js/Messages.js"></script> <!-- Messages logic -->
+
+    <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png"> <!-- Set the favicon for the page -->
 
 </head>
-<body>
-    <div class="container">
-        <div class="sidebar">
-            <h2><i class="fas fa-envelope"></i>Messages</h2>
 
+<body>
+    <!-- Main container for the entire page -->
+    <div class="container">
+        <!-- Sidebar section for navigation and tabs -->
+        <div class="sidebar">
+            <h2><i class="fas fa-envelope"></i>Messages</h2> <!-- Sidebar header with a title and envelope icon -->
+            <!-- Tabs for Inbox and Sent messages -->
             <div class="tabs">
-                <div class="tab active">Inbox</div>
-                <div class="tab">Sent</div>
+                <div class="tab active">Inbox</div> <!-- Active tab for Inbox -->
+                <div class="tab">Sent</div> <!-- Tab for Sent messages -->
             </div>
 
-           <!-- Search Bar -->
-           <div class="search-bar">
-            <input type="text" placeholder="Search messages..." />
-            <button><i class="fas fa-search"></i></button>
-        </div>
+            <!-- Search bar for filtering messages -->
+            <div class="search-bar">
+                <input type="text" placeholder="Search messages..." /> <!-- Input field for search -->
+                <button><i class="fas fa-search"></i></button> <!-- Search button with icon -->
+            </div>
 
-
-            <!-- Messages Cards -->
+            <!-- Container for displaying message cards -->
             <div class="message-cards">
+                <!-- Example message card -->
                 <div class="message-card">
                     <i class="profile-pic"></i> <!-- Sender Profile Picture -->
                     <div class="message-info">
@@ -41,102 +51,91 @@
                         <span class="message-subject">Meeting Tomorrow</span> <!-- Message Subject -->
                     </div>
                 </div>
-                <div class="message-card">
-                    <i class="profile-pic"></i> <!-- Sender Profile Picture -->
-                    <div class="message-info">
-                        <strong>Jane Smith</strong> <!-- Username -->
-                        <span class="message-subject">Invoice Update</span> <!-- Message Subject -->
-                    </div>
-                </div>
             </div>
-
         </div>
-       <!-- Content Section -->
-<div class="content">
-    <button id="createNewMessage">Create New Message</button> <!-- Updated with an id -->
+         <!-- Main content section for message details -->
+        <div class="content">
+            <!-- Button to open the message creation popup -->
+            <button id="createNewMessage">Create New Message</button> 
 
-
-    <!-- Card for the Subject -->
-    <div class="message-subject-card">
-        <h3>Subject</h3>
-        <p></p> <!-- Display the subject of the message -->
-    </div>
-
-    <!-- Card for the Message Content -->
-    <div class="message-content-card">
-        <h3>Message</h3>
-        <p>
-            <br>
-            <br>
-        </p>
-    </div>
-</div>
-
-<!-- Message Creation Popup -->
-<div id="createMessagePopup" class="popup hidden">
-    <div class="popup-content">
-        <h3>Create New Message</h3>
-        <form id="createMessageForm">
-            <!-- Username Input with Autocomplete -->
-            <div>
-                <label for="receiverUsername">To:</label>
-                <input
-                    type="text"
-                    id="receiverUsername"
-                    placeholder="Enter recipient's username"
-                    autocomplete="off"
-                    required
-                />
-                <ul id="autocompleteList" class="autocomplete-list"></ul>
+            <!-- Card to display the subject of a selected message -->
+            <div class="message-subject-card">
+                <h3>Subject</h3>
+                <p></p> <!-- Placeholder for the message subject -->
             </div>
 
-            <!-- Subject Input -->
-            <div>
-                <label for="messageSubject">Subject:</label>
-                <input
-                    type="text"
-                    id="messageSubject"
-                    placeholder="Enter message subject"
-                    required
-                />
+            <!-- Card to display the content of a selected message -->
+            <div class="message-content-card">
+                <h3>Message</h3>
+                <p>
+                    <br>
+                    <br>
+                </p> <!-- Placeholder for the message text -->
             </div>
+        </div>
 
-            <!-- Message Input -->
-            <div>
-                <label for="messageText">Message:</label>
-                <textarea
-                    id="messageText"
-                    placeholder="Enter your message"
-                    required
-                ></textarea>
-            </div>
+        <!-- Popup for creating a new message -->
+        <div id="createMessagePopup" class="popup hidden">
+            <div class="popup-content">
+                <h3>Create New Message</h3>
+                <!-- Form for creating a message -->
+                <form id="createMessageForm">
+                     <!-- Input for recipient's username with autocomplete -->
+                    <div>
+                        <label for="receiverUsername">To:</label>
+                        <input
+                         type="text"
+                         id="receiverUsername" 
+                         placeholder="Enter recipient's username"
+                         autocomplete="off" 
+                         required />
+                        <ul id="autocompleteList" class="autocomplete-list"></ul> <!-- Dropdown for username suggestions -->
+                    </div>
 
-            <!-- Submit and Cancel Buttons -->
-            <div class="popup-buttons">
-                <button type="submit">Send</button>
-                <button type="button" id="cancelCreateMessage">Cancel</button>
+                    <!-- Input for the message subject -->
+                    <div>
+                        <label for="messageSubject">Subject:</label>
+                        <input 
+                        type="text" 
+                        id="messageSubject" 
+                        placeholder="Enter message subject" 
+                        required />
+                    </div>
+
+                    <!-- Text area for entering the message text -->
+                    <div>
+                        <label for="messageText">Message:</label>
+                        <textarea id="messageText" 
+                        placeholder="Enter your message" 
+                        required>
+                    </textarea>
+                    </div>
+
+                    <!-- Buttons for submitting or canceling the message creation -->
+                    <div class="popup-buttons">
+                        <button type="submit">Send</button> <!-- Submit button -->
+                        <button type="button" id="cancelCreateMessage">Cancel</button> <!-- Cancel button -->
+                    </div>
+                </form>
             </div>
-        </form>
-    </div>
-</div>
+        </div>
 
 
     </div>
-       <!-- Footer Section -->
-       <div class="footer">
+    <!-- Footer Section -->
+    <div class="footer">
         <div>
             <h4>Quick Links</h4>
-            <a href="UserDashboard.html#Home">Home</a> <!-- Link to privacy policy -->
-            <a href="UserDashboard.html#Home">Explore</a>
-            <a href="VaultPasscode.html">Vault</a>
-            <a href="">Messages</a>
+            <a href="UserDashboard.html#Home">Home</a> <!-- Link to Home -->
+            <a href="UserDashboard.html#Explore">Explore</a> <!-- Link to Explore -->
+            <a href="VaultPasscode.html">Vault</a> <!-- Link to Vault -->
+            <a href="Messages.html">Messages</a> <!-- Link to Messages -->
 
         </div>
         <div>
             <h4>Follow Us</h4>
             <div class="social-icons"> <!-- Social media icons -->
                 <a href="https://www.facebook.com/profile.php?id=61566861417599"><i class="fab fa-facebook-f"></i></a>
-
                 <a href="https://www.instagram.com/photonest.bh/"><i class="fab fa-instagram"></i></a>
             </div>
             <div class="copyright">
@@ -146,11 +145,12 @@
 
         <div>
             <h4>Legal</h4>
-            <a href="#privacy-policy">Privacy Policy</a> <!-- Link to privacy policy -->
-            <a href="#TermsAndCondition">Terms and Conditions</a> <!-- Link to terms and conditions -->
+            <a href="Terms.html#privacy-policy">Privacy Policy</a> <!-- Link to privacy policy -->
+            <a href="Terms.html#TermsAndCondition">Terms and Conditions</a> <!-- Link to terms and conditions -->
         </div>
 
 
     </div>
 </body>
+
 </html>

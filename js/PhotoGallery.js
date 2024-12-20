@@ -120,6 +120,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Determine the source of photos to display (album or default collection)
 async function determinePhotoSource() {
     const albumId = localStorage.getItem('currentAlbumId'); // Check if an album is selected
+    console.log("Retrieved albumId from localStorage:", albumId);
+
+if (!albumId) {
+    console.error("Album ID not found in localStorage.");
+    alert("No album selected or album ID missing.");
+    return;
+}
     if (albumId) {
         console.log('Album selected, loading album photos...');
         await loadPhotosForAlbum(albumId); // Load album photos

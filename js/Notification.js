@@ -1,73 +1,80 @@
 //Notification.js 
 
-// Import Firebase services
+// Import Firebase services for Firestore operations
 import { collection, query, where, getDocs, orderBy, doc, deleteDoc, getDoc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
-import { db } from './firebaseConfig.js';
+import { db } from './firebaseConfig.js'; // Import Firebase configuration
 
+// Get the notifications tab element from the DOM
 const notificationsTab = document.getElementById("notifications");
 
-let notifications = []; // Global notifications array
-let usernames = {}; // Global map for senderId to username mapping
+let notifications = []; // Global array to store notifications
+let usernames = {}; // Global object to map sender IDs to usernames
 
+// Function to create the notification popup
 export function createNotificationPopup() {
-    // Create overlay
+    // Create a semi-transparent overlay to block interactions with the background
     const overlay = document.createElement("div");
     overlay.id = "popup-overlay";
     overlay.className = "popup-overlay";
 
-    // Create popup
+    // Create the popup container
     const popup = document.createElement("div");
     popup.id = "notification-popup";
     popup.className = "popup";
 
+    // Add HTML content for the popup
     popup.innerHTML = `
         <div class="popup-header">
-            <h3>Notifications</h3>
-            <button id="close-notification-popup" class="close-btn"><i class="uil uil-multiply"></i></button>
+            <h3>Notifications</h3> <!-- Title of the popup -->
+            <button id="close-notification-popup" class="close-btn"><i class="uil uil-multiply"></i></button> <!-- Close button -->
+        </div>
         </div>
         <div class="popup-search">
-            <input type="text" id="notification-search" placeholder="Search notifications...">
-            <select id="notification-filter">
+            <input type="text" id="notification-search" placeholder="Search notifications..."> <!-- Search bar -->
+            <select id="notification-filter"> <!-- Dropdown for sorting notifications -->
                 <option value="latest">Sort by Latest</option>
                 <option value="oldest">Sort by Oldest</option>
             </select>
         </div>
-        <div id="notification-list" class="popup-content"></div>
+        <div id="notification-list" class="popup-content"></div> <!-- Container for displaying notifications -->
     `;
 
     // Append overlay and popup to the body
     document.body.appendChild(overlay);
     document.body.appendChild(popup);
 
-    // Close popup on overlay click or close button
+    // Close the popup when the overlay or close button is clicked
     overlay.addEventListener("click", closePopup);
     document.getElementById("close-notification-popup").addEventListener("click", closePopup);
 
+    // Fetch and render notifications
     fetchAndRenderNotifications();
 }
 
 // Function to open the popup
 export function openPopup() {
-    console.log("openPopup function triggered");
+    console.log("openPopup function triggered"); // Log for debugging
     
+    // Get the overlay and popup elements
     const overlay = document.getElementById("popup-overlay");
     const popup = document.getElementById("notification-popup");
 
     if (overlay && popup) {
-        overlay.classList.add("active");
-        popup.classList.add("active");
-        popup.focus(); // Bring the popup into focus
+        overlay.classList.add("active"); // Make the overlay visible
+        popup.classList.add("active"); // Make the popup visible
+        popup.focus(); // Focus on the popup
     }
 }
 
 // Function to close the popup
 export function closePopup() {
+    // Get the overlay and popup elements
     const overlay = document.getElementById("popup-overlay");
     const popup = document.getElementById("notification-popup");
 
     if (overlay && popup) {
-        overlay.classList.remove("active");
-        popup.classList.remove("active");
+        overlay.classList.remove("active"); // Hide the overlay
+        popup.classList.remove("active"); // Hide the popup
     }
 }
 

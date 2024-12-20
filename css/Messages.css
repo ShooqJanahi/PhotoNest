@@ -1,102 +1,111 @@
+* {
+    transition: all 0.3s ease-in-out; /* Smooth transitions */
+}
+
 body {
-    font-family: 'Inter', sans-serif;
-    background-color: #f8f9fc;
+    font-family: 'Inter', sans-serif; /* Use the 'Inter' font family */
+    background-color: #f8f9fc;  /* Light gray background color */
     margin: 0;
     padding: 0;
     display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+    flex-direction: column; /* Stack elements vertically */
+    min-height: 100vh; /* Ensure body covers the full viewport height */
 }
 .container {
-    display: flex;
-    flex: 1;
-    margin: 20px;
-    border-radius: 15px;
-    background-color: #fff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex; /* Lay out children (sidebar, content) side by side */
+    flex: 1; /* Ensure container expands to fill available space */
+    margin: 20px; /* Space around the container */
+    border-radius: 15px; /* Round the corners */
+    background-color: #fff;  /* White background */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
 }
 .sidebar {
-    width: 20%;
-    background-color: #f8f9fc;
+    width: 25%; /* Occupies 25% of the container width */
+    background-color: #f8f9fc; /* Light gray background */
     border-radius: 15px;
-    padding: 20px;
+    padding: 20px; /* Add inner spacing */
 }
 .sidebar h2 {
-    font-size: 18px;
-    color: #555;
-    display: flex;
+    font-size: 18px; /* Set font size */
+    color: #555; /* Dark gray text */
+    display: flex; /* Align icon and text horizontally */
     align-items: center;
 }
 .sidebar h2 i {
-    margin-right: 10px;
-    color: #6c63ff;
+    margin-right: 10px; /* Space between icon and text */
+    color: #6c63ff; /* Purple icon color */
 }
 .content {
-    width: 80%;
+    width: 75%;
     padding: 20px;
 }
 
 .profile-pic {
-    background-size: cover;
-    background-position: center;
+    background-size: cover; /* Ensure the image covers the full area */
+    background-position: center; /* Center the image */
     background-repeat: no-repeat;
-    border-radius: 50%;
-    width: 36px;
-    height: 36px;
-    border: 2px solid #6c63ff; /* Purple border */
+    border-radius: 50%; /* Circle shape */
+    width: 40px; /* Adjusted size for desktop view */
+    height: 40px; /* Match width for perfect circle */
+    border: 2px solid #6c63ff; /* Purple border for design consistency */
     display: inline-block;
 }
 
+/* Additional adjustments for spacing in the card */
+.message-card .profile-pic {
+    margin-right: 10px; /* Add spacing between profile picture and text */
+    flex-shrink: 0; /* Prevent the image from shrinking on smaller screens */
+}
 
 /* Search Bar */
 .search-bar {
-    display: flex;
+    display: flex; /* Align input and button horizontally */
     align-items: center;
-    background-color: #f1f1f1;
+    background-color: #f1f1f1; /* Light gray background */
     border-radius: 25px;
-    padding: 5px 15px;
-    margin-bottom: 20px;
+    padding: 5px 15px; /* Inner spacing */ 
+    margin-bottom: 20px; /* Space below the search bar */
 }
 
 .search-bar input {
-    flex: 1;
-    border: none;
+    flex: 1; /* Allow input to take remaining space */
+    border: none; /* Remove border */
     background: none;
-    padding: 10px;
+    padding: 10px; /* Inner spacing */
     font-size: 14px;
-    outline: none;
-    color: #333;
+    outline: none; /* Remove focus outline */
+    color: #333; /* Dark gray text */
 }
 
 .search-bar button {
-    background-color: #6c63ff;
-    border: none;
-    border-radius: 25px;
-    color: #fff;
-    padding: 8px 15px;
+    background-color: #6c63ff; /* Purple background for button */
+    border: none; /* Remove border */
+    border-radius: 25px; /* Rounded corners */
+    color: #fff; /* White text */
+    padding: 8px 15px; /* Inner spacing */
     cursor: pointer;
     font-size: 16px;
 }
 
 .tabs {
-    display: flex;
-    margin-bottom: 20px;
+    display: flex; /* Horizontal layout for tabs */
+    margin-bottom: 20px; /* Add space below */
 }
 .tab {
-    flex: 1;
+    flex: 1; /* Distribute space evenly */
     text-align: center;
-    padding: 10px 0;
-    border-radius: 25px;
-    cursor: pointer;
-    font-weight: 600;
+    padding: 10px 0; /* Padding for clickable area */
+    border-radius: 25px; /* Rounded corners */
+    cursor: pointer; /* Show pointer cursor on hover */
+    font-weight: 600; /* Bold text */
 }
 .tab.active {
-    background-color: #6c63ff;
-    color: #fff;
+    background-color: #6c63ff; /* Purple background for active tab */
+    color: #fff; /* White text */
 }
 .tab:not(.active) {
-    background-color: #f1f1f1;
-    color: #888;
+    background-color: #f1f1f1; /* Light gray for inactive tabs */
+    color: #888; /* Gray text for inactive tabs */
 }
 .recent-conversations, .message-content {
     background-color: #f8f9fc;
@@ -128,16 +137,16 @@ body {
 
 /* Create New Message Button */
 .content button {
-    background-color: #6c63ff;
-    color: #fff;
-    border: none;
-    border-radius: 25px;
-    padding: 10px 20px;
-    margin-bottom: 20px;
+    background-color: #6c63ff; /* Purple background */
+    color: #fff; /* White text */
+    border: none; /* Remove border */
+    border-radius: 25px; /* Rounded corners */
+    padding: 10px 20px; /* Inner spacing */
+    margin-bottom: 20px; /* Space below the button */
     cursor: pointer;
-    font-weight: 600;
+    font-weight: 600; /* Bold text */
     font-size: 14px;
-    align-self: flex-end; /* Align button to the far-right */
+    align-self: flex-end; /* Align the button to the right */
     display: block;
 }
 
@@ -168,19 +177,19 @@ body {
 }
 
 .message-card {
-    display: flex;
+    display: flex; /* Align profile picture and info horizontally */
     align-items: center;
     background-color: #fff;
     border-radius: 15px;
     padding: 15px;
-    margin-bottom: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-    transition: background-color 0.3s;
+    margin-bottom: 10px; /* Space between cards */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s; /* Smooth hover effect */
 }
 
 .message-card:hover {
-    background-color: #f8f9fc;
+    background-color: #f8f9fc; /* Light background on hover */
 }
 
 .message-card i {
@@ -309,15 +318,15 @@ body {
 
 /* Popup styling */
 .popup {
-    position: fixed;
+    position: fixed; /* Fixed position in the viewport */
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
-    background: #fff;
-    border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    padding: 20px 30px;
-    z-index: 1000;
+    transform: translate(-50%, -50%); /* Center the popup */
+    background: #fff; /* White background */
+    border-radius: 15px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+    padding: 20px 30px; /* Inner spacing */
+    z-index: 1000; /* Ensure it appears on top */
     width: 400px; /* Fixed width for better layout */
     display: flex;
     flex-direction: column;
@@ -472,4 +481,113 @@ body {
     margin: 0 5px; /* Adds spacing around icons */
     font-size: 20px; /* Sets a standard size for icons */
     color: #6a0dad; /* Matches the branding color */
+}
+
+
+
+
+/* Media Queries */
+
+/* Tablet View (768px and below) */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column; /* Stack elements vertically */
+    }
+
+    .sidebar {
+        width: 100%; /* Full width */
+        padding: 10px; /* Adjust spacing */
+    }
+
+    .content {
+        padding: 10px;
+    }
+
+    .message-card {
+        padding: 8px;
+        box-shadow: none; /* Reduce shadow for simpler display */
+    }
+
+    .message-cards {
+        max-height: 400px; /* Increase scrollable area for tablets */
+    }
+
+    .message-card i {
+        font-size: 24px;
+    }
+
+    .popup {
+        width: 85%;
+    }
+}
+
+/* Mobile View (480px and below) */
+@media (max-width: 480px) {
+    .container {
+        margin: 5px; /* Reduce outer margin */
+    }
+
+    .sidebar {
+        padding: 10px;
+    }
+
+    .content {
+        padding: 10px;
+    }
+
+    .search-bar {
+        flex-wrap: wrap;
+        padding: 5px;
+        gap: 5px; /* Add spacing for wrap */
+    }
+
+    .search-bar input {
+        font-size: 12px;
+        padding: 8px;
+    }
+
+    .search-bar button {
+        padding: 5px 10px;
+        font-size: 12px;
+    }
+
+    .tabs {
+        gap: 8px; /* Reduce spacing */
+    }
+
+    .tab {
+        font-size: 12px;
+        padding: 5px 0;
+    }
+
+    .message-cards {
+        max-height: 250px; /* Limit height for smaller screens */
+    }
+
+    .message-card {
+        flex-direction: column; /* Stack content vertically */
+        padding: 10px;
+    }
+
+    .message-card i {
+        font-size: 20px;
+    }
+
+    .message-info {
+        flex-direction: column;
+        align-items: center; /* Center content */
+    }
+
+    .popup {
+        width: 95%; /* Nearly full width for small screens */
+    }
+
+    .footer {
+        padding: 10px;
+        gap: 5px;
+    }
+
+    .footer .social-icons i {
+        font-size: 18px;
+    }
 }
