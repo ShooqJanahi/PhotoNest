@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
-   
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
 
-    
+
+
     <link rel="stylesheet" href="../css/AdminDashboard.css"> <!-- Link to external CSS file -->
-    
+
     <script type="module" src="../js/login.js"></script>
     <script type="module" src="../js/AdminDashboard.js"></script>
 
@@ -21,87 +23,90 @@
     <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png">
 
 </head>
+
 <body>
+    <!-- Header section for the admin dashboard -->
     <div class="header">
+        <!-- Logo container -->
         <div class="logo">
+            <!-- Displays the PhotoNest logo and title -->
             <img src="../assets/PhotoNest_Transparent.png" alt="PhotoNest Logo"> PhotoNest
         </div>
-        
-        <div class="actions">
-        
-            <button id="hamburgerMenu" class="hamburger-menu"><i class="fas fa-bars"></i></button>
 
+        <!-- Container for header actions like settings and logout -->
+        <div class="actions">
+            <!-- Hamburger menu button for toggling the mobile menu -->
+            <button id="hamburgerMenu" class="hamburger-menu"><i class="fas fa-bars"></i></button>
+            <!-- Settings button with a gear icon -->
             <button class="settings">
                 <i class="fa fa-cog" aria-hidden="true"></i>
             </button>
-            
 
+            <!-- Popup for updating the admin's profile -->
             <div id="settingsPopup" class="popup hidden">
                 <div class="popup-content">
-                    <h3>Update Profile</h3>
-                    <form id="updateProfileForm">
+                    <h3>Update Profile</h3> <!-- Popup title -->
+                    <form id="updateProfileForm"> <!-- Form for updating profile details -->
                         <label for="firstName">First Name:</label>
                         <input type="text" id="firstName" name="firstName" placeholder="First Name" required>
-            
+
                         <label for="lastName">Last Name:</label>
                         <input type="text" id="lastName" name="lastName" placeholder="Last Name" required>
-            
+
                         <label for="phone">Phone Number:</label>
                         <input type="text" id="phone" name="phone" placeholder="Phone Number" required>
-            
-                        <label for="profilePic">Profile Picture:</label>
-<input type="file" id="profilePic" name="profilePic" accept="image/*">
-<div id="uploadProgress" class="hidden">Uploading...</div>
 
-            
-                        <button type="submit">Save Changes</button>
-                        <button type="button" id="closePopup">Cancel</button>
+                        <label for="profilePic">Profile Picture:</label>
+                        <!-- File input for uploading a profile picture -->
+                        <input type="file" id="profilePic" name="profilePic" accept="image/*">
+
+                        <!-- Progress indicator for profile picture upload -->
+                        <div id="uploadProgress" class="hidden">Uploading...</div>
+
+                        <button type="submit">Save Changes</button> <!-- Button to save profile updates -->
+                        <button type="button" id="closePopup">Cancel</button> <!-- Button to close the popup -->
                     </form>
                 </div>
             </div>
-            
 
 
-            <a href="#" id="logout-button" class="logout-button">Logout</a>
 
-          
+            <a href="#" id="logout-button" class="logout-button">Logout</a> <!-- Logout button -->
+
+
         </div>
-        
+
     </div>
 
-    
-    
-  
+
+
+    <!-- Mobile menu for smaller devices -->
     <div class="mobile-menu">
-        
-        <a href="AdminDashboard.html">Dashboard</a>
-        <a href="UserManagement.html">User Management</a>
-        <a href="#">Reports</a>
+        <a href="AdminDashboard.html">Dashboard</a> <!-- Link to the admin dashboard -->
+        <a href="UserManagement.html">User Management</a> <!-- Link to user management -->
+        <a href="Report.html">Reports</a> <!-- Link to the reports page -->
         <a href="AdminDashboard.html#user-status-section">Currently Logged-in Users</a>
-
-        <a href="#">Spam Reports</a>
-        <a href="Settings.html">Settings</a>
-
-        <a href="#" id="logout-button" class="logout-button">Logout</a>
-        
+        <!-- Link to the currently logged-in users section -->
+        <a href="AdminDashboard.html#Spam-Report">Spam Reports</a> <!-- Link to spam reports -->
+        <a href="#" id="logout-button" class="logout-button">Logout</a> <!-- Logout button -->
     </div>
-
+    <!-- Main container for sidebar and content -->
     <div class="container">
-        <div class="sidebar">
+        <div class="sidebar"> <!-- Sidebar for navigation -->
             <h2>Navigation</h2>
-            
             <a href="AdminDashboard.html">Dashboard</a>
             <a href="UserManagement.html">User Management</a>
             <a href="Report.html">Reports</a>
             <h2>Quick Access</h2>
             <a href="AdminDashboard.html#user-status-section">Currently Logged-in Users</a>
-
             <a href="AdminDashboard.html#Spam-Report">Spam Reports</a>
         </div>
+
+        <!-- Main content area -->
         <div class="main-content">
             <div class="content-section">
-                <h3>User Management</h3>
-        
+                <h3>User Management</h3> <!-- Title for user management section -->
+
                 <!-- Currently Logged-in Users Section in AdminDashboard.html -->
                 <section id="user-status-section" class="user-status-section">
                     <div class="card">
@@ -113,40 +118,34 @@
                         </ul>
                     </div>
                 </section>
-                
-
-
-                
             </div>
+
             <div class="content-section">
-                <h3>Reports</h3>
-            
+                <h3>Reports</h3> <!-- Title for reports section -->
+
                 <!-- Content Reports Graph -->
-                <section id="Spam-Report" class="report-section">
+                <section id="Spam-Report" class="report-section"> <!-- Section for displaying spam reports -->
                     <div class="card" style="width: 100%; max-width: 100%;">
-                        <h4>Content Reports</h4>
-                        <div id="spam_reports_chart" aria-label="Bar chart showing weekly spam reports recorded each Saturday"></div>
+                        <h4>Content Reports</h4> <!-- Title for content reports -->
+                        <div id="spam_reports_chart"
+                            aria-label="Bar chart showing weekly spam reports recorded each Saturday"></div>
+                        <!-- Placeholder for spam reports chart -->
+
                     </div>
                 </section>
-                
+
+                <!-- Section for activity log -->
                 <section class="report-section">
                     <div class="card activity-log-card" style="width: 100%; max-width: 100%;">
-                        <h4>Activity Log</h4>
+                        <h4>Activity Log</h4> <!-- Title for activity log -->
                         <div id="curve_chart" aria-label="Bar chart showing activity log"></div>
+                        <!-- Placeholder for activity log chart -->
                     </div>
                 </section>
-                
-                
+
             </div>
-            
         </div>
     </div>
-
-
-
-
-
-
-    
 </body>
+
 </html>

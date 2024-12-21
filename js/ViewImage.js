@@ -1652,12 +1652,13 @@ async function reportComment(commentId) {
                 await addDoc(collection(db, "Reports"), {
                     category: "Comment", // The type of content being reported
                     messageId: commentId, // The ID of the reported comment
+                    photoid: photoId,
                     reason: reason,  // Reason provided by the user
                     reportedBy: currentUser.uid, // ID of the user reporting the comment
                     reportedByUsername: currentUser.username || "Unknown User", // Username of the user reporting
                     reportedAt: serverTimestamp(), // Timestamp of when the report was submitted
                     commentOwnerId: commentOwnerId, // ID of the user who created the comment
-                    commentOwnerUsername: commentOwnerUsername, // Username of the user who created the comment
+                    ReboredUsername: commentOwnerUsername, // Username of the user who created the comment
                     status: "Pending Review", // Initial status of the report
                 });
 

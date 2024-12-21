@@ -1,89 +1,94 @@
 /* Main body styling */
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', sans-serif; /* Sets the font style for the entire page */
+     /* Removes default margin and padding */
     margin: 0;
     padding: 0;
-    background-color: #f5f5f7;
-    color: #333;
+    background-color: #f5f5f7; /* Sets the background color for the page */
+    color: #333; /* Sets the text color */
     overflow-x: hidden;
 }
 
 /* Container for main layout */
 .container {
-    display: flex;
+    display: flex; /* Sets a row-based flexbox layout for the container */
     flex-direction: row;
+    /* Prevents the container from exceeding the viewport width */
     max-width: 100vw;
     overflow-x: hidden;
 }
 
 /* Sidebar styling */
 .sidebar {
-    width: 250px;
-    background-color: #fff;
-    padding: 20px;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    margin-top: 60px;
-    height: calc(100vh - 60px);
-    overflow-y: auto;
-    position: fixed;
+    width: 250px; /* Sets the width of the sidebar */
+    background-color: #fff; /* Sidebar background color */
+    padding: 20px;  /* Inner spacing */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Adds a shadow effect */
+    margin-top: 60px;  /* Ensures it aligns with the fixed header */
+    height: calc(100vh - 60px);  /* Full height minus the header height */
+    overflow-y: auto; /* Enables vertical scrolling */
+    position: fixed; /* Fixes the sidebar position */
 }
 
+/* Styling for the section headings in the sidebar */
 .sidebar h2 {
     font-size: 18px;
     margin-bottom: 20px;
 }
-
+/* Sidebar links */
 .sidebar a {
-    display: block;
-    color: #333;
-    text-decoration: none;
-    margin-bottom: 10px;
+    display: block; /* Makes each link a block element for better spacing */
+    color: #333; /* Default text color */
+    text-decoration: none; /* Removes the underline from links */
+    margin-bottom: 10px; /* Adds spacing between links */
     font-size: 16px;
 }
 
 /* Header styling */
 .header {
+    /* Fixed header at the top */
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
+    /* Aligns content horizontally and vertically */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #fff;
-    padding: 10px 20px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background-color: #fff; /* Sets the background color */
+    padding: 10px 20px; /* Padding inside the header */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Adds a shadow for elevation */
     z-index: 1000;
-    box-sizing: border-box;
+    box-sizing: border-box; /* Ensures padding doesn't exceed the container */
 }
-
+/* Logo section inside the header */
 .header .logo {
     display: flex;
     align-items: center;
     font-size: 24px;
     font-weight: bold;
 }
-
+/* Logo image styling */
 .header .logo img {
     width: 40px;
     height: auto;
     margin-right: 10px;
 }
 
-/* Action buttons in header */
+/* Styling for the action buttons in the header */
 .header .actions {
     display: flex;
     align-items: center;
 }
-
+/* General button styling in the header */
 .header .actions button {
-    background-color: #6a0dad;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 20px;
-    margin-left: 10px;
-    cursor: pointer;
+    background-color: #6a0dad;  /* Purple background color */
+    color: #fff; /* White text color */
+    border: none; /* No border */
+    padding: 10px 20px; /* Padding inside the button */
+    border-radius: 20px; /* Rounded corners */
+    margin-left: 10px; /* Space between buttons */
+    cursor: pointer; /* Pointer cursor on hover */
     font-size: 14px;
 }
 
@@ -104,18 +109,20 @@ body {
     display: none;
 }
 
-/* Hide mobile menu by default */
+/* Mobile menu styling */
 .mobile-menu {
-    display: none;
+    display: none; /* Hidden by default */
+     /* Fixed to appear over the page */
     position: fixed;
     top: 60px;
     right: 20px;
+    /* Mobile menu styles */
     background-color: #fff;
     width: 200px;
     padding: 10px;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    z-index: 1001;
+    z-index: 1001; /* Stays above other content */
 }
 
 /* Mobile menu links styling */
@@ -142,16 +149,16 @@ body {
     display: none;
 }
 
-/* Reports section styling with card effect */
+/* Report section container */
 .reports {
-    background-color: #ffffff;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    margin: 20px;
-    margin-top: 80px;
-    margin-left: 310px;
-    flex-grow: 1;
+    background-color: #ffffff; /* White background */
+    padding: 20px; /* Inner spacing */
+    border-radius: 12px; /* Rounded corners */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Light shadow for card effect */
+    margin: 20px; /* Outer spacing */
+    margin-top: 80px; /* Ensures space below header */
+    margin-left: 310px; /* Avoids overlap with sidebar */
+    flex-grow: 1; /* Fills remaining space */
 }
 
 /* Card styling for the table container */
@@ -163,16 +170,17 @@ body {
     overflow: auto;
 }
 
-/* Adjust search bar styling for consistent card look */
+/* Search bar styling */
 .search-bar {
+    /* Aligns search input and buttons horizontally */
     display: flex;
     align-items: center;
-    gap: 0; /* No gaps to create a connected design */
-    border: 1px solid #ccc;
-    border-radius: 20px;
-    overflow: hidden; /* Ensures all elements appear as one connected box */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    background-color: #fff;
+    gap: 0; /* Connected elements, no gaps */
+    border: 1px solid #ccc; /* Border for the container */
+    border-radius: 20px; /* Rounded edges */
+    overflow: hidden; /* Ensures it looks like a single component */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Light shadow */
+    background-color: #fff; /* White background */
 }
 
 .search-bar input {
@@ -251,7 +259,76 @@ body {
     color: #6a5acd;
 }
 
+/* Popup overlay */
+.popup-overlay {
+    /* Full-screen overlay */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;  /* Centers content */
+    z-index: 1000;
+  }
+  
+  .popup-overlay.hidden {
+    display: none;
+  }
+  
+  .popup-content {
+    background: #fff; /* White background for popup */
+    border-radius: 8px;
+    max-width: 500px;
+    width: 90%; /* Responsive width */
+    padding: 20px; /* Inner padding */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); /* Drop shadow */
+    position: relative; /* For positioning close button */
+  }
+  /* Close button styling */
+  .popup-close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none; /* Transparent background */
+    border: none; /* No border */
+    font-size: 18px; /* Font size for the close icon */
+    cursor: pointer; /* Pointer cursor */
+  }
+  
+  .popup-details {
+    margin-bottom: 20px;
+  }
+  
+  .popup-action-button {
+    background: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .popup-action-button:hover {
+    background: #0056b3;
+  }
+  
+/*Message box */
+.message-box {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+  }
+  .message-box h3 {
+    margin-top: 0;
+    font-size: 18px;
+  }
 
+  
 /* Table styling */
 table {
     width: 100%;

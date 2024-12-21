@@ -53,9 +53,10 @@ if (loginForm) {
                     .then(async (userCredential) => {
 
                         const userId = userCredential.user.uid;
-                         // Store the userId in sessionStorage after successful login
-        sessionStorage.setItem("userId", userId);
-        console.log("User ID saved in sessionStorage:", userId);
+                        // Store the userId in sessionStorage after successful login
+                        sessionStorage.setItem("userId", userId);
+                        sessionStorage.setItem("username", username); // Store the username
+                        console.log("User ID saved in sessionStorage:", userId);
 
 
                         // Check if the account is not active
@@ -76,7 +77,7 @@ if (loginForm) {
                             console.error("Error updating lastActive field:", error); // Log errors
                         }
 
-                       
+
                         const sessionRef = doc(db, "sessions", userId); // Reference the session document in Firestore
 
                         // Log login activity

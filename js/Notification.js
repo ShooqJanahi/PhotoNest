@@ -54,7 +54,7 @@ export function createNotificationPopup() {
 // Function to open the popup
 export function openPopup() {
     console.log("openPopup function triggered"); // Log for debugging
-    
+
     // Get the overlay and popup elements
     const overlay = document.getElementById("popup-overlay");
     const popup = document.getElementById("notification-popup");
@@ -78,208 +78,207 @@ export function closePopup() {
     }
 }
 
-// Fetch and render notifications
+// Function to fetch notifications from Firestore and render them
 export async function fetchAndRenderNotifications() {
-    const user = JSON.parse(sessionStorage.getItem("user"));
+    const user = JSON.parse(sessionStorage.getItem("user")); // Get the logged-in user details from session storage
     if (!user || !user.uid) {
-        console.error("User not logged in or session data is missing required fields!");
-        window.location.href = "../html/index.html";
+        console.error("User not logged in or session data is missing required fields!");// Log an error if no user is logged in
+        window.location.href = "../html/index.html"; // Redirect to the login page
         return;
     }
 
-    const notificationList = document.getElementById("notification-list");
-    const searchInput = document.getElementById("notification-search");
-    const filterDropdown = document.getElementById("notification-filter");
+    const notificationList = document.getElementById("notification-list"); // Get the container for notifications
+    const searchInput = document.getElementById("notification-search");  // Get the search input element
+    const filterDropdown = document.getElementById("notification-filter"); // Get the filter dropdown element
 
     try {
+        // Reference to the "Notifications" collection in Firestore
         const notificationsRef = collection(db, "Notifications");
+
+        // Query to fetch notifications for the logged-in user, sorted by timestamp
         const notificationsQuery = query(
             notificationsRef,
-            where("receiverId", "==", user.uid),
-            orderBy("timestamp", "desc")
+            where("receiverId", "==", user.uid), // Filter notifications for the logged-in user
+            orderBy("timestamp", "desc") // Sort notifications by latest
         );
 
-        const snapshot = await getDocs(notificationsQuery);
-        const fiveDaysAgo = new Date();
-        fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5); // Calculate the date 5 days ago
+        const snapshot = await getDocs(notificationsQuery); // Execute the query
 
-        notifications = snapshot.docs
-    .map(doc => {
-        let normalizedTimestamp;
-
-        // Normalize the timestamp format
-        if (doc.data().timestamp && typeof doc.data().timestamp.toDate === "function") {
-            normalizedTimestamp = doc.data().timestamp.toDate(); // Firestore Timestamp
-        } else if (typeof doc.data().timestamp === "string") {
-            normalizedTimestamp = new Date(doc.data().timestamp); // ISO string
-        } else {
-            console.warn(`Invalid or missing timestamp for notification ${doc.id}`);
-            normalizedTimestamp = null; // Fallback for invalid timestamps
-        }
-
-        return {
-            id: doc.id,
-            ...doc.data(),
-            normalizedTimestamp, // Add normalized timestamp for sorting
-        };
-    })
-        
-    .filter(notification => {
-        // Filter notifications based on normalized timestamp
-        const { normalizedTimestamp, status } = notification;
+        // Calculate the date 5 days ago
         const fiveDaysAgo = new Date();
         fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
 
-        return (
-            status === "unopen" || // Include unopen notifications
-            (normalizedTimestamp && normalizedTimestamp >= fiveDaysAgo) // Last 5 days
-        );
-    })
-    .sort((a, b) => {
-        // Sort notifications in descending order of normalized timestamp
-        return b.normalizedTimestamp - a.normalizedTimestamp;
-    });
-        
-        
-        
-        
+        // Map and filter notifications
+        notifications = snapshot.docs
+            .map(doc => {
+                let normalizedTimestamp;
 
+                // Normalize the timestamp format
+                if (doc.data().timestamp && typeof doc.data().timestamp.toDate === "function") {
+                    normalizedTimestamp = doc.data().timestamp.toDate(); // Convert Firestore Timestamp to Date
+                } else if (typeof doc.data().timestamp === "string") {
+                    normalizedTimestamp = new Date(doc.data().timestamp); // Convert ISO string to Date
+                } else {
+                    console.warn(`Invalid or missing timestamp for notification ${doc.id}`);
+                    normalizedTimestamp = null; // Handle invalid timestamps
+                }
 
+                return {
+                    id: doc.id,
+                    ...doc.data(),
+                    normalizedTimestamp, // Add normalized timestamp for sorting
+                };
+            })
+
+            .filter(notification => {
+                // Filter notifications based on timestamp and status
+                const { normalizedTimestamp, status } = notification;
+                const fiveDaysAgo = new Date();
+                fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
+
+                return (
+                    status === "unopen" || // Include unopen notifications
+                    (normalizedTimestamp && normalizedTimestamp >= fiveDaysAgo) // Or notifications from the last 5 days
+                );
+            })
+            .sort((a, b) => {
+                // Sort notifications in descending order of normalized timestamp
+                return b.normalizedTimestamp - a.normalizedTimestamp;
+            });
+
+            // If no notifications, show a message
         if (!notifications.length) {
             notificationList.innerHTML = "<p>No notifications found.</p>";
             return;
         }
 
-        // Fetch usernames for all senderIds
-        const senderIds = [...new Set(notifications.map(n => n.senderId))];
+       // Fetch and cache usernames for all sender IDs
+        const senderIds = [...new Set(notifications.map(n => n.senderId))]; // Unique sender IDs
 
         for (const senderId of senderIds) {
             if (senderId) {
                 try {
-                    const userDoc = await getDoc(doc(db, "users", senderId));
-                    usernames[senderId] = userDoc.exists() ? userDoc.data().username || "Unknown" : "Unknown";
+                    const userDoc = await getDoc(doc(db, "users", senderId)); // Fetch user document
+                    usernames[senderId] = userDoc.exists() ? userDoc.data().username || "Unknown" : "Unknown"; // Cache username
                 } catch (error) {
                     console.error(`Error fetching user with ID ${senderId}:`, error);
-                    usernames[senderId] = "Unknown";
+                    usernames[senderId] = "Unknown"; // Fallback if fetching fails
                 }
             }
         }
-
-        renderNotifications();
+        renderNotifications(); // Render the notifications
 
         // Attach search and filter listeners
-        searchInput.addEventListener("input", renderNotifications);
-        filterDropdown.addEventListener("change", renderNotifications);
+        searchInput.addEventListener("input", renderNotifications); // Update on search input
+        filterDropdown.addEventListener("change", renderNotifications); // Update on filter change
 
         // Handle delete notification action
         notificationList.addEventListener("click", async event => {
             if (event.target.classList.contains("delete-notification")) {
-                const notificationId = event.target.parentElement.dataset.id;
-                await deleteDoc(doc(db, "Notifications", notificationId));
-                console.log(`Notification ${notificationId} deleted.`);
-                notifications = notifications.filter(n => n.id !== notificationId);
-                renderNotifications();
+                const notificationId = event.target.parentElement.dataset.id;  // Get the ID of the notification to delete
+                await deleteDoc(doc(db, "Notifications", notificationId)); // Delete the notification from Firestore
+                console.log(`Notification ${notificationId} deleted.`); // Log the action
+                notifications = notifications.filter(n => n.id !== notificationId); // Remove from local array
+                renderNotifications(); // Update the UI
             }
         });
     } catch (error) {
-        console.error("Error fetching notifications:", error);
+        console.error("Error fetching notifications:", error); // Log errors
         notificationList.innerHTML = "<p>Error loading notifications. Please try again later.</p>";
     }
 }
 
 // Function to render notifications based on search and filter
 export function renderNotifications() {
-    const searchInput = document.getElementById("notification-search");
-    const filterDropdown = document.getElementById("notification-filter");
-    const notificationList = document.getElementById("notification-list");
+    const searchInput = document.getElementById("notification-search"); // Get search input
+    const filterDropdown = document.getElementById("notification-filter"); // Get filter dropdown
+    const notificationList = document.getElementById("notification-list"); // Get notification list container
 
-    const searchQuery = searchInput.value.toLowerCase();
-    const filterOption = filterDropdown.value;
+    const searchQuery = searchInput.value.toLowerCase(); // Get search query
+    const filterOption = filterDropdown.value; // Get selected filter option
 
+      // Filter and sort notifications based on search and filter
     let filteredNotifications = notifications.filter(notification => {
-        const senderUsername = usernames[notification.senderId]?.toLowerCase() || "unknown";
-        const message = getMessage(notification, senderUsername).toLowerCase();
-        return message.includes(searchQuery);
+        const senderUsername = usernames[notification.senderId]?.toLowerCase() || "unknown"; // Get sender username
+        const message = getMessage(notification, senderUsername).toLowerCase(); // Get notification message
+        return message.includes(searchQuery); // Match search query
     });
 
     if (filterOption === "latest") {
-        filteredNotifications.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        filteredNotifications.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // Sort by latest
     } else if (filterOption === "oldest") {
-        filteredNotifications.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+        filteredNotifications.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)); // Sort by oldest
     }
 
-    // Update notification list in DOM
+    // Update the DOM with filtered notifications
     notificationList.innerHTML = filteredNotifications
-    .map(notification => {
-        const senderUsername = usernames[notification.senderId] || "Unknown";
-    
-        let timeAgo = "Unknown time"; // Default fallback
-        if (notification.timestamp) {
-            try {
-                let timestamp;
-                if (typeof notification.timestamp.toDate === "function") {
-                    timestamp = notification.timestamp.toDate(); // Firestore Timestamp
-                } else if (typeof notification.timestamp === "string") {
-                    timestamp = new Date(notification.timestamp); // ISO string
-                }
-                timeAgo = getRelativeTime(timestamp); // Calculate relative time
-            } catch (error) {
-                console.error(`Error calculating time for notification ${notification.id}:`, error);
-            }
-        }
-    
-        const message = getMessage(notification, senderUsername);
-        // Format the timestamp to be readable
-        const readableTimestamp = new Date(notification.timestamp).toLocaleString();
+        .map(notification => {
+            const senderUsername = usernames[notification.senderId] || "Unknown"; // Get sender username
 
-        return `
+            let timeAgo = "Unknown time"; // Default fallback
+            if (notification.timestamp) {
+                try {
+                    let timestamp;
+                    if (typeof notification.timestamp.toDate === "function") {
+                        timestamp = notification.timestamp.toDate(); // Firestore Timestamp
+                    } else if (typeof notification.timestamp === "string") {
+                        timestamp = new Date(notification.timestamp); // ISO string
+                    }
+                    timeAgo = getRelativeTime(timestamp); // Calculate relative time
+                } catch (error) {
+                    console.error(`Error calculating time for notification ${notification.id}:`, error);
+                }
+            }
+
+            const message = getMessage(notification, senderUsername); // Get notification message
+            // Format the timestamp to be readable
+            const readableTimestamp = new Date(notification.timestamp).toLocaleString();
+
+            return `
             <div class="notification-item" data-id="${notification.id}">
-                <span>${message}</span>
-                <small class="notification-time">${timeAgo}</small>
-                <button class="delete-notification">Delete</button>
+                <span>${message}</span> <!-- Notification message -->
+                <small class="notification-time">${timeAgo}</small> <!-- Relative time -->
+                <button class="delete-notification">Delete</button> <!-- Delete button -->
             </div>
         `;
-    }).join("");
+        }).join(""); // Combine all notification HTML
 
-    // Add click listener to notification cards AFTER the DOM is updated
-notificationList.querySelectorAll(".notification-item").forEach(item => {
-    item.addEventListener("click", async event => {
-        const notificationId = item.dataset.id;
-        const clickedNotification = notifications.find(n => n.id === notificationId);
+    // listener to notification cards AFTER the DOM is updated
+    notificationList.querySelectorAll(".notification-item").forEach(item => {
+        item.addEventListener("click", async event => {
+            const notificationId = item.dataset.id;
+            const clickedNotification = notifications.find(n => n.id === notificationId);
 
-        if (clickedNotification) {
-            // Check if the category is 'message'
-            if (clickedNotification.category === "message") {
-                window.location.href = "Messages.html"; // Redirect to Messages.html
-                return; // Exit further execution for 'message' category
-            }
+            if (clickedNotification) {
+                // Check if the category is 'message'
+                if (clickedNotification.category === "message") {
+                    window.location.href = "Messages.html"; // Redirect to Messages.html
+                    return; // Exit further execution for 'message' category
+                }
 
-        if (clickedNotification && ["Like", "Comment", "Share"].includes(clickedNotification.category)) {
-            const { photoId } = clickedNotification;
-            if (photoId) {
-                try {
-                    const photoDoc = await getDoc(doc(db, "Photos", photoId));
-                    if (photoDoc.exists()) {
-                        localStorage.setItem("photoId", photoId); // Save photoId to localStorage
-                        window.location.href = "ViewImage.html"; // Redirect to ViewImage.html
-                    } else {
-                        alert("The photo no longer exists."); // Show alert if photo doesn't exist
+                if (clickedNotification && ["Like", "Comment", "Share"].includes(clickedNotification.category)) {
+                    const { photoId } = clickedNotification;
+                    if (photoId) {
+                        try {
+                            const photoDoc = await getDoc(doc(db, "Photos", photoId));
+                            if (photoDoc.exists()) {
+                                localStorage.setItem("photoId", photoId); // Save photoId to localStorage
+                                window.location.href = "ViewImage.html"; // Redirect to ViewImage.html
+                            } else {
+                                alert("The photo no longer exists."); // Show alert if photo doesn't exist
+                            }
+                        } catch (error) {
+                            console.error("Error checking photo existence:", error);
+                            alert("An error occurred while trying to fetch the photo.");
+                        }
                     }
-                } catch (error) {
-                    console.error("Error checking photo existence:", error);
-                    alert("An error occurred while trying to fetch the photo.");
                 }
             }
-        }
-        }
-        
+        });
     });
-});
-
 }
 
-
-// Generate dynamic message based on category
+// Generate a dynamic notification message based on its category
 function getMessage(notification, senderUsername) {
     switch (notification.category) {
         case "Like":
@@ -302,7 +301,7 @@ function getMessage(notification, senderUsername) {
 function getRelativeTime(timestamp) {
     const now = new Date();
     const past = new Date(timestamp);
-    const seconds = Math.floor((now - past) / 1000);
+    const seconds = Math.floor((now - past) / 1000); // Difference in seconds
 
     if (seconds < 60) return `${seconds} seconds ago`;
     const minutes = Math.floor(seconds / 60);
@@ -324,8 +323,8 @@ if (notificationsTab) {
         let overlay = document.getElementById("popup-overlay");
 
         if (!popup || !overlay) {
-            createNotificationPopup();
+            createNotificationPopup(); // Create popup if it doesn't exist
         }
-        openPopup();
+        openPopup(); // Open the popup
     });
 }

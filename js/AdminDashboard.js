@@ -1,7 +1,8 @@
-import { db, auth } from './firebaseConfig.js'; 
+// Import Firebase services for Firestore and Storage
+import { db, auth } from './firebaseConfig.js';
 import { query, collection, where, getDocs, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js';
-import { logout } from './login.js';
+import { logout } from './login.js';  // Import logout function from login.js
 
 // Function to check login status and user role
 async function checkLoginStatus() {
@@ -10,33 +11,35 @@ async function checkLoginStatus() {
     // Wait for Firebase Authentication to resolve the current user
     const currentUser = await new Promise((resolve) => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
-            unsubscribe(); // Unsubscribe after resolving
+            unsubscribe(); // Stop listening after user is identified
             resolve(user);
         });
     });
-
     if (!currentUser) {
+        // If no user is logged in, redirect to the login page
         console.warn("No authenticated user. Redirecting to login.");
         window.location.href = '../html/index.html';
         return;
     }
 
-    // Assume the user is authenticated, verify their role
     try {
+        // Query Firestore for the user's document based on email
         const userDoc = await getDocs(
             query(collection(db, "users"), where("email", "==", currentUser.email))
         );
 
         if (userDoc.empty) {
+            // If user document is not found, redirect to the login page
             console.warn("No user data found. Redirecting to login.");
             window.location.href = '../html/index.html';
             return;
         }
 
-        const userData = userDoc.docs[0].data();
+        const userData = userDoc.docs[0].data(); // Get user data
         console.log("User data fetched:", userData);
 
         if (userData.role.toLowerCase() !== 'admin') {
+            // If the user is not an admin, redirect to the error page
             console.warn("Unauthorized access attempt. Redirecting to error page.");
             window.location.href = '../html/Error.html';
             return;
@@ -45,16 +48,16 @@ async function checkLoginStatus() {
         console.log("Login status validated for admin:", userData.username);
     } catch (error) {
         console.error("Error validating login status:", error);
-        window.location.href = '../html/index.html';
+        window.location.href = '../html/index.html'; // Redirect to login on error
     }
 }
 
-// Ensure the user is logged in and has the correct role when the DOM is ready
+// Event listener for DOMContentLoaded to ensure the DOM is ready
 document.addEventListener('DOMContentLoaded', async () => {
-
-    const logoutButton = document.getElementById('logout-button'); // Ensure this matches the ID in your HTML
+    const logoutButton = document.getElementById('logout-button'); // Find logout button in DOM
 
     if (logoutButton) {
+        // Attach logout functionality to the logout button
         logoutButton.addEventListener('click', () => {
             logout(); // Call the logout function from login.js
         });
@@ -62,14 +65,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error("Logout button not found in the DOM.");
     }
 
-    await checkLoginStatus();
-    initializeDashboard(); // Proceed to initialize the admin dashboard
-
+    await checkLoginStatus(); // Verify user login and role
+    initializeDashboard(); // Initialize the admin dashboard
 
     const onlineUsersList = document.getElementById('onlineUsersList');
 
     // Check if a slider is rendered
     if (onlineUsersList.querySelector('.slider')) {
+        // Logic for a slider UI if present in the online users list
         const slider = onlineUsersList.querySelector('.slider');
         const sliderTrack = slider.querySelector('.slider-track');
         const sliderItems = sliderTrack.children;
@@ -77,12 +80,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         const visibleItems = Math.floor(slider.offsetWidth / itemWidth);
         let currentIndex = 0;
 
-        // Enable or disable slider navigation
+        // Toggle slider navigation visibility based on content
         function updateSliderNavigation() {
             slider.classList.toggle('overflow', sliderTrack.scrollWidth > slider.offsetWidth);
         }
 
-        // Move slider left or right
+        // Handle slider navigation on user interaction
         slider.addEventListener('click', (event) => {
             if (event.target.matches('.slider::before')) {
                 currentIndex = Math.max(0, currentIndex - visibleItems);
@@ -92,15 +95,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             sliderTrack.style.transform = `translateX(-${currentIndex * itemWidth}px)`;
         });
 
-        // Update navigation visibility on resize
+        // Update slider visibility on window resize
         window.addEventListener('resize', updateSliderNavigation);
-
-        // Initial update
-        updateSliderNavigation();
+        updateSliderNavigation(); // Initial navigation update
     }
-
-
-
 });
 
 
@@ -230,43 +228,45 @@ function initializeDashboard() {
 
 // Function to fetch and display online users
 async function fetchOnlineUsers() {
-    const sessionsRef = collection(db, "sessions");
+    const sessionsRef = collection(db, "sessions"); // Reference the Firestore `sessions` collection
     const q = query(sessionsRef, where("status", "==", "online")); // Query for users with "online" status
 
     try {
-        const querySnapshot = await getDocs(q);
-        const onlineUsersList = document.getElementById("onlineUsersList");
+        const querySnapshot = await getDocs(q); // Execute the query and get matching documents
+        const onlineUsersList = document.getElementById("onlineUsersList"); // HTML element to display the online users list
 
-        // Clear the list before populating it
+        // Clear the current content of the online users list
         onlineUsersList.innerHTML = "";
 
+        // If no users are online, display a placeholder message
         if (querySnapshot.empty) {
             onlineUsersList.innerHTML = `<p>No users are currently online.</p>`;
-            return;
+            return; // Exit the function
         }
 
-        const onlineUsers = [];
+        const onlineUsers = []; // Array to hold details of online users
 
-        // Fetch additional details for each online user
+        // Iterate through each online session
         for (const docSnapshot of querySnapshot.docs) {
-            const sessionData = docSnapshot.data();
+            const sessionData = docSnapshot.data(); // Get session data
 
-            // Fetch the user's profile from the `users` collection using their UID
+            // Query the `users` collection to fetch the user's profile using their UID
             const userQuery = query(collection(db, "users"), where("uid", "==", sessionData.uid));
             const userSnapshot = await getDocs(userQuery);
 
+            // If the user's profile exists, extract their details
             if (!userSnapshot.empty) {
-                const userData = userSnapshot.docs[0].data();
+                const userData = userSnapshot.docs[0].data(); // Get user data
                 onlineUsers.push({
-                    username: userData.username,
-                    profilePic: userData.profilePic,
-                    role: userData.role,
-                    loginTime: sessionData.loginTime, // Add login time from the `sessions` data
+                    username: userData.username, // User's username
+                    profilePic: userData.profilePic, // User's profile picture URL
+                    role: userData.role, // User's role (admin or user)
+                    loginTime: sessionData.loginTime, // Login time from the session data
                 });
             }
         }
 
-        // Generate user cards dynamically
+        // Generate HTML for each online user card dynamically
         const userCards = onlineUsers.map((user) => `
             <div class="user-card">
                 <img 
@@ -276,7 +276,7 @@ async function fetchOnlineUsers() {
                 <div class="user-info">
                     <p><strong>${user.username}</strong></p>
                     <p>Role: ${user.role}</p>
-                    <p>Login Time: ${user.loginTime ? new Date(user.loginTime).toLocaleString() : "N/A"}</p>
+                    <p>Login Time: ${user.loginTime ? new Date(user.loginTime).toLocaleString() : "N/A"}</p> <!-- Format and display login time -->
                 </div>
             </div>
         `);
@@ -284,6 +284,7 @@ async function fetchOnlineUsers() {
         // Append user cards to the list
         onlineUsersList.innerHTML = userCards.join("");
     } catch (error) {
+        // Log errors to the console
         console.error("Error fetching online users:", error);
     }
 }
@@ -293,77 +294,96 @@ async function fetchOnlineUsers() {
 
 
 
-// Fetch report data from Firestore and update chart
+// Function to fetch report data and update the chart
 async function fetchReportDataAndDrawChart() {
-    const reportsRef = collection(db, "Reports");
-    const q = query(reportsRef, where("category", "in", ["comment", "photo", "user"]));
+    const reportsRef = collection(db, "Reports"); // Reference the Firestore "Reports" collection
+    const q = query(reportsRef, where("category", "in", ["comment", "photo", "user", "message"])); // Query the collection for documents where the "category" field matches specific values
 
     try {
+        // Execute the query and get the documents that match
         const querySnapshot = await getDocs(q);
+
+        // Initialize a counter object to track the number of reports for each category
         const reportCounts = {
             comment: 0,
             photo: 0,
-            user: 0
+            user: 0,
+            message: 0
         };
 
+        // Iterate over the retrieved documents
         querySnapshot.forEach((doc) => {
-            const reportData = doc.data();
+            const reportData = doc.data(); // Extract data from each document
+
+            // If the report's category is in the `reportCounts` object, increment its count
             if (reportCounts[reportData.category] !== undefined) {
                 reportCounts[reportData.category]++;
             }
         });
-
+        // Pass the aggregated report counts to the chart-drawing function
         drawSpamReportsChart(reportCounts);
     } catch (error) {
+        // Log any errors that occur during Firestore operations
         console.error("Error fetching report data: ", error);
     }
 }
 
-// Draw the Spam Reports Chart
+// Function to draw the Spam Reports Chart
 function drawSpamReportsChart(reportCounts) {
+    // Load the required Google Charts package for bar charts
     google.charts.load('current', { 'packages': ['bar'] });
+
+    // Callback to run after the chart library is loaded
     google.charts.setOnLoadCallback(() => {
+        // Prepare the data for the chart
         const data = google.visualization.arrayToDataTable([
-            ['Category', 'Reports'],
-            ['Comments', reportCounts.comment],
-            ['Photos', reportCounts.photo],
-            ['Users', reportCounts.user],
+            ['Category', 'Reports'], // Define column headers
+            ['Comments', reportCounts.comment],  // Number of "Comments" reports
+            ['Photos', reportCounts.photo],  // Number of "Photos" reports
+            ['Users', reportCounts.user], // Number of "Users" reports
+            ['Messages', reportCounts.message] // Number of "Messages" reports
+
         ]);
 
+        // Define options for customizing the chart
         const options = {
-            legend: { position: 'none' },
+            legend: { position: 'none' }, // Disable the legend
             chart: {
-                title: 'Content Reports',
-                subtitle: 'Number of reports by category',
+
+                subtitle: 'Number of reports by category',  // Subtitle
             },
             axes: {
                 x: {
-                    0: { side: 'top', label: 'Category' },
+                    0: { side: 'top', label: 'Category' }, // Label for the x-axis
                 },
             },
-            bar: { groupWidth: "90%" },
+            bar: { groupWidth: "90%" }, // Adjust the width of bars
         };
-
+        // Initialize the chart and link it to the DOM element with ID 'spam_reports_chart'
         const chart = new google.charts.Bar(document.getElementById('spam_reports_chart'));
+
+        // Render the chart using the prepared data and options
         chart.draw(data, google.charts.Bar.convertOptions(options));
     });
 }
 
-google.charts.load('current', { packages: ['corechart', 'bar'] });
-google.charts.setOnLoadCallback(fetchActivityLogAndDrawChart);
+google.charts.load('current', { packages: ['corechart', 'bar'] }); // Load the Google Charts library
+google.charts.setOnLoadCallback(fetchActivityLogAndDrawChart); // Callback to fetch data and draw the chart after Google Charts is loaded
 
+// Function to fetch activity log data and render the chart
 async function fetchActivityLogAndDrawChart() {
-    const activityLogsRef = collection(db, "ActivityLogs");
+    const activityLogsRef = collection(db, "ActivityLogs"); // Reference to the Firestore collection
 
     try {
-        const querySnapshot = await getDocs(activityLogsRef);
-        const activityCounts = {};
+        const querySnapshot = await getDocs(activityLogsRef); // Fetch all documents in the ActivityLogs collection
+        const activityCounts = {}; // Initialize an empty object to store counts for each category
 
-        // Aggregate occurrences by category
+        // Loop through the query results to count occurrences of each category
         querySnapshot.forEach((doc) => {
-            const activityData = doc.data();
-            const category = activityData.category;
+            const activityData = doc.data(); // Get document data
+            const category = activityData.category; // Extract the activity category
 
+            // Increment the count for the category or initialize it
             if (activityCounts[category]) {
                 activityCounts[category]++;
             } else {
@@ -371,45 +391,48 @@ async function fetchActivityLogAndDrawChart() {
             }
         });
 
-        // Prepare chart data
-        const chartData = [['Activity', 'Occurrences']];
+        // Prepare the chart data in the format required by Google Charts
+        const chartData = [['Activity', 'Occurrences']]; // First row defines column headers
         for (const [category, count] of Object.entries(activityCounts)) {
-            chartData.push([category, count]);
+            chartData.push([category, count]); // Add rows for each activity category and count
         }
 
-        drawMaterial(chartData); // Pass the dynamic data to the chart
+        drawMaterial(chartData); // Pass the prepared data to the chart drawing function
     } catch (error) {
+        // Handle and log errors that may occur during Firestore operations
         console.error("Error fetching activity log data:", error);
     }
 }
 
 function drawMaterial(chartData) {
-    const chartContainer = document.getElementById('curve_chart');
+    const chartContainer = document.getElementById('curve_chart'); // Locate the container where the chart will be drawn
 
-    // Ensure the chart container's height matches the parent
+    // Ensure the chart container's height matches the parent element dynamically
     const parentCard = chartContainer.closest('.card');
-    chartContainer.style.height = `${parentCard.offsetHeight - 50}px`; // Adjust height dynamically
+    chartContainer.style.height = `${parentCard.offsetHeight - 50}px`; // Adjust the height dynamically based on the parent
 
+     // Convert the chart data array into Google Charts' format
     const data = google.visualization.arrayToDataTable(chartData);
 
+    // Chart options for Google Charts
     const materialOptions = {
         chart: {
-            title: 'Activity Log',
-            subtitle: 'Occurrences by Activity Category',
+            subtitle: 'Occurrences by Activity Category', // Subtitle for context
         },
         hAxis: {
-            title: 'Occurrences',
-            minValue: 0,
+            title: 'Occurrences', // Label for the horizontal axis
+            minValue: 0, // Start the axis at 0
         },
         vAxis: {
-            title: 'Activity Categories',
+            title: 'Activity Categories', // Label for the vertical axis
         },
         bars: 'horizontal', // Horizontal bar chart
-        colors: ['#3366CC', '#FF9900', '#DC3912', '#109618', '#990099', '#3B3EAC'],
+        colors: ['#3366CC', '#FF9900', '#DC3912', '#109618', '#990099', '#3B3EAC'], // Custom colors for bars
     };
 
+    // Create a new Google Charts bar chart and bind it to the container
     const materialChart = new google.charts.Bar(chartContainer);
-    materialChart.draw(data, materialOptions);
+    materialChart.draw(data, materialOptions); // Draw the chart using the data and options
 }
 
 

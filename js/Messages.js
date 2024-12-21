@@ -349,10 +349,18 @@ document.addEventListener("DOMContentLoaded", () => {
             // Report Message
             optionsMenu.querySelector(".option-report").addEventListener("click", async () => {
                 try {
+
+                    // Resolve the sender's username
+                    const senderDoc = await getDoc(doc(db, "users", msg.senderId));
+                    const senderUsername = senderDoc.exists()
+                        ? senderDoc.data().username || "Unknown"
+                        : "Unknown";
+
                     // Add the reported message to the Reports collection
                     await addDoc(collection(db, "Reports"), {
                         category: "message",
                         messageId: msg.id, // Message ID
+                        ReportedUsername: senderUsername, // Include the username of the sender
                         reportedBy: auth.currentUser?.uid, // User reporting the message
                         reason: "User-reported issue", // Add specific reason if available
                         status: "Pending Review",
@@ -405,7 +413,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
                 optionsMenu.classList.remove("show"); // Hide the options menu
             });
-            
+
             // Add click event to show full message
             messageCard.addEventListener("click", () => {
                 displayMessage(msg);
