@@ -88,6 +88,7 @@ function initializeProfileImageUpload(userData) {
 // DOMContentLoaded Listener
 document.addEventListener('DOMContentLoaded', async function () {
     console.log('DOMContentLoaded fired');
+
     try {
         loadBlockedUsers(); // Ensure container exists before invoking
         await checkUserAuthentication(); // Ensure user authentication
@@ -96,6 +97,15 @@ document.addEventListener('DOMContentLoaded', async function () {
         console.error('Error initializing the page:', error.message);
     }
 
+    const saveButton = document.querySelector('.save');
+    if (saveButton) {
+        saveButton.addEventListener('click', (event) => {
+            event.preventDefault(); // Prevent the default form submission behavior
+            updateProfile(event);   // Call the updateProfile function
+        });
+    } else {
+        console.error('Save Changes button not found.');
+    }
 
 });
 
@@ -338,6 +348,7 @@ async function updateProfile(event) {
 //==========Blocked users Section========//
 // Function to load blocked users
 async function loadBlockedUsers() {
+    const currentUserId = sessionStorage.getItem('userId');
     console.log('loadBlockedUsers invoked');
     const blockedUsersContainer = document.getElementById('blockedUsersContainer');
     
@@ -350,7 +361,7 @@ async function loadBlockedUsers() {
     console.log('Fetching blocked users from Firestore...');
 
     try {
-        const currentUserId = auth.currentUser?.uid;
+        
         console.log('Current User ID:', currentUserId);
 
         if (!currentUserId) {

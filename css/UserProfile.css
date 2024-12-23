@@ -1,52 +1,55 @@
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', sans-serif;/* Use 'Inter' font family for a modern look */
     background-color: #f5f5ff;
-    margin: 0;
-    padding: 0;
+    margin: 0;/* Remove default margin */
+    padding: 0; /* Remove default padding */
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+    box-sizing: border-box; /* Include padding and borders in width and height */
 }
 
 .container {
     margin-top: 85px; /* Add margin to compensate for fixed header height plus space */
-    padding: 20px;
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-    align-items: flex-start;
+    padding: 20px;  /* Add padding around the container */
+    display: flex; /* Use flexbox for layout */
+    flex-wrap: wrap; /* Allow elements to wrap on smaller screens */
+    gap: 20px;  /* Add space between child elements */
+    justify-content: center; /* Center items horizontally */
+    align-items: flex-start; /* Align items to the top */
 }
 
 .header {
-    display: flex;
+    display: flex; /* Use flexbox for layout */
     justify-content: space-between; /* Ensure space between title and button */
-    align-items: center;
+    align-items: center; /* Vertically center-align items */
     padding: 10px 20px; /* Adjust padding for compactness */
-    background-color: #fff;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 1000;
+    background-color: #fff; /* Set a white background color */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+    position: fixed; /* Fix header to the top */
+    top: 0; /* Position at the top of the viewport */
+    left: 0; /* Position at the left of the viewport */
+    width: 100%; /* Stretch header to the full width */
+    z-index: 1000; /* Ensure the header is above other elements */
     height: 60px; /* Set a fixed height */
     box-sizing: border-box; /* Include padding in width calculation */
 }
 
 .header h1 {
     font-size: 20px; /* Adjust font size */
-    color: #5a5a5a;
-    display: flex;
-    align-items: center;
+    color: #5a5a5a; /* Use a medium gray color */
+    display: flex; /* Use flexbox for title layout */
+    align-items: center; /* Align title content vertically */
     gap: 10px; /* Add space between the image and the title */
 }
-
+/* Adjust the size of the logo */
 .header h1 img {
-    width: 24px; /* Adjust the size of the logo */
-    height: 24px;
+    width: 24px; /* Set logo width */
+    height: 24px; /* Set logo height */
 }
 
 .header .icons {
-    display: flex;
-    align-items: center;
-    gap: 15px; /* Add spacing between the bell icon and the button */
+    display: flex;/* Use flexbox for icons layout */
+    align-items: center; /* Vertically align icons */
+    gap: 15px; /* Add spacing between icons */
 }
 
 .header .logout {
@@ -66,64 +69,72 @@ body {
 #chart_div {
     background-color: #f3f3f3;
     border: 1px solid #ddd;
+    max-width: 100%; /* Prevent chart from exceeding the container width */
+    overflow-x: auto; /* Allow horizontal scrolling inside the chart container if needed */
 }
 
 .content {
     display: flex;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
     width: 100%;
     max-width: 1200px;
     gap: 20px;
 }
 
-/* Profile card and right-panel styles remain the same */
+/* Profile card styles */
 .profile-card {
     background-color: #f9f9ff;
-    border-radius: 10px;
-    padding: 20px;
+    border-radius: 10px; /* Round the card corners */
+    padding: 20px; /* Add padding inside the card */
     width: 25%;
+    max-width: 300px; /* Limit the width on larger screens */
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
     text-align: center;
+    flex: 1; /* Allow resizing */
 }
 
 .profile-card img {
-    border-radius: 50%;
-    margin-bottom: 15px;
-    width: 100px;
-    height: 100px;
+    border-radius: 50%; /* Make the profile picture circular */
+    margin-bottom: 15px; /* Add space below the image */
+    width: 100px;  /* Set image width */
+    height: 100px;  /* Set image height */
 }
 
 .profile-card h2 {
-    font-size: 20px;
-    margin-bottom: 10px;
+    font-size: 20px; /* Set font size for the name */
+    margin-bottom: 10px;  /* Add space below the name */
 }
 
 .profile-card p {
-    font-size: 14px;
+    font-size: 14px; /* Set font size for text */
     color: #7a7a7a;
-    margin: 5px 0;
+    margin: 5px 0; /* Add vertical spacing between text lines */
 }
 
 .right-panel {
-    display: flex;
+    display: flex; /* Use flexbox for layout */
     flex-direction: column;
-    gap: 20px;
-    width: 75%;
+    gap: 20px; /* Add space between items */
+    width: 75%; /* Set panel width as a percentage */
+    max-width: 900px; /* Limit width on larger screens */
+    flex: 2; /* Allow resizing */
+    overflow-x: hidden; /* Prevent horizontal overflow in right panel */
 }
 
 .admin-actions,
 .admin-notes,
 .user-activity {
     background-color: #f9f9ff;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    border-radius: 10px; /* Round the corners */
+    padding: 20px; /* Add padding inside sections */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
 }
-
+/* General section headings */
 .admin-actions h3,
 .admin-notes h3,
 .user-activity h3 {
-    font-size: 18px;
-    margin-bottom: 15px;
+    font-size: 18px; /* Set font size for headings */
+    margin-bottom: 15px;  /* Add space below headings */
 }
 
 .admin-actions .buttons {
@@ -155,24 +166,155 @@ body {
     font-size: 14px;
     color: #7a7a7a;
 }
-
+/* Activity items styling */
 .user-activity .activity-item {
-    background-color: #fff;
-    border-radius: 5px;
-    padding: 10px;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-    margin-bottom: 10px;
+    background-color: #fff; /* White background for activity items */
+    border-radius: 5px;  /* Round the corners */
+    padding: 10px; /* Add padding inside */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+    margin-bottom: 10px; /* Add spacing between items */
 }
 
 .user-activity .activity-item p {
-    margin: 0;
-    font-size: 14px;
+    margin: 0; /* Remove default margin */
+    font-size: 14px;  /* Set font size for text */
     color: #7a7a7a;
 }
 
 .user-activity .activity-item span {
-    display: block;
+    display: block; /* Make span a block element */
     font-size: 12px;
     color: #b0b0b0;
-    margin-top: 5px;
+    margin-top: 5px; /* Add space above the timestamp */
 }
+
+/*Loaded admin notes*/
+.admin-notes {
+    margin: 20px 0;
+}
+
+.note-card {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.note-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.admin-username {
+    font-weight: bold;
+}
+
+.note-footer {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.add-note-section {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+.add-note-section input {
+    flex: 1;
+    padding: 5px;
+}
+
+.add-note-button {
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.add-note-button:hover {
+    background-color: #0056b3;
+}
+
+.slide-prev, .slide-next {
+    margin: 10px;
+    padding: 5px 10px;
+    background-color: #050607;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.slide-prev:hover, .slide-next:hover {
+    background-color: #0056b3;
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 1024px) {
+    /* On smaller tablets and laptops */
+    .profile-card, .right-panel {
+        max-width: 100%; /* Allow full width */
+    }
+}
+
+@media (max-width: 768px) {
+    /* On tablets */
+    .container {
+        flex-direction: column; /* Stack elements vertically */
+        align-items: stretch; /* Stretch to full width */
+    }
+
+    .header h1 img {
+        width: 20px; /* Reduce logo size */
+        height: 20px;
+    }
+
+    .header .logout {
+        padding: 5px 10px; /* Smaller button */
+        font-size: 12px; /* Smaller text */
+    }
+    profile-card img {
+        width: 80px; /* Smaller profile picture */
+        height: 80px;
+    }
+
+    .profile-card h2 {
+        font-size: 18px; /* Smaller font size */
+    }
+}
+
+@media (max-width: 480px) {
+    /* On mobile phones */
+    .header h1 {
+        font-size: 16px; /* Smaller title */
+    }
+
+    .profile-card img {
+        width: 80px; /* Smaller profile picture */
+        height: 80px;
+    }
+
+    .profile-card h2 {
+        font-size: 18px; /* Smaller font size */
+    }
+
+    .admin-actions button,
+    .add-note-button {
+        padding: 5px 8px; /* Smaller buttons */
+        font-size: 12px; /* Smaller font size */
+    }
+}
+

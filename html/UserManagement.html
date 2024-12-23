@@ -1,184 +1,192 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PhotoNest User Management</title>
+    <title>User Management</title>
     <link rel="stylesheet" href="../css/UserManagement.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png">
-    
-    <!-- Firebase App (the core Firebase SDK) -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<!-- Firebase Authentication -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<!-- Firebase Firestore -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<!-- Firebase Storage -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+    <!-- core Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <!-- Firebase Authentication -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <!-- Firebase Firestore -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <!-- Firebase Storage -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 
 
-<script type="module" src="../js/firebaseConfig.js"></script>
-<script type="module" src="../js/login.js"></script>
-    <script type="module" src="../js/UserManagement.js"></script>
+    <script type="module" src="../js/firebaseConfig.js"></script>  <!-- Imports the Firebase configuration file -->
+    <script type="module" src="../js/login.js"></script> <!-- Imports the login functionality -->
+    <script type="module" src="../js/UserManagement.js"></script> <!-- Imports the user management functionality -->
 
 
 
-                <!-- In UserManagement.html -->
-                <script type="module">
-                    import { updateBanDuration } from '../js/UserManagement.js';
-                    window.updateBanDuration = updateBanDuration; // Attach to the global scope
-                
-                    import { deleteUser } from '../js/UserManagement.js';
-                    window.deleteUser = deleteUser; // Attach to the global scope
-                
-                    import { openBanUserModal } from '../js/UserManagement.js';
-                    window.openBanUserModal = openBanUserModal; // Attach to the global scope
-                
-                    import { unbanUser } from '../js/UserManagement.js';
-                    window.unbanUser = unbanUser; // Attach to the global scope
-                    
-                    import { viewUser } from '../js/UserManagement.js';
-                    window.viewUser = viewUser; // Attach to the global scope
-                </script>
-                
+     <!-- Makes specific functions globally accessible in this file -->
+    <script type="module">
+        import { updateBanDuration } from '../js/UserManagement.js';
+        window.updateBanDuration = updateBanDuration; // Attaches the updateBanDuration function globally
 
+        import { deleteUser } from '../js/UserManagement.js';
+        window.deleteUser = deleteUser; // Attaches the deleteUser function globally
 
+        import { openBanUserModal } from '../js/UserManagement.js';
+        window.openBanUserModal = openBanUserModal; // Attaches the openBanUserModal function globally
+
+        import { unbanUser } from '../js/UserManagement.js';
+        window.unbanUser = unbanUser; // Attaches the unbanUser function globally
+
+        import { viewUser } from '../js/UserManagement.js';
+        window.viewUser = viewUser; // Attaches the viewUser function globally
+    </script>
 </head>
+
 <body>
+    <!-- The header section of the page -->
     <div class="header">
+         <!-- Displays the PhotoNest logo and name -->
         <div class="logo">
             <img src="../assets/PhotoNest_Transparent.png" alt="PhotoNest Logo"> PhotoNest
         </div>
-        
+
+        <!-- Container for header actions -->
         <div class="actions">
-        
-             <!-- Hamburger menu for smaller screens -->
-        <button id="hamburgerMenu" class="hamburger-menu">
-            <i class="fas fa-bars"></i>
-        </button>
 
-
-            <button class="settings">
-                <i class="fa fa-cog" aria-hidden="true"></i>
+            <!-- Hamburger menu icon for mobile view -->
+            <button id="hamburgerMenu" class="hamburger-menu">
+                <i class="fas fa-bars"></i> <!-- Font-awesome icon -->
             </button>
-            
 
+            <!-- Settings button -->
+            <button class="settings">
+                <i class="fa fa-cog" aria-hidden="true"></i> <!-- Font-awesome settings icon -->
+            </button>
+
+            <!-- Hidden popup for updating user profile -->
             <div id="settingsPopup" class="popup hidden">
                 <div class="popup-content">
                     <h3>Update Profile</h3>
                     <form id="updateProfileForm">
                         <label for="firstName">First Name:</label>
                         <input type="text" id="firstName" name="firstName" placeholder="First Name" required>
-            
+
                         <label for="lastName">Last Name:</label>
                         <input type="text" id="lastName" name="lastName" placeholder="Last Name" required>
-            
+
                         <label for="phone">Phone Number:</label>
                         <input type="text" id="phone" name="phone" placeholder="Phone Number" required>
-            
-                        <label for="profilePic">Profile Picture:</label>
-<input type="file" id="profilePic" name="profilePic" accept="image/*">
-<div id="uploadProgress" class="hidden">Uploading...</div>
 
-            
+                        <label for="profilePic">Profile Picture:</label>
+                        <input type="file" id="profilePic" name="profilePic" accept="image/*">
+                        <div id="uploadProgress" class="hidden">Uploading...</div>
+
+
                         <button type="submit">Save Changes</button>
                         <button type="button" id="closePopup">Cancel</button>
                     </form>
                 </div>
             </div>
-            
-
-
+            <!-- Logout button -->
             <a href="#" id="logoutButton" class="logout-button">Logout</a>
 
-          
+
         </div>
-        
+
     </div>
 
-    <!-- Mobile Menu -->
-<div id="mobileMenu" class="mobile-menu hidden">
-    <a href="AdminDashboard.html">Dashboard</a>
-    <a href="UserManagement.html">User Management</a>
-    <a href="Reports.html">Reports</a>
-    <a href="AdminDashboard.html#user-status-section">Currently Logged-in Users</a>
-    <a href="AdminDashboard.html#Spam-Report">Spam Reports</a>
-    <button id="logoutButton">Logout</button>
-</div>
+    <!-- Hidden mobile menu for navigation -->
+    <div id="mobileMenu" class="mobile-menu hidden">
+        <a href="AdminDashboard.html">Dashboard</a>
+        <a href="UserManagement.html">User Management</a>
+        <a href="Reports.html">Reports</a>
+        <a href="AdminDashboard.html#user-status-section">Currently Logged-in Users</a>
+        <a href="AdminDashboard.html#Spam-Report">Spam Reports</a>
+        <button id="logoutButton">Logout</button>
+    </div>
 
-        <aside class="sidebar">
-            <h2>Navigation</h2>
-            <nav>
-                <ul>
-                    
-                    <li><a href="AdminDashboard.html">Dashboard</a></li>
-                    <li><a href="#">User Management</a></li>
-                    <li><a href="#">Reports</a></li>
-                </ul>
-                <h3>Quick Access</h3>
-                <ul>
-                    <li><a href="#">Currently Logged-in Users</a></li>
-                    <li><a href="#">Spam Reports</a></li>
-                </ul>
-            </nav>
-        </aside>
-
-        <main>
-            <div class="controls">
-                <div class="search-container">
-                    <input type="text" placeholder="Search..." />
-                    <div class="sort-container">
-                        <button class="sort-button">Sort</button>
-                        <button class="enter-button">Enter</button>
-                    </div>
+     <!-- Sidebar navigation -->
+    <aside class="sidebar">
+        <h2>Navigation</h2>
+        <nav>
+            <ul>
+                <!-- Navigation links -->
+                <li><a href="AdminDashboard.html">Dashboard</a></li>
+                <li><a href="UserManagement.html">User Management</a></li>
+                <li><a href="Reports.html">Reports</a></li>
+            </ul>
+            <h3>Quick Access</h3>
+            <ul>
+                <!-- Quick access links -->
+                <li><a href="AdminDashboard.html#user-status-section">Currently Logged-in Users</a></li>
+                <li><a href="AdminDashboard.html#Spam-Report">Spam Reports</a></li>
+            </ul>
+        </nav>
+    </aside>
+     <!-- Main content area -->
+    <main>
+        <!-- Controls for search, sorting, and adding a user -->
+        <div class="controls">
+            <div class="search-container">
+                <!-- Search bar -->
+                <input type="text" placeholder="Search..." />
+                <div class="sort-container">
+                    <!-- Buttons for sorting, filtering and submitting -->
+                    <button class="sort-button">Sort/filter</button>
+                    <button class="enter-button">Enter</button>
                 </div>
-                <button class="add-user-button" onclick="window.location.href='AddUser.html';">Add User</button>
-
             </div>
-            
+            <!-- Button to navigate to the Add User page -->
+            <button class="add-user-button" onclick="window.location.href='AddUser.html';">Add User</button>
 
-
-            
-            
-
-            <section class="user-cards">
-                <div class="user-card">
-                    <img src="" alt="User avatar" class="user-avatar">
-                    <h3>Sarah Connor</h3>
-                    <p>@Sarah.Connor</p>
-                    <p>Role: Administrator</p>
-                    <p>Status: Active</p>
-                    <p>Last Active: Oct 5, 2023, 14:30</p>
-                    <p>Account Created: Jan 10, 2022</p>
-                    <div class="card-buttons">
-                        <button class="delete-button">Delete</button>
-                        <button class="ban-button">Ban</button>
-                        <button class="view-button">View</button>
-                    </div>
-                    <label for="ban-duration">Ban Duration (days):</label>
-                    <input type="range" id="ban-duration" name="ban-duration" min="1" max="30">
-                </div>
-            </section>
-
-<!-- Ban User Modal -->
-<div id="banUserModal" class="modal hidden">
-    <div class="modal-content">
-        <h2>Ban User</h2>
-        <p>Please provide a reason for banning the user:</p>
-        <textarea id="banReason" rows="4" placeholder="Enter the reason..."></textarea>
-        <div class="modal-actions">
-            <button id="confirmBanButton" class="confirm-button">Confirm</button>
-            <button id="cancelBanButton" class="cancel-button">Cancel</button>
         </div>
-    </div>
-</div>
 
-        </main>
+        <!-- Section displaying user cards -->
+        <section class="user-cards">
+            <div class="user-card">
+                <!-- Placeholder content for a single user card -->
+                <img src="" alt="User avatar" class="user-avatar">
+                <h3>Sarah Connor</h3>
+                <p>@Sarah.Connor</p>
+                <p>Role: Administrator</p>
+                <p>Status: Active</p>
+                <p>Last Active: Oct 5, 2023, 14:30</p>
+                <p>Account Created: Jan 10, 2022</p>
+                <div class="card-buttons">
+                     <!-- Buttons for user actions -->
+                    <button class="delete-button">Delete</button>
+                    <button class="ban-button">Ban</button>
+                    <button class="view-button">View</button>
+                </div>
+                <!-- Ban duration slider -->
+                <label for="ban-duration">Ban Duration (days):</label>
+                <input type="range" id="ban-duration" name="ban-duration" min="1" max="30">
+            </div>
+        </section>
 
-       
+        <!-- Modal for banning a user -->
+        <div id="banUserModal" class="modal hidden">
+            <div class="modal-content">
+                <h2>Ban User</h2>
+                <p>Please provide a reason for banning the user:</p>
+                <!-- Textarea for entering the ban reason -->
+                <textarea id="banReason" rows="4" placeholder="Enter the reason..."></textarea>
+                <div class="modal-actions">
+                    <!-- Buttons to confirm or cancel the ban -->
+                    <button id="confirmBanButton" class="confirm-button">Confirm</button>
+                    <button id="cancelBanButton" class="cancel-button">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+
     </div>
-    
+
 </body>
+
 </html>

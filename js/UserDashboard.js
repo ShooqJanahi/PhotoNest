@@ -485,7 +485,6 @@ function getRelativeTime(dateString) {
 let fetchInProgress = false;
 
 async function fetchPhotos(isHome) {
-
     if (fetchInProgress) return; // Prevent duplicate calls
     fetchInProgress = true;
 
@@ -507,39 +506,87 @@ async function fetchPhotos(isHome) {
     // Clear the container before appending new photos
     photosContainer.innerHTML = '';
 
-    // Get all photos liked by the current user
-    const userLikesQuery = query(
-        collection(db, 'Likes'),
-        where('userId', '==', currentUserId)
-    );
-    const userLikesSnapshot = await getDocs(userLikesQuery);
-    const likedPhotoIds = userLikesSnapshot.docs.map((doc) => doc.data().photoId);
-
     try {
-        const currentUserRef = doc(db, 'users', currentUserId);
-        const currentUserDoc = await getDoc(currentUserRef);
+        let following = []; // To store the user IDs of followed users
+        const followingRef = collection(db, `users/${currentUserId}/following`);
+        const followingSnapshot = await getDocs(followingRef);
 
-        if (!currentUserDoc.exists()) {
-            console.error("Current user's document not found.");
-            fetchInProgress = false;
-            return;
-        }
+        // Extract all followed user IDs from the `following` subcollection
+        followingSnapshot.forEach((doc) => {
+            const data = doc.data();
+            if (data.userId) {
+                following.push(data.userId); // Collect followed user IDs
+            }
+        });
 
-        const currentUserData = currentUserDoc.data();
-        const following = currentUserData.following || []; // Users the current user is following
-        const isHomeQuery = isHome;
-
-        let photosQuery;
-
-        if (isHomeQuery) {
+        if (isHome) {
             // Fetch posts from users the current user is following, including their own posts
-            photosQuery = query(
+            const photosQuery = query(
                 collection(db, 'Photos'),
-                where('userId', 'in', [...following, currentUserId]), // Combine following and current user
+                where('userId', 'in', [...following, currentUserId]), // Include the current user's own posts
                 orderBy('uploadDate', 'desc') // Order by upload date
             );
+
+            const photosSnapshot = await getDocs(photosQuery);
+
+            if (photosSnapshot.empty) {
+                photosContainer.innerHTML = '<p>No posts available.</p>';
+                fetchInProgress = false;
+                return;
+            }
+
+            // Render posts
+            photosSnapshot.forEach(async (docSnapshot) => {
+                const photo = docSnapshot.data();
+                const userRef = doc(db, 'users', photo.userId); // Get user document for photo owner
+                const userDoc = await getDoc(userRef);
+                const userData = userDoc.data();
+
+                // Build the relative time for the post
+                const relativeTime = getRelativeTime(photo.uploadDate);
+
+                const photoHTML = `
+                    <div class="feed" data-photo-id="${docSnapshot.id}" data-owner-id="${photo.userId}">
+                        <div class="head">
+                            <div class="user">
+                                <div class="profile-photo">
+                                    <img src="${userData.profilePic || '../assets/Default_profile_icon.jpg'}" alt="Profile Photo">
+                                </div>
+                                <div class="info">
+                                    <h3>${userData.username || 'Unknown User'}</h3>
+                                    <small>${photo.city || 'Unknown Location'}, ${relativeTime}</small>
+                                </div>
+                            </div>
+                            <span class="edit">
+                                <i class="uil uil-ellipsis-h"></i>
+                            </span>
+                        </div>
+                        <div class="photo">
+                            <img src="${photo.imageUrl}" alt="${photo.caption}">
+                        </div>
+                        <div class="action-buttons">
+                            <div class="interaction-buttons">
+                                <span><i class="uil fas fa-heart"></i></span>
+                                <span><i class="uil uil-comment-dots"></i></span>
+                                <span><i class="uil uil-share-alt"></i></span>
+                            </div>
+                            <div class="bookmark">
+                                <span><i class="uil uil-bookmark-full"></i></span>
+                            </div>
+                        </div>
+                        <div class="liked-by">
+                            <p>${photo.likesCount || 0} likes</p>
+                        </div>
+                        <div class="caption">
+                            <p><b>${userData.username || 'Unknown User'}</b> ${photo.caption}</p>
+                        </div>
+                        <div class="comments text-muted">View all ${photo.commentsCount || 0} comments</div>
+                    </div>
+                `;
+                photosContainer.innerHTML += photoHTML;
+            });
         } else {
-            // Fetch posts from users the current user is NOT following
+            // For the explore section, fetch posts from users the current user is NOT following
             const allUsersQuery = query(collection(db, 'users')); // Get all users
             const allUsersSnapshot = await getDocs(allUsersQuery);
 
@@ -554,70 +601,70 @@ async function fetchPhotos(isHome) {
                 return;
             }
 
-            photosQuery = query(
+            const photosQuery = query(
                 collection(db, 'Photos'),
                 where('userId', 'in', notFollowing), // Users not being followed
                 orderBy('uploadDate', 'desc') // Order by upload date
             );
-        }
 
-        const photosSnapshot = await getDocs(photosQuery);
+            const photosSnapshot = await getDocs(photosQuery);
 
-        if (photosSnapshot.empty) {
-            photosContainer.innerHTML = '<p>No posts available.</p>';
-            fetchInProgress = false;
-            return;
-        }
-        // Render posts
-        photosSnapshot.forEach(async (docSnapshot) => {
-            const photo = docSnapshot.data();
-            const userRef = doc(db, 'users', photo.userId); // Get user document for photo owner
-            const userDoc = await getDoc(userRef);
-            const userData = userDoc.data();
+            if (photosSnapshot.empty) {
+                photosContainer.innerHTML = '<p>No posts to explore. Follow more users to see their content!</p>';
+                fetchInProgress = false;
+                return;
+            }
 
-            // Build the relative time for the post
-            const relativeTime = getRelativeTime(photo.uploadDate);
+            // Render explore posts
+            photosSnapshot.forEach(async (docSnapshot) => {
+                const photo = docSnapshot.data();
+                const userRef = doc(db, 'users', photo.userId); // Get user document for photo owner
+                const userDoc = await getDoc(userRef);
+                const userData = userDoc.data();
 
-            const photoHTML = `
-                <div class="feed" data-photo-id="${docSnapshot.id}" data-owner-id="${photo.userId}">
-                    <div class="head">
-                        <div class="user">
-                            <div class="profile-photo">
-                                <img src="${userData.profilePic || '../assets/Default_profile_icon.jpg'}" alt="Profile Photo">
+                const relativeTime = getRelativeTime(photo.uploadDate);
+
+                const photoHTML = `
+                    <div class="feed" data-photo-id="${docSnapshot.id}" data-owner-id="${photo.userId}">
+                        <div class="head">
+                            <div class="user">
+                                <div class="profile-photo">
+                                    <img src="${userData.profilePic || '../assets/Default_profile_icon.jpg'}" alt="Profile Photo">
+                                </div>
+                                <div class="info">
+                                    <h3>${userData.username || 'Unknown User'}</h3>
+                                    <small>${photo.city || 'Unknown Location'}, ${relativeTime}</small>
+                                </div>
                             </div>
-                            <div class="info">
-                                <h3>${userData.username || 'Unknown User'}</h3>
-                                <small>${photo.city || 'Unknown Location'}, ${relativeTime}</small>
+                            <span class="edit">
+                                <i class="uil uil-ellipsis-h"></i>
+                            </span>
+                        </div>
+                        <div class="photo">
+                            <img src="${photo.imageUrl}" alt="${photo.caption}">
+                        </div>
+                        <div class="action-buttons">
+                            <div class="interaction-buttons">
+                                <span><i class="uil fas fa-heart"></i></span>
+                                <span><i class="uil uil-comment-dots"></i></span>
+                                <span><i class="uil uil-share-alt"></i></span>
+                            </div>
+                            <div class="bookmark">
+                                <span><i class="uil uil-bookmark-full"></i></span>
                             </div>
                         </div>
-                        <span class="edit">
-                            <i class="uil uil-ellipsis-h"></i>
-                        </span>
-                    </div>
-                    <div class="photo">
-                        <img src="${photo.imageUrl}" alt="${photo.caption}">
-                    </div>
-                    <div class="action-buttons">
-                        <div class="interaction-buttons">
-                            <span><i class="uil fas fa-heart"></i></span>
-                            <span><i class="uil uil-comment-dots"></i></span>
-                            <span><i class="uil uil-share-alt"></i></span>
+                        <div class="liked-by">
+                            <p>${photo.likesCount || 0} likes</p>
                         </div>
-                        <div class="bookmark">
-                            <span><i class="uil uil-bookmark-full"></i></span>
+                        <div class="caption">
+                            <p><b>${userData.username || 'Unknown User'}</b> ${photo.caption}</p>
                         </div>
+                        <div class="comments text-muted">View all ${photo.commentsCount || 0} comments</div>
                     </div>
-                    <div class="liked-by">
-                        <p>${photo.likesCount || 0} likes</p>
-                    </div>
-                    <div class="caption">
-                        <p><b>${userData.username || 'Unknown User'}</b> ${photo.caption}</p>
-                    </div>
-                    <div class="comments text-muted">View all ${photo.commentsCount || 0} comments</div>
-                </div>
-            `;
-            photosContainer.innerHTML += photoHTML;
-        });
+                `;
+                photosContainer.innerHTML += photoHTML;
+            });
+        }
     } catch (error) {
         console.error("Error fetching photos:", error);
         photosContainer.innerHTML = '<p>Error loading posts. Please try again later.</p>';
@@ -625,6 +672,8 @@ async function fetchPhotos(isHome) {
 
     fetchInProgress = false;
 }
+
+
 
 
 async function getFollowedUsers() {

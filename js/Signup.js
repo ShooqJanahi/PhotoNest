@@ -72,6 +72,11 @@ signupForm.addEventListener("submit", async (event) => {
         alert("Passwords do not match.");
         return;
     }
+    // Validate phone number
+    if (!isNumeric(phone)) {
+        alert("Phone number should only contain numeric values.");
+        return;
+    }
 
     // Validate password strength 
     if (!isStrongPassword(password)) {
@@ -122,10 +127,21 @@ signupForm.addEventListener("submit", async (event) => {
             followersCount: 0, // Initial followers count
             followingCount: 1, // They follow "PhotoNest"
             postsCount: 0, // Initial posts count
-            profilePic: "../assets/Default_profile_icon.png", // Default profile picture
-            following: ["PhotoNest"], // Automatically follow "PhotoNest"
+            profilePic: "../assets/Default_profile_icon.jpg", // Default profile picture
+           
             passcode: null // Set initial passcode to null
         });
+
+        // Create the "following" subcollection and follow "PhotoNest"
+        const followingRef = doc(db, `users/${userId}/following`, "PhotoNest");
+        await setDoc(followingRef, {
+            userId: "PhotoNest", // PhotoNest ID (or use an actual user ID for the official account)
+            followedAt: new Date(), // Timestamp for following
+        });
+
+        // Create an empty "followers" subcollection
+        const followersRef = collection(db, `users/${userId}/followers`);
+        // You can leave this empty initially as no one follows this user yet
 
         // Send Firebase verification email
         await sendEmailVerification(userCredential.user);
@@ -141,6 +157,11 @@ signupForm.addEventListener("submit", async (event) => {
     }
 });
 
+// Ensure the phone number contains only digits
+function isNumeric(value) {
+    const numericRegex = /^[0-9]{8}$/;
+    return numericRegex.test(value);
+}
 
 // Password toggle functionality, it alows users to toggle password visibility for better usability during input
 const togglePasswordButtons = document.querySelectorAll('.toggle-password');

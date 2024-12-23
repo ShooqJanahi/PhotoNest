@@ -1,44 +1,74 @@
 // Import Firestore database from firebaseConfig.js
 import { db } from './firebaseConfig.js';
-
 import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, Timestamp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js'; // Import required Firestore methods
-
 import { logout } from './login.js';
 
 
-// Function to display users based on the URL parameter
-async function displayUsers() {
+// Store all users in a local cache for search and sort
+let cachedUsers = [];
+
+// Function to display users (with optional search and sort capabilities)
+async function displayUsers({ searchTerm = '', sortKey = '', filterKey = '', filterValue = '' } = {}) {
     const userCardsContainer = document.querySelector('.user-cards');
     userCardsContainer.innerHTML = ''; // Clear existing user cards
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const status = urlParams.get('status'); // Get the 'status' parameter from URL
-
     try {
-        // Fetch all users from the 'users' collection
-        console.log('Fetching all users...');
-        const usersRef = collection(db, 'users'); // Reference to the 'users' collection
-        const querySnapshot = await getDocs(usersRef); // Fetch all users
+        // If cachedUsers is empty, fetch users from Firestore
+        if (cachedUsers.length === 0) {
+            console.log('Fetching all users...');
+            const usersRef = collection(db, 'users'); // Reference to the 'users' collection
+            const querySnapshot = await getDocs(usersRef); // Fetch all users
 
-        if (querySnapshot.empty) {
-            console.log('No users found.');
-            userCardsContainer.innerHTML = '<p>No users found.</p>';
-            return;
+            if (querySnapshot.empty) {
+                console.log('No users found.');
+                userCardsContainer.innerHTML = '<p>No users found.</p>';
+                return;
+            }
+            // Cache the fetched users
+            cachedUsers = querySnapshot.docs.map((docSnapshot) => {
+                const userData = docSnapshot.data();
+                userData.id = docSnapshot.id; // Add document ID
+                return userData;
+            });
+        }
+        // Filter users based on the search term
+        let users = [...cachedUsers];
+        if (searchTerm) {
+            users = users.filter((user) =>
+                (user.firstName || '').toLowerCase().includes(searchTerm) ||
+                (user.lastName || '').toLowerCase().includes(searchTerm) ||
+                (user.username || '').toLowerCase().includes(searchTerm) ||
+                (user.email || '').toLowerCase().includes(searchTerm)
+            );
+        }
+        // Apply filtering by key and value
+        if (filterKey && filterValue) {
+            users = users.filter((user) => user[filterKey] === filterValue);
+        }
+        // Sort users based on the selected sort key
+        if (sortKey) {
+            users.sort((a, b) => {
+                if (sortKey === 'lastActive') {
+                    // Convert string to Date for comparison
+                    const dateA = a.lastActive ? new Date(a.lastActive) : new Date(0); // Default to epoch if missing
+                    const dateB = b.lastActive ? new Date(b.lastActive) : new Date(0);
+                    return dateB - dateA; // Descending order
+                } else if (sortKey === 'accountCreated') {
+                    return new Date(b.createdAt?.toDate() || 0) - new Date(a.createdAt?.toDate() || 0);
+                } else if (sortKey === 'status' || sortKey === 'role') {
+                    return (a[sortKey] || '').localeCompare(b[sortKey] || '');
+                }
+                return 0;
+            });
         }
 
-        // Display each user
-        querySnapshot.forEach((docSnapshot) => {
-            const userData = docSnapshot.data();
-
-            // Filter users by status if the parameter is provided
-            if (!status || userData.status === status) {
-                console.log('User found:', userData);
-                createUserCard(docSnapshot.id, userData, userCardsContainer);
-            }
+        // Display the filtered and sorted users
+        users.forEach((userData) => {
+            createUserCard(userData.id, userData, userCardsContainer);
         });
     } catch (error) {
-        console.error('Error fetching users:', error);
-        userCardsContainer.innerHTML = `<p>Error fetching users: ${error.message}</p>`;
+        console.error('Error displaying users:', error);
+        userCardsContainer.innerHTML = `<p>Error displaying users: ${error.message}</p>`;
     }
 }
 
@@ -53,9 +83,9 @@ function createUserCard(userId, userData, container) {
         ? userData.createdAt.toDate().toLocaleString()
         : 'N/A';
 
-    const lastActive = userData.lastActive instanceof Timestamp
-        ? userData.lastActive.toDate().toLocaleString()
-        : 'N/A';
+    const lastActive = userData.lastActive
+        ? new Date(userData.lastActive).toLocaleString() // Convert and format the string
+        : 'N/A'; // Handle missing `lastActive`
 
     // Concatenate first name and last name to create full name
     const fullName = `${userData.firstName || 'Unknown'} ${userData.lastName || ''}`.trim();
@@ -63,46 +93,44 @@ function createUserCard(userId, userData, container) {
     // Use profilePic URL or fallback to a placeholder image
     const profilePicUrl = userData.profilePic || '../assets/Default_profile_icon.jpg';
 
-// Determine if the user is banned
-const isBanned = userData.status === 'Banned';
+    // Determine if the user is banned
+    const isBanned = userData.status === 'Banned';
 
-userCard.innerHTML = `
-<img src="${profilePicUrl}" alt="${fullName}'s profile picture" class="user-avatar">
-<h3>${fullName}</h3>
-<p>@${userData.username || 'unknown'}</p>
-<p>Email: ${userData.email || 'N/A'}</p>
-<p>Role: ${userData.role || 'unknown'}</p>
-<p>Status: <span id="status-${userId}">${userData.status || 'Unknown'}</span></p>
-<p>Last Active: ${lastActive}</p>
-<p>Account Created: ${createdAt}</p>
-<div class="card-buttons">
-    <button class="delete-button" onclick="deleteUser('${userId}')">Delete</button>
-    ${
-        isBanned
+    userCard.innerHTML = `
+        <img src="${profilePicUrl}" alt="${fullName}'s profile picture" class="user-avatar">
+        <h3>${fullName}</h3>
+        <p>@${userData.username || 'unknown'}</p>
+        <p>Email: ${userData.email || 'N/A'}</p>
+        <p>Role: ${userData.role || 'unknown'}</p>
+        <p>Status: <span id="status-${userId}">${userData.status || 'Unknown'}</span></p>
+        <p>Last Active: ${lastActive}</p>
+        <p>Account Created: ${createdAt}</p>
+        <div class="card-buttons">
+            <button class="delete-button" onclick="deleteUser('${userId}')">Delete</button>
+            ${isBanned
             ? `<button class="unban-button" onclick="unbanUser('${userId}')">Unban</button>`
             : `<button class="ban-button" onclick="openBanUserModal('${userId}')">Ban</button>`
-    }
-    <button class="view-button" onclick="viewUser('${userId}')">View</button>
-</div>
-${
-    !isBanned
-        ? `
-    <div class="ban-slider">
-        <label for="ban-duration-${userId}">Ban Duration (days):</label>
-        <input 
-            type="range" 
-            id="ban-duration-${userId}" 
-            name="ban-duration-${userId}" 
-            min="1" 
-            max="30" 
-            value="1" 
-            onchange="updateBanDuration('${userId}')"
-        >
-        <span id="ban-duration-display-${userId}">1</span> day(s)
-    </div>`
-        : ''
-}
-`;
+        }
+            <button class="view-button" onclick="viewUser('${userId}')">View</button>
+        </div>
+        ${!isBanned
+            ? `
+            <div class="ban-slider">
+                <label for="ban-duration-${userId}">Ban Duration (days):</label>
+                <input 
+                    type="range" 
+                    id="ban-duration-${userId}" 
+                    name="ban-duration-${userId}" 
+                    min="1" 
+                    max="30" 
+                    value="1" 
+                    onchange="updateBanDuration('${userId}')"
+                >
+                <span id="ban-duration-display-${userId}">1</span> day(s)
+            </div>`
+            : ''
+        }
+        `;
     container.appendChild(userCard);
 }
 
@@ -118,7 +146,6 @@ export function viewUser(userId) {
 
 
 // Function to update the displayed ban duration
-
 export function updateBanDuration(userId) {
     const slider = document.getElementById(`ban-duration-${userId}`);
     const display = document.getElementById(`ban-duration-display-${userId}`);
@@ -127,13 +154,11 @@ export function updateBanDuration(userId) {
 
 
 export async function unbanUser(userId) {
-    const statusElement = document.getElementById(`status-${userId}`);
     try {
         // Update Firestore `users` collection to reset the status
         await updateDoc(doc(db, 'users', userId), {
             status: 'active',
         });
-
         // Find and delete the related ban document in the `ban` collection
         const banCollectionRef = collection(db, 'ban');
         const querySnapshot = await getDocs(banCollectionRef);
@@ -145,20 +170,29 @@ export async function unbanUser(userId) {
                 console.log(`Ban record for user ${userId} deleted.`);
             }
         }
+        // Update the cached user data
+        const updatedUser = cachedUsers.find((user) => user.id === userId);
+        if (updatedUser) {
+            updatedUser.status = 'active';
+        }
 
-        // Update the UI to reflect the unbanned status
-        statusElement.textContent = 'active';
+        // Dynamically refresh the card for the unbanned user
+        const userCard = document.querySelector(`#status-${userId}`).closest('.user-card');
+        const userCardsContainer = document.querySelector('.user-cards');
+        if (userCard) {
+            // Remove the outdated card
+            userCardsContainer.removeChild(userCard);
+
+            // Recreate the card with updated data
+            createUserCard(userId, updatedUser, userCardsContainer);
+        }
         alert(`User ${userId} has been unbanned.`);
 
-        // Refresh the user list to update the button dynamically
-        displayUsers();
     } catch (error) {
         console.error('Error unbanning user:', error);
         alert('Error unbanning user: ' + error.message);
     }
 }
-
-
 
 // Function to delete a user and all related data
 export async function deleteUser(userId) {
@@ -199,22 +233,7 @@ export async function deleteUser(userId) {
         await deleteDoc(doc(db, 'users', userId));
         console.log(`User ${userId} deleted from Firestore.`);
 
-        // Optionally delete the user's authentication account
-        // Uncomment this if Firebase Admin SDK or client authentication deletion logic is set up
-        /*
-        if (userData.email) {
-            const auth = getAuth();
-            const usersList = await auth.listUsers(); // Admin SDK is typically required
-            const matchedUser = usersList.find(user => user.email === userData.email);
-
-            if (matchedUser) {
-                await auth.deleteUser(matchedUser.uid);
-                console.log(`User ${userData.email} deleted from Firebase Authentication.`);
-            }
-        }
-        */
-
-        // Refresh the user list in the UI
+       // Refresh the user list in the UI
         displayUsers();
     } catch (error) {
         console.error('Error deleting user:', error);
@@ -244,11 +263,10 @@ async function deleteCollectionDocuments(collectionName, userId) {
 
 
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+    await displayUsers(); // Display users initially
+    handleSearchSortFilter(); // Enable search and sort functionality
 
-    displayUsers();
-
-   
     const hamburgerMenu = document.getElementById('hamburgerMenu');
     const mobileMenu = document.querySelector('.mobile-menu');
 
@@ -274,10 +292,8 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
         console.warn('Logout button not found.');
     }
-    
+
 });
-
-
 
 
 // Function to open the ban user modal
@@ -315,30 +331,27 @@ export function openBanUserModal(userId) {
     };
 }
 
-
-
-
 // Function to close the modal
 export function closeBanUserModal() {
     const modal = document.getElementById('banUserModal');
     modal.classList.add('hidden'); // Hide the modal
     document.getElementById('banReason').value = ''; // Clear input fields
-   
+
 }
 
 // Function to ban a user
 export async function banUser(userId, reason, duration) {
-    const statusElement = document.getElementById(`status-${userId}`);
     try {
         // Calculate the ban expiration timestamp
         const banExpirationDate = new Date();
         banExpirationDate.setDate(banExpirationDate.getDate() + duration); // Add ban duration
+        // Get the logged-in admin's ID (replace with your authentication logic)
+        const loggedInAdminId = sessionStorage.getItem("userId"); // Assuming admin ID is stored in localStorage
 
         // Update Firestore `users` collection with ban status
         await updateDoc(doc(db, 'users', userId), {
             status: 'Banned',
         });
-
         // Add a new document to the `ban` collection with ban details
         const banCollectionRef = collection(db, 'ban');
         await addDoc(banCollectionRef, {
@@ -348,9 +361,29 @@ export async function banUser(userId, reason, duration) {
             reason: reason,
             timestamp: new Date(), // The time when the ban was issued
         });
-
-        // Update the UI to show the user is banned
-        statusElement.textContent = 'Banned';
+        // Add a new document to the `AdminNote` collection with the logged-in admin's information
+        const adminNoteCollectionRef = collection(db, 'AdminNote');
+        await addDoc(adminNoteCollectionRef, {
+            adminId: loggedInAdminId, // The admin who performed the ban
+            userId: userId, // The user who was banned
+            category: 'banned', // Category indicating the action type
+            reason: reason, // The reason for banning
+            timestamp: new Date(), // Timestamp of the action
+        });
+        // Update the cached user data
+        const updatedUser = cachedUsers.find((user) => user.id === userId);
+        if (updatedUser) {
+            updatedUser.status = 'Banned';
+        }
+        // Dynamically refresh the card for the banned user
+        const userCard = document.querySelector(`#status-${userId}`).closest('.user-card');
+        const userCardsContainer = document.querySelector('.user-cards');
+        if (userCard) {
+            // Remove the outdated card
+            userCardsContainer.removeChild(userCard);
+            // Recreate the card with updated data
+            createUserCard(userId, updatedUser, userCardsContainer);
+        }
         alert(`User banned for ${duration} day(s). Reason: ${reason}`);
     } catch (error) {
         console.error('Error banning user:', error);
@@ -358,3 +391,73 @@ export async function banUser(userId, reason, duration) {
     }
 }
 
+
+// Handle search, sort, and filter interactions
+function handleSearchSortFilter() {
+    const searchInput = document.querySelector('.search-container input');
+    const sortButton = document.querySelector('.sort-button');
+    let dropdownMenu = null;
+
+    // Add an event listener for the sort button to toggle the dropdown menu
+    sortButton.addEventListener('click', () => {
+        if (!dropdownMenu) {
+            // Create and display the dropdown menu
+            dropdownMenu = document.createElement('div');
+            dropdownMenu.classList.add('sort-dropdown');
+            dropdownMenu.innerHTML = `
+                <h4>Sort Options</h4>
+                <ul>
+                    <li data-sort="lastActive">Sort by Last Active</li>
+                    <li data-sort="accountCreated">Sort by Account Creation Date</li>
+                </ul>
+                <h4>Filter Options</h4>
+                <ul>
+                    <li data-filter="role:admin">Filter by Admin Role</li>
+                    <li data-filter="role:user">Filter by User Role</li>
+                    <li data-filter="status:Banned">Filter by Banned Status</li>
+                    <li data-filter="status:Active">Filter by Active Status</li>
+                    <li data-filter="status:Unverified">Filter by Unverified Status</li>
+                </ul>
+            `;
+            document.body.appendChild(dropdownMenu);
+
+            // Position the dropdown near the button
+            const rect = sortButton.getBoundingClientRect();
+            dropdownMenu.style.position = 'absolute';
+            dropdownMenu.style.top = `${rect.bottom + window.scrollY}px`;
+            dropdownMenu.style.left = `${rect.left + window.scrollX}px`;
+
+            // Add event listeners to dropdown items
+            dropdownMenu.querySelectorAll('li[data-sort]').forEach((item) => {
+                item.addEventListener('click', async (event) => {
+                    const sortKey = event.target.dataset.sort;
+                    console.log(`Sorting by: ${sortKey}`);
+                    await displayUsers({ sortKey });
+                    dropdownMenu.remove();
+                    dropdownMenu = null; // Clean up
+                });
+            });
+
+            dropdownMenu.querySelectorAll('li[data-filter]').forEach((item) => {
+                item.addEventListener('click', async (event) => {
+                    const [filterKey, filterValue] = event.target.dataset.filter.split(':');
+                    console.log(`Filtering by: ${filterKey} = ${filterValue}`);
+                    await displayUsers({ filterKey, filterValue });
+                    dropdownMenu.remove();
+                    dropdownMenu = null; // Clean up
+                });
+            });
+        } else {
+            // Remove the dropdown if it already exists
+            dropdownMenu.remove();
+            dropdownMenu = null;
+        }
+    });
+
+    // Add an event listener for the search input to filter results
+    searchInput.addEventListener('input', async (event) => {
+        const searchTerm = event.target.value.toLowerCase();
+        console.log(`Searching for: ${searchTerm}`);
+        await displayUsers({ searchTerm });
+    });
+}

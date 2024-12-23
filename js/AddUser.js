@@ -28,13 +28,18 @@ document.querySelector('.add-user-form').addEventListener('submit', async (e) =>
     e.preventDefault(); // Prevent default form submission
 
     // Get user input values
-    const firstName = document.getElementById('first-name').value;
-    const lastName = document.getElementById('last-name').value;
-    const username = document.getElementById('username').value;
-    const role = document.getElementById('role').value;
-    const email = document.getElementById('email').value;
-    const phone = document.getElementById('phone').value;
+    const firstName = document.getElementById('first-name').value.trim();
+    const lastName = document.getElementById('last-name').value.trim();
+    const username = document.getElementById('username').value.trim();
+    const role = document.getElementById('role').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
 
+    // Validate that phone number is numeric and exactly 8 digits
+    if (!/^\d{8}$/.test(phone)) {
+        alert('Phone number must be exactly 8 numeric digits. Please enter a valid phone number.');
+        return;
+    }
     const password = generateRandomPassword(); // Generate a random password
 
     const auth = getAuth();
@@ -59,7 +64,7 @@ document.querySelector('.add-user-form').addEventListener('submit', async (e) =>
             status: 'unverified', // Default status
             createdAt: Timestamp.fromDate(new Date()) // Record creation date
         });
-
+        
         // Log activity in a separate collection (log the admin's activity)
         const adminUsername = sessionStorage.getItem("username");
         await logUserActivity(adminUsername, 'added user: ' + username); // Log the action of the admin
@@ -67,7 +72,6 @@ document.querySelector('.add-user-form').addEventListener('submit', async (e) =>
         alert('User added successfully! A verification email has been sent.');
         // Redirect to user management page
         window.location.href = '../html/UserManagement.html';
-
     } catch (error) {
         console.error('Error adding user:', error);
         alert('Error adding user: ' + error.message);
@@ -88,10 +92,11 @@ function generateRandomPassword(length = 8) {
 // Function to log user activity
 async function logUserActivity(username, action) {
     try {
-        await addDoc(collection(db, 'userActivities'), {
+        await addDoc(collection(db, 'ActivityLogs'), {
             username: username, // Store admin username for tracking
             action: action,
-            timestamp: Timestamp.fromDate(new Date()) // Record activity time
+            category: "create_account",
+            timestamp: new Date().toISOString() // Record activity time in ISO format
         });
     } catch (error) {
         console.error('Error logging user activity:', error);

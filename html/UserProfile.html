@@ -3,32 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit User</title>
+    <title>User Profile</title>
+    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- Google Fonts for styling text -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
-    <link rel="stylesheet" href="../css/UserProfile.css"> <!-- External CSS file -->
+    <link rel="stylesheet" href="../css/UserProfile.css"> <!-- Links to the external CSS file for styling the page -->
 
-    <script type="module" src="../js/firebaseConfig.js"></script>
-    <script type="module" src="../js/login.js"></script>
-    <script type="module" src="../js/UserProfile.js"></script>
+    <script type="module" src="../js/firebaseConfig.js"></script> <!-- JavaScript module for Firebase configuration -->
+    <script type="module" src="../js/login.js"></script> <!-- JavaScript module for handling user login functionality -->
+    <script type="module" src="../js/UserProfile.js"></script> <!-- Main JavaScript module for this user profile page -->
 
-    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="https://www.gstatic.com/charts/loader.js"></script> <!-- Google Charts library for data visualization -->
 
+    <!-- Favicon for the website -->
+    <link rel="icon" href="../assets/PhotoNest_Transparent.png" type="image/png">
 
 
 </head>
 <body>
+     <!-- Main container for the content -->
     <div class="container">
+         <!-- Header section of the page -->
         <div class="header">
             <h1>
-                <img src="../assets/PhotoNest_Transparent.png" alt="User Icon"> Edit User
+                <!-- Website logo and title -->
+                <img src="../assets/PhotoNest_Transparent.png" alt="User Icon"> PhotoNest
             </h1>
             <div class="icons">
-                <i class="fas fa-bell"></i>
-                <a href="#" class="logout">Logout</a>
+                <!-- Logout button -->
+                <a href="#" id="logoutButton" class="logout">Logout</a>
             </div>
         </div>
+        <!-- Main content of the page -->
         <div class="content">
+            <!-- example of Profile card to display user's details -->
             <div class="profile-card">
                 <img src="../assets/Default_profile_icon.jpg" alt="Profile picture of Eleanor Shellstrop">
                 <h2>Eleanor Shellstrop</h2>
@@ -50,20 +59,36 @@
                     </div>
                 </div>
             </div>
+            <!-- Right panel for charts, notes, and user activity -->
             <div class="right-panel">
-                <div class="admin-actions">
-                    <div id="chart_div" style="width: 100%; height: 500px;"></div>
-
+                <!-- Dropdown to select the week for filtering chart data -->
+                <div>
+                    <label for="week-selector">Select Week:</label>
+                    <select id="week-selector">
+                        <!-- Week options will be dynamically added by JavaScript -->
+                    </select>
                 </div>
+                <!-- Div to display the Google Chart -->
+                <div id="chart_div" style="width: 100%; height: 500px;"></div>
+                
+                 <!-- Admin notes section -->
+                <section class="admin-notes">
+                    <h3>Admin Notes</h3>  <!-- Title for the admin notes section -->
+                   
+                     <!-- Wrapper for displaying admin notes -->
+                    <div class="notes-wrapper"></div>
+                     <!-- Section for adding new admin notes -->
+                    <div class="add-note-section">
+                        <!-- Content for adding notes will go here -->
+                    </div>
+                    
+                </section>
+                <!-- Popup Modal for Adding Notes -->
 
-                <div class="admin-notes">
-                    <h3>Admin Notes</h3>
-                    <textarea placeholder="Add your notes here..."></textarea>
-                </div>
-
+                <!-- User activity section -->
                 <div class="user-activity">
-                    <h3>User Activity</h3>
-                    <div class="activity-item">
+                    <h3>User Activity</h3> <!-- Title for the user activity section -->
+                    <div class="activity-item"> <!-- Example of a user activity item -->
                         <p>Followed @OtherUser</p>
                         <span>13/4/2024 11:45:00</span>
                     </div>

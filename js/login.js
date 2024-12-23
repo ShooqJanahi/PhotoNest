@@ -156,17 +156,36 @@ function resetInactivityTimer() {
     }, 15 * 60 * 1000); // 15 minutes
 }
 
-function updateLastActive() {
+async function updateLastActive() {
     const userId = auth.currentUser ? auth.currentUser.uid : null; // Get the current user's ID
-    if (userId) {
-        const sessionRef = doc(db, "sessions", userId); // Reference to the user's session document
-        const currentTimestamp = new Date().toISOString(); // Get the current timestamp
+    if (!userId) return;
 
-        updateDoc(sessionRef, { lastActive: currentTimestamp }).catch((error) => {
-            console.error("Error updating lastActive:", error); // Log any errors
-        });
+    const sessionRef = doc(db, "sessions", userId); // Reference to the user's session document
+    const currentTimestamp = new Date().toISOString(); // Get the current timestamp
+
+    try {
+        // Check if the session document exists
+        const sessionSnapshot = await getDoc(sessionRef);
+        if (sessionSnapshot.exists()) {
+            // Update the last active timestamp if the document exists
+            await updateDoc(sessionRef, { lastActive: currentTimestamp });
+            
+        } else {
+            // Create the document with initial data if it doesn't exist
+            await setDoc(sessionRef, {
+                lastActive: currentTimestamp,
+                status: "online", // Default status
+                userId: userId,   // Save user ID
+                loginTime: currentTimestamp, // Set the login time
+                logoutTime: null, // No logout yet
+            });
+            console.log("Session document created and last active timestamp set:", currentTimestamp);
+        }
+    } catch (error) {
+        console.error("Error updating lastActive:", error); // Log any errors
     }
 }
+
 
 function handleUserActivity() {
     resetInactivityTimer(); // Reset inactivity timeout on user activity
