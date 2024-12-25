@@ -1,11 +1,33 @@
+console.log("Profile.js is loaded and executing.");
+
 // Import Firebase modules
 import { db, auth } from './firebaseConfig.js';
-import { doc, getDoc, updateDoc, collection, query, where, getDocs, setDoc, arrayUnion, arrayRemove } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+import { doc, getDoc, updateDoc, collection, query, where, getDocs, arrayUnion, arrayRemove, setDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
 import { createNotificationPopup, openPopup } from './Notification.js';
 import { logout } from './login.js';
+import { setLogLevel } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { onSnapshot } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+setLogLevel("debug");
+
+const loggedInUserId = localStorage.getItem('loggedInUserId');
+const viewedUserId = sessionStorage.getItem('userId')
+const followingRef = doc(db, `users/${loggedInUserId}/following`, viewedUserId);
+onSnapshot(followingRef, (doc) => {
+    if (doc.exists()) {
+        console.log('Follow data updated:', doc.data());
+    } else {
+        console.log('Follow data does not exist yet.');
+    }
+});
+
+
+
+
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.log("DOMContentLoaded event fired!");
     // Select the bell icon
     const bellIcon = document.querySelector('.fa-bell');
 
@@ -34,6 +56,12 @@ document.addEventListener('DOMContentLoaded', () => {
      const loggedInUserId = sessionStorage.getItem("loggedInUserId"); // Get logged-in user ID from session storage
      const viewedUserId = localStorage.getItem("viewedUserId"); // Get viewed user ID from local storage
  
+      // Initialize the Follow/Unfollow button
+    if (loggedInUserId && viewedUserId) {
+        initializeFollowButton(viewedUserId, loggedInUserId);
+    }
+    const followButton = document.querySelector('.follow-menu-toggle');
+    console.log("Follow Button:", followButton);
      const optionsMenuContainer = document.querySelector(".options-menu-container");
  
      if (loggedInUserId === viewedUserId && optionsMenuContainer) {
@@ -58,11 +86,31 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+// Select the options button and menu
+const optionsButton = document.querySelector('.options-menu-toggle');
+const optionsMenu = document.querySelector('.options-menu');
 
+// Add a click event listener to toggle the dropdown menu
+optionsButton.addEventListener('click', (e) => {
+    e.stopPropagation(); // Prevent the event from bubbling to the document
+    optionsMenu.classList.toggle('hidden'); // Toggle the "hidden" class
+});
 
+// Close the dropdown when clicking anywhere outside the menu
+document.addEventListener('click', (e) => {
+    if (!optionsMenu.contains(e.target) && !optionsButton.contains(e.target)) {
+        optionsMenu.classList.add('hidden'); // Add the "hidden" class to hide the dropdown
+    }
+});
+
+console.log(document.querySelector('.follow-menu-toggle'));
 
 
 });
+
+
+
+
 
 // Check user authentication and fetch profile data
 function checkUserAuthentication() {
@@ -120,7 +168,9 @@ async function loadUserProfile(viewedUserId, loggedInUserId, isOwnProfile) {
 // Adjust profile controls (Edit Profile or Follow/Unfollow and Dropdown Menu)
 async function adjustProfileControls(viewedUserId, loggedInUserId, isOwnProfile) {
     const profileSection = document.querySelector('.profile-section');
-    const existingControl = document.querySelector('.follow-menu-toggle, .edit-btn');
+ // Check and remove existing controls
+ const existingControl = profileSection.querySelector('.follow-menu-toggle, .edit-btn');
+
     if (existingControl) existingControl.remove(); // Remove existing button to prevent duplication
 
     if (isOwnProfile) {
@@ -133,21 +183,24 @@ async function adjustProfileControls(viewedUserId, loggedInUserId, isOwnProfile)
         });
         profileSection.appendChild(editButton);
     } else {
-        // Add Follow/Unfollow button
-        const controlButton = document.createElement('button');
-        controlButton.className = 'follow-menu-toggle';
-
-        const isFollowing = await checkIfFollowing(loggedInUserId, viewedUserId);
-
-        controlButton.textContent = isFollowing ? 'Unfollow' : 'Follow';
-        controlButton.addEventListener('click', async () => {
-            if (isFollowing) {
-                await unfollowUser(loggedInUserId, viewedUserId);
-                controlButton.textContent = 'Follow';
-            } else {
-                await followUser(loggedInUserId, viewedUserId);
-                controlButton.textContent = 'Unfollow';
-            }
+         // Check if Follow button already exists
+         const followButtonExists = profileSection.querySelector('.follow-menu-toggle');
+         if (!followButtonExists) {
+             // Add Follow/Unfollow button
+             const controlButton = document.createElement('button');
+             controlButton.className = 'follow-menu-toggle';
+ 
+             const isFollowing = await checkIfFollowing(loggedInUserId, viewedUserId);
+ 
+             controlButton.textContent = isFollowing ? 'Unfollow' : 'Follow';
+             controlButton.addEventListener('click', async () => {
+                 if (isFollowing) {
+                     await unfollowUser(loggedInUserId, viewedUserId);
+                     controlButton.textContent = 'Follow';
+                 } else {
+                     await followUser(loggedInUserId, viewedUserId);
+                     controlButton.textContent = 'Unfollow';
+                 }
         });
 
         profileSection.appendChild(controlButton);
@@ -183,7 +236,7 @@ async function adjustProfileControls(viewedUserId, loggedInUserId, isOwnProfile)
     }
 }
 
-
+}
 
 
 
@@ -414,112 +467,107 @@ function openReportUserPopup(reportedUserId, reportedUsername) {
 
 //============================= Follow/unfollow button ==========================
 
-// Function to initialize Follow/Unfollow button logic
+
+// Initialize Follow/Unfollow Button
 async function initializeFollowButton(viewedUserId, loggedInUserId) {
     try {
-        // Select the follow button
-        const followBtn = document.getElementById("follow-btn");
+        console.log("Initializing follow button...");
+        // Ensure button exists
+        const followBtn = document.querySelector('.follow-menu-toggle');
         if (!followBtn) {
-            console.error("Follow button not found in the DOM.");
+            console.error('Follow button not found.');
             return;
         }
+        console.log('Follow button found:', followBtn);
+        
 
-        // Fetch the current follow status
+        // Fetch initial follow status
         const isFollowing = await checkIfFollowing(loggedInUserId, viewedUserId);
+        console.log(`Is following: ${isFollowing}`);
+        // Set button text
+        updateFollowButtonText(followBtn, isFollowing);
 
-        // Update the button UI based on follow status
-        updateFollowButtonUI(followBtn, isFollowing);
-
-        // Add click event listener to the button
-        followBtn.onclick = async () => {
-            if (isFollowing) {
-                // Unfollow logic
-                await unfollowUser(loggedInUserId, viewedUserId);
-                updateFollowButtonUI(followBtn, false); // Change to "Follow"
-            } else {
-                // Follow logic
-                await followUser(loggedInUserId, viewedUserId);
-                updateFollowButtonUI(followBtn, true); // Change to "Unfollow"
+        // Attach event listener
+        followBtn.addEventListener('click', async () => {
+            try {
+                if (isFollowing) {
+                    await unfollowUser(loggedInUserId, viewedUserId);
+                    updateFollowButtonText(followBtn, false);
+                    console.log(`Unfollowed user: ${viewedUserId}`);
+                } else {
+                    await followUser(loggedInUserId, viewedUserId);
+                    updateFollowButtonText(followBtn, true);
+                    console.log(`Followed user: ${viewedUserId}`);
+                }
+            } catch (error) {
+                console.error('Error toggling follow/unfollow:', error);
+                alert('An error occurred. Please try again.');
             }
-        };
+        });
     } catch (error) {
-        console.error("Error initializing Follow button:", error);
+        console.error('Error initializing follow button:', error);
     }
 }
 
-// Function to update Follow/Unfollow button UI
-function updateFollowButtonUI(button, isFollowing) {
-    if (isFollowing) {
-        button.textContent = "Unfollow";
-        button.classList.add("unfollow");
+
+// Update button text
+function updateFollowButtonText(button, isFollowing) {
+    if (button) {
+        button.textContent = isFollowing ? 'Unfollow' : 'Follow';
     } else {
-        button.textContent = "Follow";
-        button.classList.remove("unfollow");
+        console.error('Button is not defined.');
     }
 }
 
-// Function to check if the logged-in user is following the viewed user
+
+// Check if logged-in user is following the viewed user
 async function checkIfFollowing(loggedInUserId, viewedUserId) {
     try {
-        const followsDocRef = doc(db, "Follows", loggedInUserId);
-        const followsDoc = await getDoc(followsDocRef);
-        return followsDoc.exists() && followsDoc.data().following.includes(viewedUserId);
+        console.log(`Checking follow status between ${loggedInUserId} and ${viewedUserId}`);
+        const followDoc = await getDoc(doc(db, `users/${loggedInUserId}/following`, viewedUserId));
+        console.log(`Follow document exists: ${followDoc.exists()}`);
+        return followDoc.exists();
     } catch (error) {
         console.error("Error checking follow status:", error);
         return false;
     }
 }
 
-// Function to follow a user
+// Follow a user
 async function followUser(loggedInUserId, viewedUserId) {
     try {
-        const followsDocRef = doc(db, "Follows", loggedInUserId);
-        await updateDoc(followsDocRef, {
-            following: arrayUnion(viewedUserId),
-        });
+        console.log('Following User:', viewedUserId, 'By:', loggedInUserId);
+        const followingRef = doc(db, `users/${loggedInUserId}/following`, viewedUserId);
+        const followersRef = doc(db, `users/${viewedUserId}/followers`, loggedInUserId);
 
-        const followersDocRef = doc(db, "Follows", viewedUserId);
-        await updateDoc(followersDocRef, {
-            followers: arrayUnion(loggedInUserId),
+        await setDoc(followingRef, {
+            followedAt: new Date().toISOString(),
+            userId: viewedUserId,
         });
-
-        console.log(`User ${loggedInUserId} is now following ${viewedUserId}`);
+        console.log(`Added ${viewedUserId} to ${loggedInUserId}'s following list.`);
     } catch (error) {
-        console.error("Error following user:", error);
+        console.error('Error during followUser operation:', error);
     }
 }
 
-// Function to unfollow a user
+
+
+// Unfollow a user
 async function unfollowUser(loggedInUserId, viewedUserId) {
     try {
-        const followsDocRef = doc(db, "Follows", loggedInUserId);
-        await updateDoc(followsDocRef, {
-            following: arrayRemove(viewedUserId),
-        });
+        console.log(`Attempting to unfollow user: ${viewedUserId} by user: ${loggedInUserId}`);
+        const followingRef = doc(db, `users/${loggedInUserId}/following`, viewedUserId);
+        const followersRef = doc(db, `users/${viewedUserId}/followers`, loggedInUserId);
 
-        const followersDocRef = doc(db, "Follows", viewedUserId);
-        await updateDoc(followersDocRef, {
-            followers: arrayRemove(loggedInUserId),
-        });
+        // Remove the user from the "following" subcollection
+        await deleteDoc(followingRef);
+        console.log(`Removed ${viewedUserId} from ${loggedInUserId}'s following list.`);
 
-        console.log(`User ${loggedInUserId} has unfollowed ${viewedUserId}`);
+        // Remove the user from the "followers" subcollection
+        await deleteDoc(followersRef);
+        console.log(`Removed ${loggedInUserId} from ${viewedUserId}'s followers list.`);
     } catch (error) {
         console.error("Error unfollowing user:", error);
+        throw error;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//============================= END of Follow/unfollow button ==========================

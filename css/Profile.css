@@ -125,15 +125,23 @@ body {
 /* Options Menu */
 .options-menu {
     position: absolute;
-    top: calc(100% + 5px); /* Positions dropdown below the button */
-    left: 0; /* Aligns dropdown with the button's left edge */
+    top: calc(100% + 5px);
+    left: 0;
     background-color: #6c63ff;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 5px;
-    display: none; /* Initially hidden */
-    flex-direction: column; /* Vertically stack menu items */
-    width: 150px; /* Matches button size for consistency */
+    display: flex;
+    flex-direction: column;
+    width: 150px;
     z-index: 10;
+    opacity: 1; /* Ensure visibility when not hidden */
+    transition: opacity 0.3s ease;
+}
+
+/* Hidden state */
+.options-menu.hidden {
+    display: none;
+    opacity: 0;
 }
 
 /* Options Menu Buttons */
@@ -165,13 +173,16 @@ body {
 /* Follow Menu Container */
 .follow-menu-container {
     position: relative; /* Enables positioning of dropdown */
-    display: inline-block; /* Aligns with other elements */
+    display: flex;
+    flex-direction: column; /* Stack elements vertically */
     margin: 10px; /* Adds spacing around the container */
     text-align: center;
 }
 
 /* Follow Button */
 .follow-menu-toggle {
+    display: block; /* Forces the button to occupy full width */
+    width: 150px; /* Adjust width to match dropdown */
     background-color: #6c63ff; /* Matches theme color */
     color: #fff;
     padding: 10px 20px;
@@ -179,36 +190,32 @@ body {
     border-radius: 5px;
     cursor: pointer;
     font-weight: 600;
-    display: flex;
-    align-items: center; /* Centers text and icon vertically */
-    justify-content: center; /* Centers content */
-    gap: 5px; /* Adds spacing between text and icon */
+    text-align: center; /* Centers text inside button */
+    margin-bottom: 10px; /* Adds spacing between button and dropdown */
 }
 
 /* Follow Dropdown Menu */
 .follow-menu {
-    position: absolute;
-    top: calc(100% + 5px); /* Positions dropdown below the button */
-    left: 0; /* Aligns dropdown with button's left edge */
+    display: flex;
+    flex-direction: column; /* Vertically align dropdown items */
+    width: 150px; /* Matches button width for consistency */
     background-color: #6c63ff;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Adds subtle shadow for depth */
     border-radius: 5px;
-    display: none; /* Initially hidden */
-    flex-direction: column; /* Stack menu items vertically */
-    width: 150px; /* Same width as button for consistency */
     z-index: 10;
 }
 
 /* Follow Menu Buttons */
 .follow-menu button {
+    width: 100%; /* Occupy the full width of the dropdown */
     background-color: #6c63ff;
     color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 10px;
     font-size: 14px;
     cursor: pointer;
     text-align: center;
-    border-top: 1px solid rgba(255, 255, 255, 0.3); /* Divider between items */
+    border-top: 1px solid rgba(255, 255, 255, 0.3); /* Adds dividers */
 }
 
 /* Removes top border for the first button */
@@ -221,9 +228,10 @@ body {
     background-color: #4a42d1; /* Slightly darker on hover */
 }
 
-/* Show the menu on hover */
-.follow-menu-container:hover .follow-menu {
-    display: flex; /* Makes the dropdown visible */
+/* Display the dropdown on hover or focus */
+.follow-menu-container:hover .follow-menu,
+.follow-menu-container:focus-within .follow-menu {
+    display: flex; /* Make dropdown visible */
 }
 
 
