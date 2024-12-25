@@ -54,7 +54,7 @@ floatingNavs.forEach(nav => {
 //============================ Join us
 const resumeRight = document.querySelector('.resume__right')
 const experienceContent = `<h4>Feature</h4>
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Expedita culpa molestiae velit ea reiciendis veritatis.</p>
+                <p>PhotoNest stands out with its cutting-edge features designed to make photo management as intuitive and enjoyable as possible.</p>
                 <ul>
                     <li>
                         <h5>Efficient, Quick & Reliable</h5>
@@ -92,7 +92,7 @@ resumeRight.innerHTML = experienceContent;
 
 
 const educationContent = `<h4>Organization</h4>
-                <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Dolores.</p>
+                <p>From personal galleries to professional portfolios, managing your memories has never been simpler.</p>
                 <ul>
                     <li>
                         <h5>Cloud Storage & Backup</h5>
@@ -118,7 +118,7 @@ educationBtn.addEventListener('click', () => {
 
 const skillsContent = `
 <h4>Privacy & Security</h4>
-                <p>Lorem ipsum dolor sit amet consectetur.</p>
+                <p>"Commitment to Your Privacy" At PhotoNest, safeguarding your personal data and photos is our top priority.</p>
                 <ul>
                     <li>
                         <h5>Data Encryption</h5>
@@ -134,12 +134,7 @@ const skillsContent = `
                         </p>
                     </li>
 
-                     <li>
-                        <h5>Two-Factor Authentication</h5>
-                        <p>
-                            Protect your account with two-factor authentication (2FA), adding an extra layer of security by requiring a code from your mobile device during login.
-                        </p>
-                    </li>
+                   
 
 
                 </ul>`
@@ -160,7 +155,7 @@ skillsBtn.addEventListener('click', () => {
 
 const aboutContent = `
 <h4>About Us</h4>
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Velit debitis excepturi quibusdam.</p>
+                <p>Learn more about PhotoNest, where we treasure your memories as much as you do. Our platform is built on the foundation of trust and user satisfaction, ensuring that every moment captured is preserved with the utmost care and respect.</p>
                 <ul>
                     <li>
                         <h5>Our Mission</h5>

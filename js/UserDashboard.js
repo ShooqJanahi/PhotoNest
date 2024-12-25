@@ -1,7 +1,7 @@
 //UserDashboard.js
 
 // Import Firebase services
-import {  writeBatch, collection, query, where, getDocs, orderBy, doc, getDoc, addDoc, updateDoc, deleteDoc, increment } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+import { writeBatch, collection, query, where, getDocs, orderBy, doc, getDoc, addDoc, updateDoc, deleteDoc, increment } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
 import { db } from './firebaseConfig.js'; // Import Firestore database configuration
 
@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     const currentHash = window.location.hash || '#home'; // Get the current section from the URL
     navigateToSection(currentHash); // Navigate to the appropriate section based on the hash
 
-     // Listen for hash changes (e.g., switching between sections)
+    // Listen for hash changes (e.g., switching between sections)
     window.addEventListener('hashchange', () => {
         const newHash = window.location.hash;
         navigateToSection(newHash); // Navigate to the new section
@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     setupPage(); // Set up event listeners and interactions
 
-  // Handle 'Enter' key press in the header search bar
+    // Handle 'Enter' key press in the header search bar
     searchBar.addEventListener("keydown", async (event) => {
         if (event.key === "Enter") { // If 'Enter' is pressed
             event.preventDefault(); // Prevent default form submission
@@ -228,7 +228,8 @@ function navigateToSection(hash) {
             const searchQuery = event.target.value.toLowerCase();
             filterChartData(searchQuery); // Call the chart filtering function
         };
-        drawPostPopularityChart();
+        // Load chart data for the last 2 weeks by default
+        drawPostPopularityChart('last2weeks');
     } else {
         console.warn(`Unknown hash: ${hash}, defaulting to Home.`);
         window.location.hash = '#home';
@@ -294,7 +295,7 @@ async function setupPage() {
             filterAndSortPosts(searchInput, sortOption); // Filter and sort posts
         });
     }
-     // Handle sorting changes
+    // Handle sorting changes
     if (sortDropdown) {
         sortDropdown.addEventListener('change', () => {
             const searchInput = document.getElementById('search').value.trim().toLowerCase();
@@ -803,43 +804,43 @@ async function performSearch(searchText) {
             where("name", ">=", lowerCaseText),
             where("name", "<=", lowerCaseText + "\uf8ff")
         );
-        
+
         const hashtagsSnapshot = await getDocs(hashtagsQuery);
 
-       // Parse hashtag results
-       hashtagsSnapshot.forEach((doc) => {
-        const data = doc.data();
-        suggestions.push({
-            type: "hashtag",
-            displayText: `#${data.name}`,
-            id: doc.id,
+        // Parse hashtag results
+        hashtagsSnapshot.forEach((doc) => {
+            const data = doc.data();
+            suggestions.push({
+                type: "hashtag",
+                displayText: `#${data.name}`,
+                id: doc.id,
+            });
         });
-    });
 
-    console.log("Hashtags fetched:", suggestions); // Debugging
+        console.log("Hashtags fetched:", suggestions); // Debugging
 
-    // Query Albums Collection for other types (location, albums, etc.)
-    const albumsRef = collection(db, "Albums");
+        // Query Albums Collection for other types (location, albums, etc.)
+        const albumsRef = collection(db, "Albums");
 
-    const albumsQuery = query(
-        albumsRef,
-        where("category", "==", "album"), // Exclude hashtags
-        where("name", ">=", lowerCaseText),
-        where("name", "<=", lowerCaseText + "\uf8ff")
-    );
-    const albumsSnapshot = await getDocs(albumsQuery);
+        const albumsQuery = query(
+            albumsRef,
+            where("category", "==", "album"), // Exclude hashtags
+            where("name", ">=", lowerCaseText),
+            where("name", "<=", lowerCaseText + "\uf8ff")
+        );
+        const albumsSnapshot = await getDocs(albumsQuery);
 
-    // Parse Album results
-    albumsSnapshot.forEach((doc) => {
-        const data = doc.data();
-        suggestions.push({
-            type: "album",
-            displayText: `${data.name} (Album by @${data.username || "unknown"})`,
-            id: doc.id,
+        // Parse Album results
+        albumsSnapshot.forEach((doc) => {
+            const data = doc.data();
+            suggestions.push({
+                type: "album",
+                displayText: `${data.name} (Album by @${data.username || "unknown"})`,
+                id: doc.id,
+            });
         });
-    });
 
-    console.log("Albums fetched:", suggestions); // Debugging
+        console.log("Albums fetched:", suggestions); // Debugging
 
         // Query Albums Collection for Location (City and Country)
         const locationRef = collection(db, "Albums");
@@ -850,7 +851,7 @@ async function performSearch(searchText) {
             where("category", "==", "location"),
             where("city", ">=", lowerCaseText),
             where("city", "<=", lowerCaseText + "\uf8ff"),
-            
+
         );
 
         // Query for country matches
@@ -859,7 +860,7 @@ async function performSearch(searchText) {
             where("category", "==", "location"),
             where("country", ">=", lowerCaseText),
             where("country", "<=", lowerCaseText + "\uf8ff"),
-           
+
         );
 
         const [citySnapshot, countrySnapshot] = await Promise.all([
@@ -911,7 +912,7 @@ async function performSearch(searchText) {
         });
 
         console.log("Suggestions fetched:", suggestions); // Debugging log
-        
+
         displaySuggestions(suggestions); // Display Results
     } catch (error) {
         console.error("Error performing search:", error);
@@ -990,7 +991,7 @@ function handleSuggestionClick(result) {
             localStorage.setItem("currentAlbumId", result.id);
             window.location.href = `../html/PhotoGallery.html`;
             break;
-            case "album":
+        case "album":
             // Navigate to Album
             localStorage.setItem("currentAlbumId", result.id);
             window.location.href = `../html/PhotoGallery.html`;
@@ -1000,7 +1001,7 @@ function handleSuggestionClick(result) {
             break;
     }
 }
- 
+
 
 
 
@@ -1015,12 +1016,23 @@ let zoomLevel = 1;
 /**
  * Fetch post popularity data and render the Google Charts bar chart.
  */
-async function drawPostPopularityChart() {
+async function drawPostPopularityChart(filter = 'last2weeks') {
     const chartContainer = document.getElementById('post-popularity-chart');
     chartContainer.innerHTML = '<p>Loading chart...</p>'; // Loading message
     try {
         const photosRef = collection(db, 'Photos');
         const photosSnapshot = await getDocs(photosRef);
+
+        const currentUserId = auth.currentUser?.uid;
+
+        if (!currentUserId) {
+            console.error("User not authenticated.");
+            return;
+        }
+
+        // Fetch user's posts
+        const photosQuery = query(photosRef, where('userId', '==', currentUserId), orderBy('uploadDate', 'desc'));
+
 
         chartData = new google.visualization.DataTable();
         chartData.addColumn('string', 'Post'); // Post title
@@ -1028,16 +1040,28 @@ async function drawPostPopularityChart() {
         chartData.addColumn('number', 'Views'); // Views count
         chartData.addColumn({ type: 'string', role: 'tooltip' }); // Tooltip (full caption)
 
+        const twoWeeksAgo = new Date();
+        twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14); // Calculate the date 2 weeks ago
+
         photosSnapshot.forEach((doc) => {
             const photo = doc.data();
-            const truncatedCaption = truncateText(photo.caption || 'Untitled', 25); // Short caption
-            const fullCaption = photo.caption || 'Untitled'; // Full caption
-            chartData.addRow([
-                truncatedCaption, // Displayed in the chart
-                photo.likesCount || 0, // Likes
-                photo.viewCount || 0, // Views
-                fullCaption, // Tooltip with full text
-            ]);
+            const uploadDate = new Date(photo.uploadDate);
+
+            // Filter based on the selected period
+            if (
+                (filter === 'last2weeks' && uploadDate >= twoWeeksAgo) ||
+                (filter === 'older' && uploadDate < twoWeeksAgo) ||
+                filter === 'all'
+            ) {
+                const truncatedCaption = truncateText(photo.caption || 'Untitled', 25); // Short caption
+                const fullCaption = photo.caption || 'Untitled'; // Full caption
+                chartData.addRow([
+                    truncatedCaption,
+                    photo.likesCount || 0,
+                    photo.viewCount || 0,
+                    fullCaption,
+                ]);
+            }
         });
         if (chartData.getNumberOfRows() === 0) {
             chartContainer.innerHTML = '<p>No posts available to display popularity.</p>';

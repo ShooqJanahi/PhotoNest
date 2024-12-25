@@ -135,7 +135,7 @@ signupForm.addEventListener("submit", async (event) => {
         // Create the "following" subcollection and follow "PhotoNest"
         const followingRef = doc(db, `users/${userId}/following`, "PhotoNest");
         await setDoc(followingRef, {
-            userId: "PhotoNest", // PhotoNest ID (or use an actual user ID for the official account)
+            userId: "4jPh36jhPJekM4UZ3Vg00zxKXrP2", // PhotoNest ID (or use an actual user ID for the official account)
             followedAt: new Date(), // Timestamp for following
         });
 
