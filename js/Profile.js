@@ -706,3 +706,51 @@ async function refreshFollowersCount(viewedUserId) {
     }
 }
 
+//======================= splash screen ================
+
+// Splash screen handling
+async function initializePage() {
+    const splashScreen = document.getElementById('splash-screen');
+    if (splashScreen) {
+        splashScreen.style.display = 'flex'; // Show splash screen while loading
+    }
+
+    try {
+        await fetchAllProfileData(); // Load all profile-related data
+    } catch (error) {
+        console.error("Error during page initialization:", error);
+    }
+
+    // Hide the splash screen once everything is loaded
+    if (splashScreen) {
+        splashScreen.style.transition = 'opacity 0.5s ease';
+        splashScreen.style.opacity = '0'; // Fade out
+        setTimeout(() => splashScreen.style.display = 'none', 500);
+    }
+}
+
+// Fetch all profile-related data
+async function fetchAllProfileData() {
+    document.body.style.display = 'none'; // Hide page until fully loaded
+
+    // Ensure user authentication and fetch user data
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+            window.location.href = '../html/Login.html'; // Redirect to login page if not authenticated
+        } else {
+            sessionStorage.setItem("loggedInUserId", user.uid); // Set logged-in user ID
+
+            const viewedUserId = localStorage.getItem('viewedUserId') || user.uid;
+
+            // Fetch profile data and posts
+            await Promise.all([
+                loadUserProfile(viewedUserId, user.uid),
+                loadUserPosts(viewedUserId)
+            ]);
+
+            document.body.style.display = 'block'; // Show the page
+        }
+    });
+}
+
+//================= END of splash screen ===================

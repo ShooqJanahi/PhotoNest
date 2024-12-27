@@ -242,10 +242,66 @@ async function createAlbum(title) {
         await logActivity("created_album", albumRef.id); // Log album creation
 
         alert("Album created successfully!");
-        location.reload(); // Refresh to show the new album
+       // Instead of reloading the page, re-fetch and render albums
+       const updatedAlbums = await fetchAlbumsForUser(user.uid); // Fetch updated albums
+       renderAlbums(updatedAlbums); // Re-render albums dynamically
     } catch (error) {
         console.error("Error creating album:", error);
         alert("Failed to create album. Please try again.");
+    }
+}
+
+// Fetch albums for a specific user
+async function fetchAlbumsForUser() {
+    const user = JSON.parse(sessionStorage.getItem('user')); // Get the logged-in user
+    if (!user || !user.uid) {
+        console.error("User not logged in or user ID not found.");
+        return []; // Return an empty array to avoid further errors
+    }
+
+    const userId = user.uid; // Extract the user ID
+    try {
+        const albumsQuery = query(
+            collection(db, 'Albums'),
+            where('userId', '==', userId) // Filter albums by user ID
+        );
+        const albumsSnapshot = await getDocs(albumsQuery);
+
+        if (albumsSnapshot.empty) {
+            return [];
+        }
+
+        // Process albums and fetch thumbnails for display
+        const albums = await Promise.all(
+            albumsSnapshot.docs.map(async (albumDoc) => {
+                const albumData = albumDoc.data();
+                const albumId = albumDoc.id;
+
+                // Default thumbnail if no photos exist
+                let thumbnailUrl = '../assets/PhotoNest_Logo.jpg';
+
+                // Fetch the first photo if photo IDs are available
+                if (albumData.photoIds && albumData.photoIds.length > 0) {
+                    const firstPhotoId = albumData.photoIds[0];
+                    const photoDoc = await getDoc(doc(db, 'Photos', firstPhotoId));
+                    if (photoDoc.exists()) {
+                        thumbnailUrl = photoDoc.data().imageUrl || thumbnailUrl;
+                    }
+                }
+
+                // Return album details with thumbnail
+                return {
+                    id: albumId,
+                    ...albumData,
+                    thumbnailUrl,
+                };
+            })
+        );
+
+        return albums; // Return the list of albums
+    } catch (error) {
+        console.error("Error fetching albums:", error);
+        return [];
     }
 }
 
@@ -274,12 +330,12 @@ function setupCreateAlbumModal() {
     });
 
     // Handle album creation form submission
-    createAlbumForm.addEventListener('submit', (event) => {
+    createAlbumForm.addEventListener('submit', async  (event) => {
         event.preventDefault(); // Prevent page reload
 
         const albumTitle = document.getElementById('albumTitle').value.trim();
         if (albumTitle) {
-            createAlbum(albumTitle); // Create new album
+            await createAlbum(albumTitle); // Create new album
             createAlbumModal.style.display = 'none'; // Close modal
         } else {
             alert("Please enter a valid album title.");
@@ -583,3 +639,69 @@ async function logNotification(receiverId, senderId, albumId, photoId = null) {
 
 
 //======================= END of Share Album Notification =================
+
+
+//======================= splash screen ==========================
+
+
+// Function to fetch Firestore data and ensure all is loaded
+async function fetchAllPageData() {
+    try {
+        const promises = [];
+
+        // Fetch user profile image
+        const fetchProfilePromise = fetchUserProfileImage();
+        promises.push(fetchProfilePromise);
+
+        // Fetch user albums
+        const fetchAlbumsPromise = fetchAlbumsForUser();
+        promises.push(fetchAlbumsPromise);
+
+       // Wait for all async tasks to complete
+       const results = await Promise.allSettled(promises);
+
+       // Handle resolved promises
+       const userAlbums = results[1].status === "fulfilled" ? results[1].value : [];
+       renderAlbums(userAlbums);
+
+        console.log("All Firestore data loaded.");
+    } catch (error) {
+        console.error("Error loading page data:", error);
+    }
+}
+
+// Wait for everything (page + Firestore data) to load before hiding the splash screen
+async function initializePage() {
+    // Show splash screen initially
+    const splashScreen = document.getElementById('splash-screen');
+    if (splashScreen) {
+        splashScreen.style.display = 'flex'; // Ensure it’s visible during loading
+    }
+
+    // Fetch Firestore data and wait for all content to load
+    await fetchAllPageData();
+
+    // Fade out the splash screen after everything is ready
+    if (splashScreen) {
+        splashScreen.style.transition = 'opacity 0.5s ease'; // Smooth fade-out
+        splashScreen.style.opacity = '0'; // Start fade-out effect
+
+        // Remove the splash screen from the DOM after fade-out
+        setTimeout(() => {
+            splashScreen.style.display = 'none';
+        }, 500); // Duration matches the CSS transition
+    }
+}
+
+// Call initializePage on DOMContentLoaded
+document.addEventListener("DOMContentLoaded", () => {
+    initializePage();
+});
+
+
+
+
+
+
+
+
