@@ -1,3 +1,12 @@
+<div id="splash-screen">
+    <div class="splash-content">
+        <img src="../assets/PhotoNest_Transparent.png" alt="PhotoNest Logo" class="splash-logo">
+        <h1>PhotoNest</h1>
+        <p>Where memories find their nest</p>
+        <div class="loader"></div>
+    </div>
+</div>
+
 <!DOCTYPE html> <!--Defines the document as an HTML5 document-->
 <html lang="en"> <!--Specifies the document language as English for accessibility-->
 
@@ -39,9 +48,12 @@
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" required> <!--Collect the user's password, Ensures the fields are not left empty -->
 
-                <a href="Terms.html#forget">Forgot your password?</a> <!--Provides a link for password recovery-->
+                <a href="#forget">Forgot your password?</a> <!--Provides a link for password recovery-->
                
-                <button type="submit">Log in</button> <!--A button for form submission-->
+                
+
+
+                <button type="submit">Login</button> <!--A button for form submission-->
                 
                 <!--Adds a prompt for new users to navigate to the sign-up page-->
                 <div class="new-here-container">
@@ -51,6 +63,21 @@
 
             </form>
         </div>
+        <!-- Forgot Password Modal -->
+<div id="forgot-password-modal" class="modal hidden">
+    <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2>Forgot Password</h2>
+        <p>Please enter your email address to receive a password reset link.</p>
+        <form id="forgot-password-form">
+            <label for="forgot-email">Email Address</label>
+            <input type="email" id="forgot-email" required>
+            <button type="submit">Send Reset Link</button>
+        </form>
+        <p id="forgot-password-message"></p> <!-- For displaying success/error messages -->
+    </div>
+</div>
+
         <!--============================= LOGIN FORM ==============================-->
     </div>
     <script type="module" src="../js/login.js"></script> <!--Handles login functionality (e.g., validating credentials with Firebase)-->

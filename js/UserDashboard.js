@@ -18,6 +18,31 @@ const suggestionsContainer = document.getElementById("search-suggestions");
 
 // On page load, set up the dashboard
 document.addEventListener('DOMContentLoaded', async function () {
+   
+    const splashScreen = document.getElementById('splash-screen');
+
+    // Ensure the page's resources (images, scripts, styles) are fully loaded
+    window.addEventListener('load', async () => {
+        try {
+            // Perform essential initializations
+            await checkUserAuthentication(); // Ensure user is authenticated
+            await setupPage(); // Set up interactions
+            await updateNotificationCounts(); // Fetch counts
+
+            // Fade out the splash screen after everything is ready
+            splashScreen.classList.add('hidden'); // Add the fade-out class
+
+            // Wait for the animation duration, then remove the splash screen
+            setTimeout(() => {
+                splashScreen.remove();
+            }, 1000); // Match this duration with the CSS animation time
+        } catch (error) {
+            console.error('Error during initialization:', error);
+            splashScreen.innerHTML = `<p>Failed to load. Please refresh the page.</p>`;
+        }
+    });
+   
+
     await checkUserAuthentication(); // Ensure the user is authenticated
     updateNotificationCounts(); // Fetch and update counts
 
@@ -76,6 +101,45 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
     // Initialize the rest of the page
     setupPage();
+
+
+    const sidebarProfileImage = document.getElementById('sidebar-profile-image');
+    const topNavProfileImage = document.getElementById('topnav-profile-image');
+
+    const currentUserId = auth.currentUser?.uid; // Get the currently logged-in user's ID
+
+    // Redirect to profile and set the user ID in local storage
+    const redirectToProfile = () => {
+        if (!currentUserId) {
+            console.error("User ID not found. Cannot navigate to profile.");
+            return;
+        }
+        localStorage.setItem('viewedUserId', currentUserId); // Set the user ID in local storage
+        window.location.href = '../html/Profile.html'; // Redirect to the profile page
+    };
+
+    // Add click event listeners to the profile pictures
+    if (sidebarProfileImage) {
+        sidebarProfileImage.addEventListener('click', redirectToProfile);
+    }
+
+    if (topNavProfileImage) {
+        topNavProfileImage.addEventListener('click', redirectToProfile);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 });
 
 
@@ -611,7 +675,7 @@ async function fetchPhotos(isHome) {
             const photosSnapshot = await getDocs(photosQuery);
 
             if (photosSnapshot.empty) {
-                photosContainer.innerHTML = '<p>No posts to explore. Follow more users to see their content!</p>';
+                photosContainer.innerHTML = '<p>No posts to explore!</p>';
                 fetchInProgress = false;
                 return;
             }

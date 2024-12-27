@@ -11,7 +11,7 @@ import { onSnapshot } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-f
 
 setLogLevel("debug");
 
-const loggedInUserId = localStorage.getItem('loggedInUserId');
+const loggedInUserId = localStorage.getItem('viewedUserId');
 const viewedUserId = sessionStorage.getItem('userId')
 const followingRef = doc(db, `users/${loggedInUserId}/following`, viewedUserId);
 onSnapshot(followingRef, (doc) => {

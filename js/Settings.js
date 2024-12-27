@@ -1,6 +1,6 @@
 // Import Firebase services
 import { getAuth, deleteUser, signInWithEmailAndPassword, onAuthStateChanged, updateEmail, updatePassword, sendEmailVerification } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
-import { doc, getDoc, updateDoc, collection, query, where, getDocs, deleteDoc, runTransaction } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+import { writeBatch, doc, getDoc, updateDoc, collection, query, where, getDocs, deleteDoc, runTransaction } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js';
 import { logout } from './login.js';
 import { db } from './firebaseConfig.js';
@@ -37,18 +37,26 @@ function initializeProfileImageUpload(userData) {
         fileInput.accept = 'image/*';
         fileInput.click();
 
-        fileInput.addEventListener('change', () => {
+        fileInput.addEventListener('change', async () => {
             const file = fileInput.files[0];
             if (file) {
                 selectedImageFile = file; // Store the file for later saving
 
-                // Display the new image as a preview
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    profileImage.src = event.target.result;
-                    previewProfileImage.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
+                // Resize the image before previewing
+                try {
+                    const resizedImage = await resizeImage(file, 200, 200); // Resize to 200x200
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        profileImage.src = event.target.result; // Show resized image preview
+                    };
+                    reader.readAsDataURL(resizedImage);
+
+                    // Store the resized image for uploading
+                    selectedImageFile = resizedImage;
+                } catch (error) {
+                    console.error('Error resizing image:', error.message);
+                    alert('Failed to process the image.');
+                }
             }
         });
     });
@@ -82,6 +90,62 @@ function initializeProfileImageUpload(userData) {
         }
     });
 }
+
+
+// Function to resize and crop an image to fit a square
+async function resizeImage(file, size) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = size;
+                canvas.height = size;
+
+                // Crop and center the image to a square
+                const aspectRatio = img.width / img.height;
+                let sx = 0, sy = 0, sWidth = img.width, sHeight = img.height;
+
+                if (aspectRatio > 1) {
+                    sx = (img.width - img.height) / 2; // Crop sides
+                    sWidth = img.height;
+                } else {
+                    sy = (img.height - img.width) / 2; // Crop top and bottom
+                    sHeight = img.width;
+                }
+
+                ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, size, size);
+
+                // Convert to Blob
+                canvas.toBlob((blob) => {
+                    if (blob) {
+                        const resizedFile = new File([blob], file.name, {
+                            type: file.type,
+                            lastModified: Date.now(),
+                        });
+                        resolve(resizedFile);
+                    } else {
+                        reject(new Error('Canvas is empty'));
+                    }
+                }, file.type);
+            };
+
+            img.onerror = () => reject(new Error('Failed to load image'));
+            img.src = event.target.result;
+        };
+
+        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.readAsDataURL(file);
+    });
+}
+
+
+
+
+
+
 
 
 // DOMContentLoaded Listener
@@ -182,17 +246,17 @@ async function loadUserProfile() {
         if (userDoc.exists()) {
             const userData = userDoc.data();
 
-            // Update Sidebar Profile Image
-            const sidebarProfileImage = document.getElementById('sidebar-profile-image');
-            if (sidebarProfileImage) {
-                sidebarProfileImage.src = userData.profilePic || '../assets/Default_profile_icon.jpg';
-            }
+           // Update Sidebar Profile Image
+           const sidebarProfileImage = document.getElementById('sidebar-profile-image');
+           if (sidebarProfileImage) {
+               sidebarProfileImage.src = userData.profilePic || '../assets/Default_profile_icon.jpg';
+           }
 
-            // Update Top Navigation Profile Image
-            const topNavProfileImage = document.getElementById('topnav-profile-image');
-            if (topNavProfileImage) {
-                topNavProfileImage.src = userData.profilePic || '../assets/Default_profile_icon.jpg';
-            }
+           // Update Top Navigation Profile Image
+           const topNavProfileImage = document.getElementById('topnav-profile-image');
+           if (topNavProfileImage) {
+               topNavProfileImage.src = userData.profilePic || '../assets/Default_profile_icon.jpg';
+           }
 
             console.log('Profile loaded successfully:', userData);
 
@@ -304,7 +368,7 @@ async function updateProfile(event) {
             alert('Email updated. Please verify your new email address.');
         }
 
-        alert('Profile information has been updated successfully.');
+       
 
         // Validate current password before updating to the new one
         if (newPassword && newPassword === confirmPassword) {
@@ -332,9 +396,7 @@ async function updateProfile(event) {
         }
 
 
-        alert('Profile updated successfully!');
-
-
+       
         document.querySelector('.save').addEventListener('click', (event) => {
             updateProfile(event);
         });
@@ -647,3 +709,165 @@ async function deleteAccount() {
 
 
 //============================= END of Delete user account ======================
+
+
+
+//============================ Fetch Notification and Message Counts ===========================
+
+/**
+ * Fetches the unread notification and message counts for the current user.
+ * @returns {Promise<{notifications: number, messages: number}>} - The counts of unread notifications and messages.
+ */
+async function fetchCounts() {
+    const userId = auth.currentUser?.uid; // Get the logged-in user's ID
+    if (!userId) {
+        console.error("User not logged in.");
+        return { notifications: 0, messages: 0 };
+    }
+
+    try {
+        // Fetch unread notifications count
+        const notificationsRef = collection(db, "Notifications");
+        const notificationsQuery = query(
+            notificationsRef,
+            where("receiverId", "==", userId),
+            where("status", "==", "unopen")
+        );
+        const notificationsSnapshot = await getDocs(notificationsQuery);
+        const unreadNotificationsCount = notificationsSnapshot.size;
+
+        // Fetch unread messages count
+        const messagesRef = collection(db, "Messages");
+        const messagesQuery = query(
+            messagesRef,
+            where("receiverId", "==", userId),
+            where("status", "==", "Unread")
+        );
+        const messagesSnapshot = await getDocs(messagesQuery);
+        const unreadMessagesCount = messagesSnapshot.size;
+
+        return {
+            notifications: unreadNotificationsCount,
+            messages: unreadMessagesCount,
+        };
+    } catch (error) {
+        console.error("Error fetching notification or message counts:", error);
+        return { notifications: 0, messages: 0 };
+    }
+}
+
+
+/**
+ * Updates the notification and message count elements in the UI.
+ * @param {number} notificationCount - The number of unread notifications.
+ * @param {number} messageCount - The number of unread messages.
+ */
+function updateCountsInUI(notificationCount, messageCount) {
+    const notificationCountElement = document.getElementById("notification-count");
+    const messageCountElement = document.getElementById("message-count");
+
+    // Update notification count
+    if (notificationCountElement) {
+        if (notificationCount > 0) {
+            notificationCountElement.textContent = notificationCount; // Display count
+            notificationCountElement.style.display = "inline-block"; // Show the placeholder
+        } else {
+            notificationCountElement.textContent = ""; // Clear content
+            notificationCountElement.style.display = "none"; // Hide the placeholder
+        }
+    }
+
+   // Update message count
+   if (messageCountElement) {
+    if (messageCount > 0) {
+        messageCountElement.textContent = messageCount; // Display count
+        messageCountElement.style.display = "inline-block"; // Show the placeholder
+    } else {
+        messageCountElement.textContent = ""; // Clear content
+        messageCountElement.style.display = "none"; // Hide the placeholder
+    }
+}
+}
+
+
+
+/**
+ * Marks all notifications as read for the current user.
+ */
+async function markNotificationsAsRead() {
+    const userId = auth.currentUser?.uid;
+    if (!userId) {
+        console.error("User not logged in.");
+        return;
+    }
+
+    try {
+        const notificationsRef = collection(db, "Notifications");
+        const notificationsQuery = query(
+            notificationsRef,
+            where("receiverId", "==", userId),
+            where("status", "==", "unopen")
+        );
+        const notificationsSnapshot = await getDocs(notificationsQuery);
+
+        const batch = writeBatch(db); // Batch update
+        notificationsSnapshot.forEach((doc) => {
+            batch.update(doc.ref, { status: "open" });
+        });
+        await batch.commit();
+
+        console.log("All unread notifications marked as read.");
+        updateCounts(); // Refresh counts
+    } catch (error) {
+        console.error("Error marking notifications as read:", error);
+    }
+}
+
+/**
+ * Marks all messages as read for the current user.
+ */
+async function markMessagesAsRead() {
+    const userId = auth.currentUser?.uid;
+    if (!userId) {
+        console.error("User not logged in.");
+        return;
+    }
+
+    try {
+        const messagesRef = collection(db, "Messages");
+        const messagesQuery = query(
+            messagesRef,
+            where("receiverId", "==", userId),
+            where("status", "==", "Unread")
+        );
+        const messagesSnapshot = await getDocs(messagesQuery);
+
+        const batch = writeBatch(db); // Batch update
+        messagesSnapshot.forEach((doc) => {
+            batch.update(doc.ref, { status: "Read" });
+        });
+        await batch.commit();
+
+        console.log("All unread messages marked as read.");
+        updateCounts(); // Refresh counts
+    } catch (error) {
+        console.error("Error marking messages as read:", error);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//============================ END of Fetch Notification and Message Counts ===========================
+

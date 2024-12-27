@@ -29,6 +29,7 @@ document.querySelector('.fa-bell').addEventListener('click', () => {
 
 // Fetch Photo Information by Photo ID
 async function fetchPhotoData(photoId) {
+    return new Promise(async (resolve, reject) => {
     try {
         // Reference the photo document in the database using the photo ID
         const photoRef = doc(db, "Photos", photoId);
@@ -62,8 +63,11 @@ async function fetchPhotoData(photoId) {
     } catch (error) {
         // Log any errors encountered during the fetch operation
         console.error("Error fetching photo data:", error);
+        reject(error);
     }
+});
 }
+
 
 
 // Populate photo details in the HTML page
@@ -94,6 +98,10 @@ function populatePhotoDetails(photoData) {
                 hashtagsElement.appendChild(space); // Append the space
             }
         });
+
+        // click event listeners to hashtags
+        addHashtagRedirection();
+
     }
 
     // Populate likes count
@@ -168,6 +176,7 @@ function populateUserDetails(userData) {
 
 // Function to fetch and display comments for the photo
 async function fetchAndDisplayComments(photoId) {
+    return new Promise(async (resolve, reject) => {
     try {
         // Reference the Comments collection in Firestore
         const commentsRef = collection(db, "Comments");
@@ -201,10 +210,13 @@ async function fetchAndDisplayComments(photoId) {
             // Display a placeholder message if no comments are found
             commentsContainer.innerHTML = "<p>No comments yet. Be the first to comment!</p>";
         }
+        resolve();
     } catch (error) {
         // Log any errors encountered during the fetch process
         console.error("Error fetching comments:", error);
+        reject(error);
     }
+});
 }
 
 // Function to create a comment element
@@ -216,28 +228,50 @@ function createCommentElement(commentData) {
     // Comment header section
     const commentHeader = document.createElement("div");
     commentHeader.classList.add("comment-header");
-    commentHeader.style.display = "flex"; // Align username and dropdown horizontally
-    commentHeader.style.justifyContent = "space-between"; // Space out username and options icon
+    commentHeader.style.display = "flex"; // Align username and profile pic horizontally
+    commentHeader.style.alignItems = "center"; // Center vertically
+    commentHeader.style.justifyContent = "space-between"; // Space out elements
+
+    const profilePic = document.createElement("img");
+    profilePic.src = commentData.profilePic || "../assets/Default_profile_icon.jpg";
+    profilePic.alt = "Profile Picture";
+    profilePic.style.width = "30px";
+    profilePic.style.height = "30px";
+    profilePic.style.borderRadius = "50%";
+    profilePic.style.marginRight = "10px"; // Add spacing between profile pic and username
+    profilePic.style.cursor = "pointer"; // Make it clickable
+    profilePic.addEventListener("click", () => redirectToProfile(commentData.userId)); // Add redirection
+
+    // Username element
+    const username = document.createElement("strong");
+    username.textContent = commentData.username || "Unknown User"; // Default to "Unknown User" if no username
+    username.style.cursor = "pointer"; // Make it clickable
+    username.addEventListener("click", () => {
+        redirectToProfile(commentData.userId); // Redirect to the user's profile
+    });
 
     // Comment details container (for username and timestamp)
     const commentDetails = document.createElement("div");
     commentDetails.classList.add("comment-details");
 
-    // Username element
-    const username = document.createElement("strong");
-    username.textContent = commentData.username || "Unknown User"; // Default to "Unknown User" if no username
-
     // Timestamp element
-    const timestamp = document.createElement("span");
-    timestamp.classList.add("comment-time");
-    const commentTimestamp = commentData.timestamp
-        ? new Date(commentData.timestamp.seconds * 1000) // Convert Firestore timestamp to JavaScript Date
-        : new Date();  // Default to current time if no timestamp
-    timestamp.textContent = commentTimestamp.toLocaleString(); // Format as a readable date/time string
+const timestamp = document.createElement("span");
+timestamp.classList.add("comment-time");
+
+// Convert Firestore timestamp to JavaScript Date
+const commentTimestamp = commentData.timestamp
+    ? new Date(commentData.timestamp.seconds * 1000) 
+    : new Date(); // Default to current time if no timestamp
+
+// Format the date without seconds
+timestamp.textContent = commentTimestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + 
+    " | " + 
+    commentTimestamp.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
 
     // Append username and timestamp to the details container
     commentDetails.appendChild(username);
     commentDetails.appendChild(timestamp);
+    commentHeader.appendChild(profilePic);
 
     // Dropdown container for options
     const dropdownContainer = document.createElement("div");
@@ -327,16 +361,30 @@ async function addComment(photoId, userId, username, commentText, photoData) {
             alert("Comment cannot be empty."); // Prevent adding empty comments
             return;
         }
+
+        // Fetch the user's profile information from the `users` collection
+        const userRef = doc(db, "users", userId);
+        const userDoc = await getDoc(userRef);
+
+        if (!userDoc.exists()) {
+            console.error("User not found in the database.");
+            alert("Unable to fetch user details.");
+            return;
+        }
+
+        const userData = userDoc.data();
+
         // Reference the Comments collection
         const commentsRef = collection(db, "Comments");
 
         // Add the new comment to the Comments collection in firestore
         const newComment = await addDoc(commentsRef, {
-            photoId: photoId, // ID of the photo being commented on
-            userId: userId, // ID of the user adding the comment
-            username: username, // Username of the commenter
-            commentText: commentText.trim(), // Cleaned-up comment text
-            timestamp: serverTimestamp(), // Firestore server timestamp
+            photoId: photoId,
+            userId: userId,
+            username: userData.username || "Unknown User", // Fetch username
+            profilePic: userData.profilePic || "../assets/Default_profile_icon.jpg", // Fetch profile picture
+            commentText: commentText.trim(),
+            timestamp: serverTimestamp(),
         });
         // Increment the comment count in the Photos collection
         const photoRef = doc(db, "Photos", photoId);
@@ -837,7 +885,7 @@ function createEditPhotoPopup(photoId, currentCaption, currentHashtags) {
         <button
          type="button" 
          id="save-edits-btn" 
-         style="background-color: #4CAF50; color: #fff; border: none; border-radius: 5px; padding: 10px 20px; cursor: pointer;">
+         style="background-color: #6a0dad; color: #fff; border: none; border-radius: 5px; padding: 10px 20px; cursor: pointer;">
          Save</button>
       </form>
     `;
@@ -899,6 +947,7 @@ function createEditPhotoPopup(photoId, currentCaption, currentHashtags) {
 
 
                     fetchPhotoData(photoId); // Refresh photo details on the page
+                    resolve();
                 } else {
                     // If the photo doesn't exist, log an error and notify the user
                     console.error("Photo does not exist.");
@@ -1207,7 +1256,7 @@ async function createMoveToAlbumPopup() {
             <div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <input type="text" id="album-search" placeholder="Search Albums" style="flex: 1; margin-right: 10px; padding: 5px;">
-                    <button id="create-new-album-btn" style="padding: 5px 10px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">Create New Album</button>
+                    <button id="create-new-album-btn" style="padding: 5px 10px; background-color: #6a0dad; color: white; border: none; border-radius: 5px; cursor: pointer;">Create New Album</button>
                 </div>
                 <div class="album-list">
                     ${albumCardsHTML}
@@ -1450,7 +1499,7 @@ async function createReportPhotoPopup(photoId) {
                 </textarea>
                 <button 
                     type="submit" 
-                    style="background-color: #e74c3c; color: #fff; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+                    style="background-color: #6a0dad; color: #fff; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
                     Submit Report
                 </button>
             </form>
@@ -1624,7 +1673,7 @@ async function reportComment(commentId) {
                 </textarea>
                 <button 
                     type="submit" 
-                    style="background-color: #e74c3c; color: #fff; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+                    style="background-color: #6a0dad; color: #fff; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
                     Submit Report
                 </button>
             </form>
@@ -1715,7 +1764,7 @@ async function createSharePopup(photoId) {
         </textarea>
         <button 
             id="send-share" 
-            style="background-color: #4CAF50; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer;">
+            style="background-color: #6a0dad; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer;">
             Send
         </button>
     </div>
@@ -1847,6 +1896,9 @@ document.getElementById("share-button").addEventListener("click", () => {
 
 // Fetch user and photo details on page load
 document.addEventListener("DOMContentLoaded", async () => {
+
+
+    
     try {
 
         //Logout button
@@ -2074,30 +2126,30 @@ async function handleHashtag(hashtag) {
         }
 
 
- // ======== Handle Albums Collection ========
- const albumQuery = query(albumsRef, where("name", "==", hashtag), where("category", "==", "Hashtag"));
- const albumSnapshot = await getDocs(albumQuery);
+        // ======== Handle Albums Collection ========
+        const albumQuery = query(albumsRef, where("name", "==", hashtag), where("category", "==", "Hashtag"));
+        const albumSnapshot = await getDocs(albumQuery);
 
- if (!albumSnapshot.empty) {
-     // Add the photo ID to the existing album
-     const albumDoc = albumSnapshot.docs[0];
-     await updateDoc(albumDoc.ref, {
-         photoIds: arrayUnion(photoId),
-     });
-     console.log(`Photo '${photoId}' added to existing album '${hashtag}' in Albums collection.`);
- } else {
-     // Create a new album for the hashtag
-     await addDoc(albumsRef, {
-        category: "Hashtag",
-        name: hashtag,
-        category: "Hashtag",
-        photoIds: [photoId],
-        createdAt: new Date().toISOString(),
-        
-    });
-    
-     console.log(`New album created for hashtag '${hashtag}' in Albums collection.`);
- }
+        if (!albumSnapshot.empty) {
+            // Add the photo ID to the existing album
+            const albumDoc = albumSnapshot.docs[0];
+            await updateDoc(albumDoc.ref, {
+                photoIds: arrayUnion(photoId),
+            });
+            console.log(`Photo '${photoId}' added to existing album '${hashtag}' in Albums collection.`);
+        } else {
+            // Create a new album for the hashtag
+            await addDoc(albumsRef, {
+                category: "Hashtag",
+                name: hashtag,
+                category: "Hashtag",
+                photoIds: [photoId],
+                createdAt: new Date().toISOString(),
+
+            });
+
+            console.log(`New album created for hashtag '${hashtag}' in Albums collection.`);
+        }
 
 
     } catch (error) {
@@ -2185,3 +2237,110 @@ function redirectToProfile(userId) {
 }
 
 
+//=============== Hashtag redirection ==============
+// Function to add click event listeners to hashtags
+function addHashtagRedirection() {
+    // Get all hashtag elements from the DOM
+    const hashtagElements = document.querySelectorAll(".hashtag");
+
+    // Loop through each hashtag element
+    hashtagElements.forEach((hashtagElement) => {
+        // Add a click event listener to each hashtag
+        hashtagElement.addEventListener("click", async () => {
+            const hashtagText = hashtagElement.textContent.replace("#", "").trim(); // Extract hashtag text
+
+            try {
+                // Query the Albums collection to find an album with a matching name
+                const albumsRef = collection(db, "Albums");
+                const albumQuery = query(albumsRef, where("name", "==", hashtagText));
+                const albumSnapshot = await getDocs(albumQuery);
+
+                if (!albumSnapshot.empty) {
+                    // Get the first matching album document
+                    const albumDoc = albumSnapshot.docs[0];
+                    const albumId = albumDoc.id;
+
+                    // Store the album ID in localStorage
+                    localStorage.setItem("currentAlbumId", albumId);
+
+                    // Redirect the user to PhotoGallery.html
+                    window.location.href = "PhotoGallery.html";
+                } else {
+                    console.error(`No album found for hashtag: ${hashtagText}`);
+                    alert("No album found for this hashtag.");
+                }
+            } catch (error) {
+                console.error("Error fetching album for hashtag:", error);
+                alert("Failed to fetch album for this hashtag. Please try again.");
+            }
+        });
+    });
+}
+
+
+
+
+
+
+//=============== END of Hashtag redirection ==============
+
+
+// Function to fetch Firestore data and ensure all is loaded
+async function fetchAllPageData() {
+    try {
+        const promises = [];
+
+        // Example: Fetch photo data
+        const photoId = localStorage.getItem("photoId");
+        if (photoId) {
+            promises.push(fetchPhotoData(photoId));
+        }
+
+        // Example: Fetch comments for the photo
+        if (photoId) {
+            promises.push(fetchAndDisplayComments(photoId));
+        }
+
+        // Add more promises as needed for other Firestore fetching tasks
+        // e.g., fetchUserDetails, initializeLikeButton
+        const currentUser = JSON.parse(sessionStorage.getItem("user"));
+        if (currentUser && currentUser.uid) {
+            promises.push(updateUserProfilePicture());
+        }
+
+        // Wait for all async tasks to complete
+        await Promise.all(promises);
+
+        console.log("All Firestore data loaded.");
+    } catch (error) {
+        console.error("Error loading page data:", error);
+    }
+}
+
+// Wait for everything (page + Firestore data) to load before hiding the splash screen
+async function initializePage() {
+    // Show splash screen initially
+    const splashScreen = document.getElementById('splash-screen');
+    if (splashScreen) {
+        splashScreen.style.display = 'flex'; // Ensure it’s visible during loading
+    }
+
+    // Fetch Firestore data and wait for all content to load
+    await fetchAllPageData();
+
+    // Fade out the splash screen after everything is ready
+    if (splashScreen) {
+        splashScreen.style.transition = 'opacity 0.5s ease'; // Smooth fade-out
+        splashScreen.style.opacity = '0'; // Start fade-out effect
+
+        // Remove the splash screen from the DOM after fade-out
+        setTimeout(() => {
+            splashScreen.style.display = 'none';
+        }, 500); // Duration matches the CSS transition
+    }
+}
+
+// Call initializePage on DOMContentLoaded
+document.addEventListener("DOMContentLoaded", () => {
+    initializePage();
+});

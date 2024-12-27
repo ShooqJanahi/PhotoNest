@@ -1,7 +1,7 @@
 //login.js
 
 // Import Firebase components using the modular syntax
-import { signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js'; //User authentication
+import { sendPasswordResetEmail, signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js'; //User authentication
 import { collection, query, where, getDocs, updateDoc, doc, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js'; //Database interactions
 import { auth, db } from './firebaseConfig.js'; //Modularized Firebase configuration
 
@@ -243,6 +243,8 @@ if (logoutButton) {
 
 
 
+
+
 // Update session status before the browser is closed
 window.addEventListener('beforeunload', () => {
     const userId = auth.currentUser ? auth.currentUser.uid : null; // Get the current user's ID
@@ -280,3 +282,94 @@ async function logActivity(userId, category, message) {
         console.error("Error logging activity:", error);
     }
 }
+
+
+document.addEventListener('DOMContentLoaded', () => {
+
+// Wait for 2 seconds and then hide the splash screen
+setTimeout(() => {
+    const splashScreen = document.getElementById('splash-screen');
+    if (splashScreen) {
+        splashScreen.style.transition = 'opacity 0.5s ease'; // Smooth fade-out
+        splashScreen.style.opacity = '0'; // Fade-out effect
+        
+        // Remove the splash screen from the DOM after the fade-out
+        setTimeout(() => {
+            splashScreen.style.display = 'none';
+        }, 500); // Matches the transition duration
+    }
+}, 2000); // 2 seconds
+
+// ===== Forgot Password Modal Logic =====
+const forgotPasswordModal = document.getElementById('forgot-password-modal');
+const closeButton = document.querySelector('.close-button');
+const forgotPasswordForm = document.getElementById('forgot-password-form');
+const forgotPasswordMessage = document.getElementById('forgot-password-message');
+const forgotPasswordLink = document.querySelector('a[href*="forget"]'); // Select the "Forgot your password?" link
+
+// Check if the forgot password elements exist in the DOM
+if (forgotPasswordModal && closeButton && forgotPasswordForm && forgotPasswordLink) {
+    // Open the modal when clicking on the "Forgot your password?" link
+    forgotPasswordLink.addEventListener('click', (event) => {
+        event.preventDefault();
+        forgotPasswordModal.classList.remove('hidden'); // Show the modal
+    });
+
+    // Close modal when clicking the close button
+    closeButton.addEventListener('click', () => {
+        forgotPasswordModal.classList.add('hidden'); // Hide modal
+        forgotPasswordMessage.textContent = ''; // Clear previous messages
+    });
+
+    // Close modal when clicking outside the modal content
+    forgotPasswordModal.addEventListener('click', (event) => {
+        if (event.target === forgotPasswordModal) {
+            forgotPasswordModal.classList.add('hidden'); // Hide modal
+            forgotPasswordMessage.textContent = ''; // Clear messages
+        }
+    });
+
+    // Handle form submission for password reset
+    forgotPasswordForm.addEventListener('submit', async (event) => {
+        event.preventDefault(); // Prevent the default form submission
+        const email = document.getElementById('forgot-email').value.trim().toLowerCase();
+
+        try {
+            // Check if the email exists in the Firestore database
+            const usersRef = collection(db, "users");
+            const q = query(usersRef, where("email", "==", email));
+            const querySnapshot = await getDocs(q);
+
+            if (querySnapshot.empty) {
+                forgotPasswordMessage.textContent = 'No account found with this email address.';
+                forgotPasswordMessage.style.color = 'red';
+                return;
+            }
+
+            // Send the password reset email using Firebase Authentication
+            await sendPasswordResetEmail(auth, email);
+            forgotPasswordMessage.textContent = 'Password reset link sent to your email.';
+            forgotPasswordMessage.style.color = 'green';
+
+            // Optional: Close the modal after a delay
+            setTimeout(() => {
+                forgotPasswordModal.classList.add('hidden');
+                forgotPasswordMessage.textContent = '';
+            }, 3000);
+        } catch (error) {
+            console.error("Error sending password reset email:", error);
+            forgotPasswordMessage.textContent = 'Error sending reset email. Please try again.';
+            forgotPasswordMessage.style.color = 'red';
+        }
+    });
+} else {
+    console.log("Forgot password elements not found in the DOM. Skipping modal logic.");
+}
+// ===== End of Forgot Password Modal Logic =====
+});
+
+
+
+
+
+
