@@ -17,6 +17,11 @@ const maxFileSizeMB = 20; // Maximum file size in MB
 
 // Initialize when DOM content is loaded
 document.addEventListener('DOMContentLoaded', () => {
+
+
+
+
+
     checkUserAuthentication(); // Ensure user authentication
     setupHashtags(); // Initialize hashtag functionality
 
@@ -39,6 +44,14 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelector('.upload-label span').textContent = 'Upload image'; // Reset if no file selected
         }
     });
+    const cancelButton = document.querySelector('.cancel-btn');
+
+    if (cancelButton) {
+        cancelButton.addEventListener('click', () => {
+            // Redirect to the UserDashboard
+            window.location.href = '../html/UserDashboard.html';
+        });
+    }
 
 });
 
@@ -414,16 +427,6 @@ function setupHashtags() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    const cancelButton = document.querySelector('.cancel-btn');
-
-    if (cancelButton) {
-        cancelButton.addEventListener('click', () => {
-            // Redirect to the UserDashboard
-            window.location.href = '../html/UserDashboard.html';
-        });
-    }
-});
 
 // Logs user actions like photo uploads and hashtag creation to Firestore
 async function logActivity(userId, category, message) {

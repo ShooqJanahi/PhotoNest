@@ -1384,6 +1384,15 @@ async function addPhotoToAlbum(albumId, photoId) {
     }
 
     try {
+
+         // Retrieve the logged-in user's data
+         const currentUser = JSON.parse(sessionStorage.getItem("user"));
+         if (!currentUser || !currentUser.uid) {
+             console.error("Error: User data not found in sessionStorage.");
+             alert("Please log in to add photos to albums.");
+             return;
+         }
+
         const albumRef = doc(db, "Albums", albumId);
         const albumDoc = await getDoc(albumRef);
 
@@ -2284,63 +2293,73 @@ function addHashtagRedirection() {
 
 //=============== END of Hashtag redirection ==============
 
-
-// Function to fetch Firestore data and ensure all is loaded
+// Function to fetch Firestore data and ensure all data is loaded
 async function fetchAllPageData() {
     try {
         const promises = [];
 
-        // Example: Fetch photo data
+        // Fetch photo data
         const photoId = localStorage.getItem("photoId");
         if (photoId) {
-            promises.push(fetchPhotoData(photoId));
+            promises.push(fetchPhotoData(photoId)); // Add photo data fetch to promises
         }
 
-        // Example: Fetch comments for the photo
+        // Fetch comments for the photo
         if (photoId) {
-            promises.push(fetchAndDisplayComments(photoId));
+            promises.push(fetchAndDisplayComments(photoId)); // Add comments fetch to promises
         }
 
-        // Add more promises as needed for other Firestore fetching tasks
-        // e.g., fetchUserDetails, initializeLikeButton
+        // Fetch user details and update the profile picture
         const currentUser = JSON.parse(sessionStorage.getItem("user"));
         if (currentUser && currentUser.uid) {
-            promises.push(updateUserProfilePicture());
+            promises.push(updateUserProfilePicture()); // Add profile picture update to promises
         }
 
         // Wait for all async tasks to complete
-        await Promise.all(promises);
-
-        console.log("All Firestore data loaded.");
+        await Promise.all(promises); // Ensures all promises resolve
+        console.log("All Firestore data loaded successfully.");
     } catch (error) {
-        console.error("Error loading page data:", error);
+        console.error("Error loading Firestore data:", error); // Log any errors during data fetch
     }
 }
 
-// Wait for everything (page + Firestore data) to load before hiding the splash screen
+// Function to initialize the page and hide the splash screen
 async function initializePage() {
     // Show splash screen initially
     const splashScreen = document.getElementById('splash-screen');
     if (splashScreen) {
-        splashScreen.style.display = 'flex'; // Ensure it’s visible during loading
+        splashScreen.style.display = 'flex'; // Ensure the splash screen is visible during loading
     }
 
-    // Fetch Firestore data and wait for all content to load
-    await fetchAllPageData();
+    try {
+        // Fetch Firestore data and wait for all content to load
+        await fetchAllPageData();
 
-    // Fade out the splash screen after everything is ready
-    if (splashScreen) {
-        splashScreen.style.transition = 'opacity 0.5s ease'; // Smooth fade-out
-        splashScreen.style.opacity = '0'; // Start fade-out effect
+        // Once data is fully loaded, start fading out the splash screen
+        if (splashScreen) {
+            splashScreen.style.transition = 'opacity 0.5s ease'; // Smooth fade-out effect
+            splashScreen.style.opacity = '0'; // Fade-out by reducing opacity
 
-        // Remove the splash screen from the DOM after fade-out
-        setTimeout(() => {
+            // Remove splash screen after fade-out completes
+            setTimeout(() => {
+                splashScreen.style.display = 'none'; // Hide the splash screen from view
+            }, 500); // Matches the transition duration
+        }
+
+        console.log("Splash screen hidden, page fully initialized.");
+    } catch (error) {
+        console.error("Error initializing the page:", error);
+
+        // Ensure the splash screen is removed even in case of errors
+        if (splashScreen) {
             splashScreen.style.display = 'none';
-        }, 500); // Duration matches the CSS transition
+        }
+        alert("An error occurred while loading the page. Please try again later.");
     }
 }
 
-// Call initializePage on DOMContentLoaded
+// Attach initializePage to DOMContentLoaded
 document.addEventListener("DOMContentLoaded", () => {
     initializePage();
 });
+

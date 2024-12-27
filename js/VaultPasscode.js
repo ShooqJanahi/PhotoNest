@@ -5,6 +5,26 @@ import { onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gsta
 
 // Event listener to run after the DOM content is fully loaded
 document.addEventListener("DOMContentLoaded", async () => {
+
+
+    // Wait for 2 seconds and then hide the splash screen
+setTimeout(() => {
+    const splashScreen = document.getElementById('splash-screen');
+    if (splashScreen) {
+        splashScreen.style.transition = 'opacity 0.5s ease'; // Smooth fade-out
+        splashScreen.style.opacity = '0'; // Fade-out effect
+        
+        // Remove the splash screen from the DOM after the fade-out
+        setTimeout(() => {
+            splashScreen.style.display = 'none';
+        }, 500); // Matches the transition duration
+    }
+}, 2000); // 2 seconds
+
+
+
+
+
     // Select the "Unlock" button
     const unlockButton = document.getElementById("unlockButton");
     console.log("Unlock button:", unlockButton); // Debugging step

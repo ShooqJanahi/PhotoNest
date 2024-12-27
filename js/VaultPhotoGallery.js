@@ -278,6 +278,9 @@ async function loadVaultPhotosForUser() {
  * @param {Array} photos - Array of photo objects.
  */
 async function renderPhotos(photos) {
+    return new Promise(async (resolve) => {
+
+
     galleryContainer.innerHTML = ''; // Clear existing content in the gallery container
 
     // Loop through each photo and render it
@@ -350,6 +353,9 @@ async function renderPhotos(photos) {
     }
     // Add click event listeners to the options menu icons
     addDropdownEventListeners();
+     // Resolve the promise after rendering is complete
+     resolve();
+    });
 }
 
 // =================================== END of Render Photos =====================================
@@ -553,3 +559,82 @@ async function turnPhotoPublic(photoId) {
 
 
 //====================== END of Make Photo Public option ==============
+
+//====================== splash screen =======================================
+
+// Show splash screen
+function showSplashScreen() {
+    const splashScreen = document.getElementById('splash-screen');
+    if (splashScreen) {
+        splashScreen.style.display = 'flex';
+        splashScreen.style.opacity = '1';
+    }
+}
+
+// Hide splash screen
+function hideSplashScreen() {
+    const splashScreen = document.getElementById('splash-screen');
+    if (splashScreen) {
+        splashScreen.style.transition = 'opacity 0.5s ease';
+        splashScreen.style.opacity = '0'; // Fade-out effect
+        setTimeout(() => {
+            splashScreen.style.display = 'none'; // Completely hide after fade-out
+        }, 500); // Match the fade-out duration
+    }
+}
+
+// Centralized initialization function
+async function initializePage() {
+    showSplashScreen(); // Show splash screen initially
+
+    try {
+        // Ensure DOM is fully loaded
+        await new Promise((resolve) => {
+            if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                resolve(); // DOM already loaded
+            } else {
+                document.addEventListener('DOMContentLoaded', resolve); // Wait for DOMContentLoaded event
+            }
+        });
+
+        // Perform all asynchronous tasks in parallel
+        await Promise.all([
+            fetchUserProfileImage(),    // Fetch user profile image
+            loadVaultPhotosForUser(),  // Load user's photos from Firestore
+        ]);
+
+        // Ensure photos are fully rendered before hiding the splash screen
+        await renderPhotos(displayedPhotos); 
+        
+        console.log("Page fully loaded and content rendered.");
+    } catch (error) {
+        console.error("Error during page initialization:", error);
+
+        // Show an error message if required
+        const galleryContainer = document.querySelector('.gallery');
+        if (galleryContainer) {
+            galleryContainer.innerHTML = `<p>Error loading content. Please try again later.</p>`;
+        }
+    } finally {
+        hideSplashScreen(); // Always hide splash screen after tasks finish
+    }
+}
+
+// Call initializePage to start the process
+initializePage();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

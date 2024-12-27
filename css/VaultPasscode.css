@@ -1,10 +1,124 @@
+/* Splash Screen Styles */
+#splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #dbcadc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    opacity: 1;
+    transition: opacity 1s ease-in-out; /* Fade-out animation */
+  }
+  
+  /* Splash Content */
+  .splash-content {
+    text-align: center;
+    animation: fadeIn 1.5s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center align all content */
+  }
+  
+  .splash-logo {
+    width: 180px; /* Adjusted logo size */
+    animation: logoBounce 2s infinite; /* Bounce effect for the logo */
+    margin-bottom: 20px; /* Space between logo and title */
+  }
+  
+  .splash-content h1 {
+    font-size: 3rem; /* Bigger font size for the title */
+    color: #4c2673; /* Deep purple */
+    margin: 10px 0; /* Spacing between title and description */
+    animation: textPop 1.5s ease-in-out;
+  }
+  
+  .splash-content p {
+    font-size: 1.5rem; /* Slightly larger font for description */
+    color: #4c2673;
+    margin: 0;
+    animation: textPop 1.5s ease-in-out;
+  }
+  
+  /* Loader Animation */
+  .loader {
+    margin-top: 30px; /* Space between text and loader */
+    width: 50px; /* Bigger loader */
+    height: 50px; /* Bigger loader */
+    border: 4px solid #4c2673; /* Purple loader */
+    border-top: 4px solid transparent;
+    border-radius: 50%;
+    animation: spin 1.2s linear infinite;
+  }
+  
+  /* Animations */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes logoBounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+  
+  @keyframes textPop {
+    0% {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
+  /* Hidden class to fade out the splash screen */
+  #splash-screen.hidden {
+    opacity: 0; /* Fade to transparent */
+    pointer-events: none; /* Disable interactions */
+  }
+  
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+  
+  
+
+
 /* Apply general styles for the entire body */
 body {
     margin: 0; /* Remove default margin */
     font-family: 'Inter', sans-serif; /* Use 'Inter' font for consistent typography */
     display: flex; /* Make the body a flex container */
     height: 100vh; /* Full viewport height */
-    background-color: #f4f3f8; /* Light background color */
+    background-color: #f3f0ff; /* Light background color */
 }
 /* Main container for all content */
 .container {
@@ -26,7 +140,7 @@ body {
     justify-content: center; /* Vertically center the content */
     align-items: center; /* Horizontally center the content */
     padding: 40px; /* Add spacing around the content */
-    background-color: #f4f3f8; /* Background color matches body */
+    background-color: #f3f0ff; /* Background color matches body */
 }
 /* Header (title) styling in the form section */
 .form-section h1 {
@@ -70,6 +184,10 @@ body {
     text-decoration: none; /* Remove underline */
     margin-bottom: 30px; /* Space below the link */
 }
+
+.form-section a:hover {
+    color: #6a0dad;
+}
 /* Styling for button links (anchor tags with buttons) */
 .form-section a.button-link {
     display: inline-block; /* Block-level anchor with button styling */
@@ -84,7 +202,7 @@ body {
     padding: 10px;  /* Padding for better spacing */
     border-radius: 25px; /* Rounded corners */
     border: none; /* Remove border */
-    background-color: #6c63ff; /* Primary color (purple) */
+    background-color: #6a0dad; /* Primary color (purple) */
     color: #fff; /* White text */
     font-size: 1rem; /* Font size */
     font-weight: 600; /* Semi-bold */
@@ -93,7 +211,7 @@ body {
 }
 /* Hover effect for buttons */
 .form-section a.button-link button:hover {
-    background-color: #5753c9; /* Darker purple on hover */
+    background-color: #6B4DE6; /* Darker purple on hover */
 }
 
 /* Overlay background for popups */
@@ -156,17 +274,17 @@ body {
 }
 /* General styling for popup buttons */
 .popup-buttons button {
-    background-color: #6a1b9a; /* Purple color */
+    background-color: #6a0dad; /* Purple color */
     color: #fff; /* White text */
     padding: 10px 20px; /* Button padding */
     border: none; /* Remove border */
-    border-radius: 5px; /* Rounded corners */
+    border-radius: 25px; /* Rounded corners */
     cursor: pointer; /* Pointer cursor on hover */
     font-weight: bold; /* Bold text */
 }
 /* Hover effect for popup buttons */
 .popup-buttons button:hover {
-    background-color: #8e3aad; /* Darker purple */
+    background-color: #6B4DE6; /* Darker purple */
 }
 /* Cancel button styling */
 .popup-buttons button[type="button"] {
@@ -250,5 +368,5 @@ body {
 }
 
 .input-container i.toggle-visibility:hover {
-    color: #5753c9; /* Change icon color on hover */
+    color: #6B4DE6; /* Change icon color on hover */
 }

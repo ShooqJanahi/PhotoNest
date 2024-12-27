@@ -360,3 +360,72 @@ function sortPhotos(photos, sortOption) {
 }
 
 
+// =================================== splash screen ============================
+// Show splash screen
+function showSplashScreen() {
+    const splashScreen = document.getElementById('splash-screen');
+    if (splashScreen) {
+        splashScreen.style.display = 'flex'; // Make it visible
+        splashScreen.style.opacity = '1';   // Ensure it’s fully opaque
+    }
+}
+
+// Hide splash screen
+function hideSplashScreen() {
+    const splashScreen = document.getElementById('splash-screen');
+    if (splashScreen) {
+        splashScreen.style.transition = 'opacity 0.5s ease'; // Smooth fade-out
+        splashScreen.style.opacity = '0'; // Start fade-out
+        setTimeout(() => {
+            splashScreen.style.display = 'none'; // Remove from view
+        }, 500); // Match the fade-out duration
+    }
+}
+
+// Centralized function to fetch and render all content
+async function fetchAndRenderPageData() {
+    const promises = [];
+
+    // Fetch album photos
+    const albumId = localStorage.getItem("currentAlbumId");
+    if (albumId) {
+        promises.push(loadPhotosForAlbum(albumId));
+    }
+
+    // Fetch user profile image
+    const currentUser = JSON.parse(sessionStorage.getItem('user'));
+    if (currentUser && currentUser.uid) {
+        promises.push(fetchUserProfileImage());
+    }
+
+    // Ensure all fetch/render tasks are complete before proceeding
+    await Promise.all(promises);
+}
+
+// Main function to initialize the page with the splash screen
+async function initializePageWithSplashScreen() {
+    showSplashScreen(); // Display splash screen
+
+    try {
+        // Wait for DOMContentLoaded
+        await new Promise((resolve) => {
+            if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                resolve(); // If already loaded, resolve immediately
+            } else {
+                document.addEventListener('DOMContentLoaded', resolve);
+            }
+        });
+
+        // Fetch and render content
+        await fetchAndRenderPageData();
+        console.log("Page content fully loaded and rendered.");
+    } catch (error) {
+        console.error("Error initializing page:", error);
+    } finally {
+        // Ensure the splash screen is hidden after loading is complete or an error occurs
+        hideSplashScreen();
+    }
+}
+
+// Start the page initialization process
+initializePageWithSplashScreen();

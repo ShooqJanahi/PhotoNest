@@ -661,7 +661,7 @@ async function fetchPhotos(isHome) {
             );
 
             if (notFollowing.length === 0) {
-                photosContainer.innerHTML = '<p>No posts to explore. Follow more users to see their content!</p>';
+                photosContainer.innerHTML = '<p>No posts to explore.</p>';
                 fetchInProgress = false;
                 return;
             }
