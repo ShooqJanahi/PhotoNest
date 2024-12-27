@@ -1,9 +1,8 @@
 // Import Firebase services
-import { getAuth, onAuthStateChanged, updateEmail, updatePassword, sendEmailVerification } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
-import { doc, getDoc, updateDoc, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+import { getAuth, deleteUser, signInWithEmailAndPassword, onAuthStateChanged, updateEmail, updatePassword, sendEmailVerification } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+import { doc, getDoc, updateDoc, collection, query, where, getDocs, deleteDoc, runTransaction } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js';
-import { signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
-
+import { logout } from './login.js';
 import { db } from './firebaseConfig.js';
 
 
@@ -88,6 +87,16 @@ function initializeProfileImageUpload(userData) {
 // DOMContentLoaded Listener
 document.addEventListener('DOMContentLoaded', async function () {
     console.log('DOMContentLoaded fired');
+    //logout button
+    const logoutButton = document.querySelector('.login-btn'); // Ensure this matches the ID in your HTML
+
+    if (logoutButton) {
+        logoutButton.addEventListener('click', () => {
+            logout(); // Call the logout function from login.js
+        });
+    } else {
+        console.error("Logout button not found in the DOM.");
+    }
 
     try {
         loadBlockedUsers(); // Ensure container exists before invoking
@@ -106,6 +115,27 @@ document.addEventListener('DOMContentLoaded', async function () {
     } else {
         console.error('Save Changes button not found.');
     }
+
+
+     // Get the query parameter from the URL
+     const urlParams = new URLSearchParams(window.location.search);
+     const editMode = urlParams.get('edit'); // Will be 'true' if ?edit=true is in the URL
+ 
+     if (editMode === 'true') {
+         console.log("Edit Profile mode activated");
+ 
+         // Find the Edit Profile accordion and expand it
+         const editProfileAccordion = document.querySelector('.faqs__item.profile-accordion');
+         const editProfileContent = editProfileAccordion.querySelector('.faqs__item-bottom');
+ 
+         if (editProfileAccordion && editProfileContent) {
+             // Add the class to expand the accordion
+             editProfileAccordion.classList.add('active');
+             editProfileContent.style.display = 'block'; // Show the content
+         } else {
+             console.error("Edit Profile card not found.");
+         }
+     }
 
 });
 
@@ -349,86 +379,103 @@ async function updateProfile(event) {
 // Function to load blocked users
 async function loadBlockedUsers() {
     const currentUserId = sessionStorage.getItem('userId');
-    console.log('loadBlockedUsers invoked');
+    if (!currentUserId) {
+        console.error('No user logged in.');
+        return;
+    }
+
     const blockedUsersContainer = document.getElementById('blockedUsersContainer');
-    
     if (!blockedUsersContainer) {
         console.error('Blocked Users container not found.');
         return;
     }
 
-    blockedUsersContainer.innerHTML = ''; // Clear existing content
-    console.log('Fetching blocked users from Firestore...');
+    // Clear existing content
+    blockedUsersContainer.innerHTML = '';
 
     try {
-        
-        console.log('Current User ID:', currentUserId);
+        console.log(`Fetching blocked users for user: ${currentUserId}`);
 
-        if (!currentUserId) {
-            console.error('No user logged in.');
+        // Reference to the blockedUsers subcollection
+        const blockedUsersRef = collection(db, `users/${currentUserId}/blockedUsers`);
+        const blockedSnapshot = await getDocs(blockedUsersRef);
+
+        if (blockedSnapshot.empty) {
+            console.log('No blocked users found.');
+            blockedUsersContainer.innerHTML = '<p>No blocked users found.</p>';
             return;
         }
 
-        const blockedUsersRef = collection(db, 'blockedUsers');
-        const blockedQuery = query(blockedUsersRef, where('blockerId', '==', currentUserId));
-        const snapshot = await getDocs(blockedQuery);
+        // Fetch user details for each blocked user
+        const blockedUserPromises = blockedSnapshot.docs.map(async (blockedDoc) => {
+            const blockedUserId = blockedDoc.id;
 
-        if (!snapshot.empty) {
-            snapshot.forEach((doc) => {
-                const blockedUserData = doc.data();
-                const userHTML = `
+            console.log(`Fetching user data for blocked user ID: ${blockedUserId}`);
+            const userDocRef = doc(db, `users/${blockedUserId}`);
+            const userDoc = await getDoc(userDocRef);
+
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                console.log(`User data for ${blockedUserId}:`, userData);
+
+                // Build the HTML for the blocked user
+                return `
                     <div class="blocked-user">
-                        <img src="${blockedUserData.profilePic || '../assets/Default_profile_icon.jpg'}" alt="User Profile" class="user-profile-img">
+                        <img src="${userData.profilePic || '../assets/Default_profile_icon.jpg'}" alt="User Profile" class="user-profile-img">
                         <div class="user-details">
-                            <h3 class="username">${blockedUserData.username}</h3>
-                            <button class="unblock-btn" data-user-id="${doc.id}">Unblock</button>
+                            <h3 class="username">${userData.username || 'Unknown'}</h3>
+                            <button class="unblock-btn" data-user-id="${blockedUserId}">Unblock</button>
                         </div>
                     </div>
                 `;
-                blockedUsersContainer.innerHTML += userHTML;
-            });
+            } else {
+                console.warn(`User document not found for blocked user ID: ${blockedUserId}`);
+                return '';
+            }
+        });
 
-            // Add event listeners for "Unblock" buttons
-            document.querySelectorAll('.unblock-btn').forEach((button) => {
-                button.addEventListener('click', async (event) => {
-                    const userIdToUnblock = event.target.getAttribute('data-user-id');
-                    await unblockUser(userIdToUnblock);
-                });
+        // Wait for all user data to be fetched
+        const blockedUsersHTML = await Promise.all(blockedUserPromises);
+
+        // Add the generated HTML to the container
+        blockedUsersContainer.innerHTML = blockedUsersHTML.join('');
+
+        // Add event listeners for the "Unblock" buttons
+        document.querySelectorAll('.unblock-btn').forEach((button) => {
+            button.addEventListener('click', async (event) => {
+                const blockedUserId = event.target.getAttribute('data-user-id');
+                console.log(`Unblocking user ID: ${blockedUserId}`);
+                await unblockUser(blockedUserId);
             });
-        } else {
-            blockedUsersContainer.innerHTML = '<p>No blocked users found.</p>';
-        }
+        });
     } catch (error) {
-        console.error('Error loading blocked users:', error.message);
+        console.error('Error fetching blocked users:', error.message);
     }
 }
 
 
+
+
 // Function to unblock a user
-async function unblockUser(userId) {
+async function unblockUser(blockedUserId) {
+    const currentUserId = auth.currentUser?.uid;
+    if (!currentUserId) {
+        console.error('No user logged in.');
+        return;
+    }
+
     try {
-        const currentUserId = auth.currentUser?.uid;
-        if (!currentUserId) {
-            console.error('No user logged in.');
-            return;
-        }
-
-        // Reference to the current user's blocked document
-        const blockedUsersRef = doc(db, 'blockedUsers', currentUserId);
-
-        // Update the document to remove the user from the array
-        await updateDoc(blockedUsersRef, {
-            blockedUsers: arrayRemove(userId),
-        });
+        // Reference to the blocked user's document
+        const blockedUserRef = doc(db, `users/${currentUserId}/blockedUsers`, blockedUserId);
+        await deleteDoc(blockedUserRef);
 
         alert('User unblocked successfully.');
-        await loadBlockedUsers(); // Refresh the blocked users list
+        loadBlockedUsers(); // Reload the blocked users list
     } catch (error) {
         console.error('Error unblocking user:', error.message);
         alert('Failed to unblock user.');
     }
 }
-
 
 
 
@@ -491,3 +538,112 @@ document.querySelectorAll('.profile-accordion').forEach((accordion) => {
         content.classList.toggle('show');
     });
 });
+
+
+
+//============================= Delete user account ======================
+async function deleteAccount() {
+    const auth = getAuth();
+    const currentUser = auth.currentUser;
+  
+    if (!currentUser) {
+      alert("No user is logged in.");
+      return;
+    }
+  
+    const currentUserId = currentUser.uid;
+  
+    const confirmation = confirm(
+        "Are you sure you want to delete your account? This action cannot be undone."
+      );
+      if (!confirmation) {
+        return; // Abort the operation if the user cancels
+      }
+      
+  
+    try {
+      // 1. Delete user from Firestore collections and subcollections
+      const userRef = doc(db, "users", currentUserId);
+      const subcollections = ["blockedUsers","followers", "following" ]; // Add other subcollections if necessary
+  
+      // Delete user subcollections
+      for (const subcollection of subcollections) {
+        const subcollectionRef = collection(db, `users/${currentUserId}/${subcollection}`);
+        const subcollectionDocs = await getDocs(subcollectionRef);
+  
+        for (const docSnapshot of subcollectionDocs.docs) {
+          await deleteDoc(docSnapshot.ref);
+        }
+      }
+  
+      // 2. Remove user from others' followers and following lists
+      const usersRef = collection(db, "users");
+  
+      const followersQuery = query(
+        usersRef,
+        where(`followers.${currentUserId}`, "==", true)
+      );
+      const followersSnapshot = await getDocs(followersQuery);
+  
+      const followingQuery = query(
+        usersRef,
+        where(`following.${currentUserId}`, "==", true)
+      );
+      const followingSnapshot = await getDocs(followingQuery);
+  
+      await Promise.all(
+        [...followersSnapshot.docs, ...followingSnapshot.docs].map(
+          async (userDoc) => {
+            const userId = userDoc.id;
+  
+            // Run a transaction to safely decrement counts
+            await runTransaction(db, async (transaction) => {
+              const userRef = doc(db, "users", userId);
+              const userData = (await transaction.get(userRef)).data();
+  
+              // Remove the current user from followers/following
+              if (userData.followers?.[currentUserId]) {
+                transaction.update(userRef, {
+                  [`followers.${currentUserId}`]: deleteField(),
+                  followersCount: Math.max(0, (userData.followersCount || 1) - 1),
+                });
+              }
+  
+              if (userData.following?.[currentUserId]) {
+                transaction.update(userRef, {
+                  [`following.${currentUserId}`]: deleteField(),
+                  followingCount: Math.max(0, (userData.followingCount || 1) - 1),
+                });
+              }
+            });
+          }
+        )
+      );
+  
+      // Delete main user document
+      await deleteDoc(userRef);
+  
+      // 3. Delete user from Firebase Authentication
+      await deleteUser(currentUser);
+  
+      alert("Account deleted successfully.");
+      window.location.href = "../html/Login.html"; // Redirect to the login page
+    } catch (error) {
+      console.error("Error deleting account:", error.message);
+      alert("Failed to delete the account. Please try again.");
+    }
+  }
+  
+  // Attach deleteAccount function to the delete button
+  document.addEventListener("DOMContentLoaded", () => {
+    const deleteAccountButton = document.querySelector(".delete-account");
+    if (deleteAccountButton) {
+      deleteAccountButton.addEventListener("click", deleteAccount);
+    }
+  });
+
+
+
+
+
+//============================= END of Delete user account ======================

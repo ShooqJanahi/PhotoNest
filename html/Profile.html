@@ -82,26 +82,35 @@
     </section>
 
 
-    <!-- Popup Container -->
-<div id="popup-container" class="popup hidden">
-    <div class="popup-content">
-        <!-- Header -->
-        <div class="popup-header">
-            <h3 id="popup-title">Popup Title</h3>
-            <button id="close-popup-btn">&times;</button>
+<!-- User-Specific Popup -->
+<div id="user-popup-container" class="hidden">
+    <div class="user-popup-content">
+        <div class="user-popup-header">
+            <h3 id="user-popup-title">Report User</h3>
+            <button id="user-popup-close-btn">&times;</button>
         </div>
-
-        <!-- Content -->
-        <div class="popup-body">
-            <!-- Dynamic content will be added here -->
+        <div class="user-popup-body">
+            <form id="report-user-form">
+                <label for="report-reason" class="popup-label">Reason for reporting:</label>
+                <textarea
+                    id="report-reason"
+                    rows="4"
+                    placeholder="Enter the reason for reporting..."
+                    required
+                ></textarea>
+            </form>
         </div>
-
-        <!-- Footer (Optional) -->
-        <div class="popup-footer">
-            <button id="popup-action-btn" class="btn-primary">Save</button>
+        <div class="user-popup-footer">
+            <button id="user-popup-action-btn" class="btn-primary">Submit</button>
         </div>
     </div>
 </div>
+
+
+
+
+    
+    
 
 
     <!-- Footer Section -->

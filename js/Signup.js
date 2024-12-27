@@ -2,7 +2,7 @@
 //this will inport the Firebase SDK modules for initializing the app and accessing authentication, Firestore, and storage services
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, query, where, getDocs, collection } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc, query, where, getDocs, collection, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import { getStorage } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 
 import { auth, db } from "./firebaseConfig.js"; // Import Firebase configuration
@@ -46,7 +46,6 @@ function isValidEmail(email) {
     return emailRegex.test(email);
 }
 
-
 // Password strength check, it Ensures the password is secure by enforcing criteria like minimum length, uppercase and lowercase letters, a number, and a special character
 function isStrongPassword(password) {
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -54,7 +53,9 @@ function isStrongPassword(password) {
 }
 
 
-//Handles user registration, validates inputs, ensures uniqueness, creates a new Firebase Auth user, stores user data in Firestore, and sends a verification email
+// Define the PhotoNest user ID at the top of the script
+const photoNestId = "yVlj8pMGvgfWdOkkHqLd6Vr7Gl13"; // Replace this with the actual PhotoNest user ID
+
 signupForm.addEventListener("submit", async (event) => {
     event.preventDefault(); // Prevent default form submission
 
@@ -128,20 +129,31 @@ signupForm.addEventListener("submit", async (event) => {
             followingCount: 1, // They follow "PhotoNest"
             postsCount: 0, // Initial posts count
             profilePic: "../assets/Default_profile_icon.jpg", // Default profile picture
-           
             passcode: null // Set initial passcode to null
         });
 
         // Create the "following" subcollection and follow "PhotoNest"
-        const followingRef = doc(db, `users/${userId}/following`, "PhotoNest");
+        const followingRef = doc(db, `users/${userId}/following`, photoNestId);
         await setDoc(followingRef, {
-            userId: "4jPh36jhPJekM4UZ3Vg00zxKXrP2", // PhotoNest ID (or use an actual user ID for the official account)
+            userId: photoNestId, // PhotoNest ID 
             followedAt: new Date(), // Timestamp for following
         });
 
-        // Create an empty "followers" subcollection
-        const followersRef = collection(db, `users/${userId}/followers`);
-        // You can leave this empty initially as no one follows this user yet
+        // Add the new user to PhotoNest's followers subcollection
+        const followersRef = doc(db, `users/${photoNestId}/followers`, userId);
+        await setDoc(followersRef, {
+            userId: userId, // ID of the new user
+            followedAt: new Date(), // Timestamp for following
+        });
+
+        // Increment PhotoNest's followers count by 1
+        const photoNestRef = doc(db, "users", photoNestId);
+        const photoNestSnapshot = await getDoc(photoNestRef);
+        const photoNestData = photoNestSnapshot.data();
+
+        await updateDoc(photoNestRef, {
+            followersCount: (photoNestData.followersCount || 0) + 1, // Increment followers count
+        });
 
         // Send Firebase verification email
         await sendEmailVerification(userCredential.user);
@@ -163,7 +175,7 @@ function isNumeric(value) {
     return numericRegex.test(value);
 }
 
-// Password toggle functionality, it alows users to toggle password visibility for better usability during input
+// Password toggle functionality, it allows users to toggle password visibility for better usability during input
 const togglePasswordButtons = document.querySelectorAll('.toggle-password');
 
 togglePasswordButtons.forEach(button => {
@@ -175,3 +187,4 @@ togglePasswordButtons.forEach(button => {
         button.classList.toggle('fa-eye-slash');
     });
 });
+
