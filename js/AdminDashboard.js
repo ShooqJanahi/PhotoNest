@@ -1,6 +1,6 @@
 // Import Firebase services for Firestore and Storage
 import { db, auth } from './firebaseConfig.js';
-import { query, collection, where, getDocs, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+import { query, collection, where, getDocs, doc, updateDoc, getDoc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js';
 import { logout } from './login.js';  // Import logout function from login.js
 
@@ -157,6 +157,7 @@ settingsButton.addEventListener('click', async () => {
         updateProfileForm.onsubmit = async (event) => {
             event.preventDefault();
 
+
             // Collect updated data from the form
             const updatedData = {
                 firstName: document.getElementById('firstName').value.trim(),
@@ -173,7 +174,7 @@ settingsButton.addEventListener('click', async () => {
                 uploadProgress.classList.remove('hidden');
 
                 // Upload the file to Firebase Storage
-                const storageRef = ref(storage, `profile_pictures/${currentUser.uid}/${file.name}`);
+                const storageRef = ref(storage, `profile_pictures/${currentUser.userId}/${file.name}`);
                 const uploadTask = uploadBytesResumable(storageRef, file);
 
                 uploadTask.on(
@@ -196,6 +197,9 @@ settingsButton.addEventListener('click', async () => {
                         alert('Profile updated successfully!');
                         settingsPopup.classList.add('hidden'); // Close the popup
                         uploadProgress.classList.add('hidden'); // Hide the progress indicator
+
+                        // Refresh the page after success
+                        window.location.reload();
                     }
                 );
             } else {
@@ -250,19 +254,30 @@ async function fetchOnlineUsers() {
         for (const docSnapshot of querySnapshot.docs) {
             const sessionData = docSnapshot.data(); // Get session data
 
-            // Query the `users` collection to fetch the user's profile using their UID
-            const userQuery = query(collection(db, "users"), where("uid", "==", sessionData.uid));
-            const userSnapshot = await getDocs(userQuery);
+            // Check if userId exists
+            if (!sessionData.userId) {
+                console.warn("Session data userId is undefined:", sessionData);
+                continue; // Skip this iteration
+            }
 
-            // If the user's profile exists, extract their details
-            if (!userSnapshot.empty) {
-                const userData = userSnapshot.docs[0].data(); // Get user data
-                onlineUsers.push({
-                    username: userData.username, // User's username
-                    profilePic: userData.profilePic, // User's profile picture URL
-                    role: userData.role, // User's role (admin or user)
-                    loginTime: sessionData.loginTime, // Login time from the session data
-                });
+            try {
+                // Directly fetch the `users` document by its document ID (assuming `userId` matches Firestore document ID)
+                const userDocRef = doc(db, "users", sessionData.userId);
+                const userDocSnapshot = await getDoc(userDocRef);
+
+                if (userDocSnapshot.exists()) {
+                    const userData = userDocSnapshot.data(); // Get user data
+                    onlineUsers.push({
+                        username: userData.username || "Unknown", // Default username if missing
+                        profilePic: userData.profilePic || "https://via.placeholder.com/40", // Default profile pic
+                        role: userData.role || "User", // Default role if missing
+                        loginTime: sessionData.loginTime || "N/A", // Default login time if missing
+                    });
+                } else {
+                    console.warn("No user profile found for userId:", sessionData.userId);
+                }
+            } catch (userError) {
+                console.error("Error fetching user profile for userId:", sessionData.userId, userError);
             }
         }
 
@@ -270,13 +285,13 @@ async function fetchOnlineUsers() {
         const userCards = onlineUsers.map((user) => `
             <div class="user-card">
                 <img 
-                    src="${user.profilePic || "https://via.placeholder.com/40"}" 
+                    src="${user.profilePic}" 
                     alt="${user.username}'s profile picture" 
                     class="user-profile-pic">
                 <div class="user-info">
                     <p><strong>${user.username}</strong></p>
                     <p>Role: ${user.role}</p>
-                    <p>Login Time: ${user.loginTime ? new Date(user.loginTime).toLocaleString() : "N/A"}</p> <!-- Format and display login time -->
+                    <p>Login Time: ${user.loginTime !== "N/A" ? new Date(user.loginTime).toLocaleString() : "N/A"}</p>
                 </div>
             </div>
         `);
@@ -288,6 +303,7 @@ async function fetchOnlineUsers() {
         console.error("Error fetching online users:", error);
     }
 }
+
 
 
 
@@ -411,7 +427,7 @@ function drawMaterial(chartData) {
     const parentCard = chartContainer.closest('.card');
     chartContainer.style.height = `${parentCard.offsetHeight - 50}px`; // Adjust the height dynamically based on the parent
 
-     // Convert the chart data array into Google Charts' format
+    // Convert the chart data array into Google Charts' format
     const data = google.visualization.arrayToDataTable(chartData);
 
     // Chart options for Google Charts
@@ -487,7 +503,7 @@ updateProfileForm.onsubmit = async (event) => {
             uploadProgress.classList.remove('hidden');
 
             // Upload the new profile picture to Firebase Storage
-            const storageRef = ref(storage, `profile_pictures/${currentUser.uid}/${file.name}`);
+            const storageRef = ref(storage, `profile_pictures/${currentUser.userId}/${file.name}`);
             const uploadTask = uploadBytesResumable(storageRef, file);
 
             uploadTask.on(
@@ -529,6 +545,53 @@ updateProfileForm.onsubmit = async (event) => {
         console.error('Error updating profile:', error);
     }
 };
+
+
+//========================================= splash screen =====================================
+
+// Function to hide the splash screen
+function hideSplashScreen() {
+    const splashScreen = document.getElementById('splash-screen');
+    if (splashScreen) {
+        splashScreen.style.opacity = 0; // Smooth transition effect
+        setTimeout(() => splashScreen.remove(), 500); // Wait for the transition to complete and then remove
+    }
+}
+
+// Wait for the page content and data to fully load
+async function initializeApp() {
+    try {
+        // Check user login status
+        await checkLoginStatus();
+
+        // Initialize dashboard components (online users, reports, etc.)
+        await initializeDashboard();
+
+        // Hide the splash screen once initialization is complete
+        hideSplashScreen();
+    } catch (error) {
+        console.error("Error during app initialization:", error);
+        hideSplashScreen(); // Ensure the splash screen is removed even on failure
+    }
+}
+
+// Add a DOMContentLoaded listener to start the app
+document.addEventListener('DOMContentLoaded', () => {
+    initializeApp(); // Start initialization
+});
+
+//========================================= splash screen =====================================
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -17,8 +17,53 @@ const maxFileSizeMB = 20; // Maximum file size in MB
 
 // Initialize when DOM content is loaded
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM is fully loaded');
+    //========================================== splash screen ===============================================
+
+    window.addEventListener('load', async () => {
+        // Wait for the complete page (including assets) to load
+        console.log('Page is fully loaded');
+
+        // Optional: Wait for additional content, like dynamic elements
+        await ensureDynamicContentLoaded();
+
+        // Remove splash screen after everything is ready
+        const splashScreen = document.getElementById('splash-screen');
+        if (splashScreen) {
+            splashScreen.style.opacity = 1;
+
+            // Add a fade-out effect
+            const fadeEffect = setInterval(() => {
+                if (splashScreen.style.opacity > 0) {
+                    splashScreen.style.opacity -= 0.1; // Reduce opacity
+                } else {
+                    clearInterval(fadeEffect);
+                    splashScreen.style.display = 'none'; // Remove splash screen
+                }
+            }, 50); // Adjust interval for smoother fade-out
+        }
+    });
+
+    // Function to ensure additional dynamic content is loaded
+    async function ensureDynamicContentLoaded() {
+        return new Promise((resolve) => {
+            const interval = setInterval(() => {
+                // Check if critical elements are rendered
+                const mainContainer = document.querySelector('.container');
+                const progressBar = document.getElementById('progress-bar');
+                const isContentReady =
+                    mainContainer && mainContainer.style.display !== 'none' && progressBar;
+
+                if (isContentReady) {
+                    clearInterval(interval); // Stop checking
+                    resolve(); // Resolve promise
+                }
+            }, 100); // Check every 100ms
+        });
+    }
 
 
+    //========================================== splash screen ===============================================
 
 
 
@@ -180,9 +225,24 @@ async function checkAndAddOrUpdateLocation(city, country, photoId) {
 
 // Save hashtags to Firestore
 async function saveHashtagsToFirestore(hashtags, photoId) {
+    if (!hashtags || !Array.isArray(hashtags) || hashtags.length === 0) {
+        console.error('Hashtags are undefined, null, or empty:', hashtags);
+        return;
+    }
+
+    if (!photoId) {
+        console.error('Photo ID is undefined or null:', photoId);
+        return;
+    }
+
     const hashtagRef = collection(db, 'Hashtag');
 
     for (const hashtag of hashtags) {
+        if (!hashtag || typeof hashtag !== 'string') {
+            console.error('Invalid hashtag detected:', hashtag);
+            continue; // Skip invalid hashtags
+        }
+
         const q = query(hashtagRef, where('hashtag', '==', hashtag));
         const querySnapshot = await getDocs(q);
 
@@ -194,25 +254,26 @@ async function saveHashtagsToFirestore(hashtags, photoId) {
             });
             const username = sessionStorage.getItem("username") || "unknown user";
             await logActivity(auth.currentUser?.uid, "hashtagCreated", `Hashtag created: ${hashtag}`);
-
-
         } else {
             const hashtagDoc = querySnapshot.docs[0];
             const hashtagDocRef = doc(db, 'Hashtag', hashtagDoc.id);
             await updateDoc(hashtagDocRef, {
                 photoCount: increment(1),
-                photoIds: incrementArray(photoId),
+                photoIds: arrayUnion(photoId),
             });
         }
     }
 }
 
 
+
 // Extract hashtags from input
 function getHashtagsFromInput() {
     const hashtagElements = document.querySelectorAll('.hashtag-circle span');
-    return Array.from(hashtagElements).map((el) => el.textContent.replace('#', ''));
+    const hashtags = Array.from(hashtagElements).map((el) => el.textContent.replace('#', '').trim());
+    return hashtags.filter((hashtag) => hashtag); // Remove empty or invalid hashtags
 }
+
 
 
 
@@ -545,7 +606,7 @@ document.querySelector('.upload-btn').addEventListener('click', async () => {
 
                 if (isPrivate) {
                     // Add the photo to VaultPhoto collection if marked as private
-                    await addDoc(collection(db, 'VaultPhoto'), {
+                    const docRef = await addDoc(collection(db, 'VaultPhoto'), {
                         caption,
                         city,
                         country,
@@ -554,7 +615,9 @@ document.querySelector('.upload-btn').addEventListener('click', async () => {
                         uploadDate: new Date().toISOString(),
                         hashtags, // Save hashtags in the VaultPhoto document
                     });
-                    console.log("Photo added to VaultPhoto collection.");
+                    photoId = docRef.id; // Assign photoId for private uploads
+                    console.log("Photo added to VaultPhoto collection with ID:", photoId);
+
                 } else {
                     const photoDocRef = await addDoc(collection(db, 'Photos'), {
                         caption,
@@ -617,9 +680,25 @@ document.querySelector('.upload-btn').addEventListener('click', async () => {
  * @param {string} photoId - The ID of the uploaded photo.
  */
 async function checkAndAddOrUpdateAlbumWithHashtags(hashtags, photoId) {
+    if (!hashtags || !Array.isArray(hashtags) || hashtags.length === 0) {
+        console.error('Invalid hashtags:', hashtags);
+        return;
+    }
+
+    if (!photoId) {
+        console.error('Invalid photoId:', photoId);
+        return;
+    }
+
     const albumRef = collection(db, "Albums"); // Reference to Albums collection
 
     for (const hashtag of hashtags) {
+        if (!hashtag) {
+            console.error('Skipping invalid hashtag:', hashtag);
+            continue;
+        }
+
+
         const q = query(albumRef, where("name", "==", hashtag), where("category", "==", "Hashtag"));
         const querySnapshot = await getDocs(q);
 
@@ -630,7 +709,7 @@ async function checkAndAddOrUpdateAlbumWithHashtags(hashtags, photoId) {
                 photoIds: [photoId],
                 category: "Hashtag",
                 createdAt: new Date().toISOString(),
-                
+
             });
             console.log(`New album created for hashtag: #${hashtag}`);
         } else {
@@ -645,3 +724,17 @@ async function checkAndAddOrUpdateAlbumWithHashtags(hashtags, photoId) {
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
