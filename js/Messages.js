@@ -174,6 +174,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 orderBy("timestamp", "desc") // Fetch messages in descending order
             );
             const querySnapshot = await getDocs(q);
+            if (querySnapshot.empty) {
+                console.log(`No messages found for ${field}: ${userId}`);
+                return []; // Return an empty array if no messages exist
+            }
             return querySnapshot.docs.map((doc) => ({
                 id: doc.id,
                 ...doc.data(),
@@ -591,6 +595,73 @@ async function sendNotification(receiverId, senderId, category, additionalData) 
         console.log("Notification sent successfully.");
     } catch (error) {
         console.error("Error sending notification:", error);
+    }
+}
+
+//==================== splash screen =====================================
+async function initializePage() {
+    // Show the splash screen initially
+    const splashScreen = document.getElementById('splash-screen');
+    if (splashScreen) {
+        splashScreen.style.display = 'flex'; // Make splash screen visible
+    }
+
+    try {
+        // Wait for all data to be fetched and rendered
+        await fetchAllPageData();
+
+        // Fade out the splash screen after rendering is complete
+        if (splashScreen) {
+            splashScreen.style.transition = 'opacity 0.5s ease'; // Smooth fade-out
+            splashScreen.style.opacity = '0'; // Start fade-out effect
+
+            // Remove the splash screen after the fade-out completes
+            setTimeout(() => {
+                splashScreen.style.display = 'none';
+            }, 500); // Duration matches the CSS transition
+        }
+
+        // Ensure the page content is fully visible
+        document.body.style.visibility = 'visible'; // Make the page content visible
+
+    } catch (error) {
+        console.error("Error initializing the page:", error);
+        alert("Failed to load page content. Please refresh.");
+    }
+}
+
+
+async function fetchAllPageData() {
+    try {
+        const promises = [];
+
+        // Example: Fetch photo data
+        const photoId = localStorage.getItem("photoId");
+        if (photoId) {
+            promises.push(fetchPhotoData(photoId)); // Fetch photo details
+        }
+
+        // Example: Fetch comments for the photo
+        if (photoId) {
+            promises.push(fetchAndDisplayComments(photoId)); // Fetch and display comments
+        }
+
+        // Example: Fetch current user's profile picture
+        const currentUser = JSON.parse(sessionStorage.getItem("user"));
+        if (currentUser && currentUser.uid) {
+            promises.push(updateUserProfilePicture()); // Fetch and update profile picture
+        }
+
+        // Wait for all fetches to complete
+        const results = await Promise.all(promises);
+
+        // Call rendering functions after data is fetched
+        if (results) {
+            console.log("All data fetched successfully.");
+            renderPageContent(); // Ensure data is rendered before resolving
+        }
+    } catch (error) {
+        console.error("Error fetching data:", error);
     }
 }
 

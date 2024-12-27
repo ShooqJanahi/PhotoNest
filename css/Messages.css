@@ -1,10 +1,124 @@
+/* Splash Screen Styles */
+#splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #dbcadc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    opacity: 1;
+    transition: opacity 1s ease-in-out; /* Fade-out animation */
+  }
+  
+  /* Splash Content */
+  .splash-content {
+    text-align: center;
+    animation: fadeIn 1.5s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center align all content */
+  }
+  
+  .splash-logo {
+    width: 180px; /* Adjusted logo size */
+    animation: logoBounce 2s infinite; /* Bounce effect for the logo */
+    margin-bottom: 20px; /* Space between logo and title */
+  }
+  
+  .splash-content h1 {
+    font-size: 3rem; /* Bigger font size for the title */
+    color: #4c2673; /* Deep purple */
+    margin: 10px 0; /* Spacing between title and description */
+    animation: textPop 1.5s ease-in-out;
+  }
+  
+  .splash-content p {
+    font-size: 1.5rem; /* Slightly larger font for description */
+    color: #4c2673;
+    margin: 0;
+    animation: textPop 1.5s ease-in-out;
+  }
+  
+  /* Loader Animation */
+  .loader {
+    margin-top: 30px; /* Space between text and loader */
+    width: 50px; /* Bigger loader */
+    height: 50px; /* Bigger loader */
+    border: 4px solid #4c2673; /* Purple loader */
+    border-top: 4px solid transparent;
+    border-radius: 50%;
+    animation: spin 1.2s linear infinite;
+  }
+  
+  /* Animations */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes logoBounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+  
+  @keyframes textPop {
+    0% {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
+  /* Hidden class to fade out the splash screen */
+  #splash-screen.hidden {
+    opacity: 0; /* Fade to transparent */
+    pointer-events: none; /* Disable interactions */
+  }
+  
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+  
+  
+
+
 * {
     transition: all 0.3s ease-in-out; /* Smooth transitions */
 }
 
 body {
     font-family: 'Inter', sans-serif; /* Use the 'Inter' font family */
-    background-color: #f8f9fc;  /* Light gray background color */
+    background-color: #f3f0ff;  /* Light gray background color */
     margin: 0;
     padding: 0;
     display: flex;
@@ -33,7 +147,7 @@ body {
 }
 .sidebar h2 i {
     margin-right: 10px; /* Space between icon and text */
-    color: #6c63ff; /* Purple icon color */
+    color: #6a0dad; /* Purple icon color */
 }
 .content {
     width: 75%;
@@ -78,7 +192,7 @@ body {
 }
 
 .search-bar button {
-    background-color: #6c63ff; /* Purple background for button */
+    background-color: #6a0dad; /* Purple background for button */
     border: none; /* Remove border */
     border-radius: 25px; /* Rounded corners */
     color: #fff; /* White text */
@@ -86,7 +200,9 @@ body {
     cursor: pointer;
     font-size: 16px;
 }
-
+.search-bar button:hover {
+    background-color: #6B4DE6; 
+}
 .tabs {
     display: flex; /* Horizontal layout for tabs */
     margin-bottom: 20px; /* Add space below */
@@ -100,12 +216,17 @@ body {
     font-weight: 600; /* Bold text */
 }
 .tab.active {
-    background-color: #6c63ff; /* Purple background for active tab */
+    background-color: #6a0dad; /* Purple background for active tab */
     color: #fff; /* White text */
 }
 .tab:not(.active) {
     background-color: #f1f1f1; /* Light gray for inactive tabs */
     color: #888; /* Gray text for inactive tabs */
+}
+
+.tab:not(.active):hover {
+    background-color: #dfdced; /* Light gray for inactive tabs */
+    
 }
 .recent-conversations, .message-content {
     background-color: #f8f9fc;
@@ -124,7 +245,7 @@ body {
     margin-bottom: 10px;
 }
 .conversation i {
-    color: #6c63ff;
+    color: #6a0dad;
     margin-right: 10px;
 }
 .conversation-text {
@@ -137,7 +258,7 @@ body {
 
 /* Create New Message Button */
 .content button {
-    background-color: #6c63ff; /* Purple background */
+    background-color: #6a0dad; /* Purple background */
     color: #fff; /* White text */
     border: none; /* Remove border */
     border-radius: 25px; /* Rounded corners */
@@ -151,7 +272,7 @@ body {
 }
 
 .content button:hover {
-    background-color: #5a54db;
+    background-color: #6B4DE6;
 }
 
 
@@ -194,7 +315,7 @@ body {
 
 .message-card i {
     font-size: 36px;
-    color: #6c63ff;
+    color: #6a0dad;
     margin-right: 15px;
 }
 
@@ -235,7 +356,7 @@ body {
 
 /* Subject and Message Content Card Styling */
 .message-subject-card, .message-content-card {
-    background-color: #f8f9fc;
+    background-color: #f3f0ff;
     border-radius: 15px;
     padding: 20px;
     margin-bottom: 20px;
@@ -267,7 +388,7 @@ body {
 /* Three Dots Icon Styling */
 .options-icon {
     font-size: 14px; /* Smaller size for the dots */
-    color: #6c63ff; /* Purple color to match the theme */
+    color: #6a0dad; /* Purple color to match the theme */
     cursor: pointer; /* Indicates interactivity */
     margin-left: 10px; /* Add spacing between the timestamp and dots */
     transition: transform 0.2s ease; /* Add a smooth hover effect */
@@ -307,7 +428,7 @@ body {
 
 .options-menu button:hover {
     background-color: #f8f9fc;
-    color: #6c63ff;
+    color: #6B4DE6;
 }
 
 /* Show the dropdown menu on icon click */
@@ -390,21 +511,23 @@ body {
 }
 
 .popup-buttons button[type="submit"] {
-    background-color: #6c63ff;
+    background-color: #6a0dad;
     color: #fff;
+    border-radius: 25px;
 }
 
 .popup-buttons button[type="submit"]:hover {
-    background-color: #5a54db;
+    background-color: #6B4DE6;
 }
 
 .popup-buttons button#cancelCreateMessage {
-    background-color: #f1f1f1;
+    background-color: #f3f0ff;
     color: #333;
+    border-radius: 25px;
 }
 
 .popup-buttons button#cancelCreateMessage:hover {
-    background-color: #ddd;
+    background-color: #cbc6df;
 }
 
 /* Autocomplete styling */
@@ -483,7 +606,9 @@ body {
     color: #6a0dad; /* Matches the branding color */
 }
 
-
+.footer a:hover, .footer i:hover {
+    color: #6B4DE6;
+}
 
 
 /* Media Queries */
