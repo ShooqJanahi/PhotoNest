@@ -145,8 +145,8 @@ document.addEventListener('DOMContentLoaded', async () => {
    
      // If a user is selected, display their data
     if (userId) {
-        await displayUserProfile();
-        await displayUserActivity(userId); // Call the activity display function
+       
+       
         await displayAdminNotes(userId); // Load notes for the selected user
         await initActivityChart(userId); // Initialize the activity chart for the selected user
     }else {
@@ -496,10 +496,50 @@ function drawActivityChart(weekData) {
 
 
 
-
-
-
-
 //==================== END of activity chart ====================
+
+//==================== Splash Screen ====================
+// Hide the splash screen
+function hideSplashScreen() {
+    const splashScreen = document.getElementById('splash-screen');
+    if (splashScreen) {
+        splashScreen.style.opacity = 0; // Smooth transition effect
+        setTimeout(() => splashScreen.remove(), 500); // Remove splash screen after fade-out
+    }
+}
+
+// Main function to load and display user details, activity, and notes
+async function loadPageContent() {
+    try {
+        const userId = localStorage.getItem('selectedUserId'); // Retrieve the user ID from local storage
+
+        // If no user is selected, redirect to User Management
+        if (!userId) {
+            alert('No user selected!');
+            window.location.href = 'UserManagement.html';
+            return;
+        }
+
+        // Sequentially fetch and display all data
+        await displayUserProfile(userId); // Display user profile
+        await displayUserActivity(userId); // Display user activity logs
+        await displayAdminNotes(userId); // Display admin notes
+        await initActivityChart(userId); // Display activity chart
+    } catch (error) {
+        console.error("Error loading page content:", error);
+        alert('An error occurred while loading the page content.');
+    } finally {
+        // Hide the splash screen after all content is loaded
+        hideSplashScreen();
+    }
+}
+
+// DOMContentLoaded listener to start the app logic
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadPageContent(); // Load the page content and handle splash screen
+});
+
+
+
 
 

@@ -266,7 +266,7 @@ async function deleteCollectionDocuments(collectionName, userId) {
 document.addEventListener("DOMContentLoaded", async () => {
     await displayUsers(); // Display users initially
     handleSearchSortFilter(); // Enable search and sort functionality
-
+    initializeApp(); // Start the app initialization
     const hamburgerMenu = document.getElementById('hamburgerMenu');
     const mobileMenu = document.querySelector('.mobile-menu');
 
@@ -461,3 +461,53 @@ function handleSearchSortFilter() {
         await displayUsers({ searchTerm });
     });
 }
+
+
+
+//=========================== splash screen ======================================
+
+// Function to hide the splash screen
+function hideSplashScreen() {
+    const splashScreen = document.getElementById('splash-screen');
+    if (splashScreen) {
+        splashScreen.style.opacity = 0; // Smooth transition effect
+        setTimeout(() => splashScreen.remove(), 500); // Wait for the transition to complete and then remove
+    }
+}
+
+// Function to initialize the app
+async function initializeApp() {
+    try {
+        console.log("Initializing the app...");
+
+        // Fetch and display users
+        await displayUsers();
+
+        // Enable search, sort, and filter
+        handleSearchSortFilter();
+
+        // Hide the splash screen after everything is loaded
+        hideSplashScreen();
+    } catch (error) {
+        console.error("Error during app initialization:", error);
+
+        // Hide the splash screen even if there's an error
+        hideSplashScreen();
+
+        // Optionally show an error message to the user
+        document.body.innerHTML += `<p class="error">Error loading the application. Please try again later.</p>`;
+    }
+}
+
+
+
+
+//=========================== END of splash screen ======================================
+
+
+
+
+
+
+
+
