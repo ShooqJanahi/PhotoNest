@@ -78,6 +78,7 @@ export function closePopup() {
     }
 }
 
+
 // Function to fetch notifications from Firestore and render them
 export async function fetchAndRenderNotifications() {
     const user = JSON.parse(sessionStorage.getItem("user")); // Get the logged-in user details from session storage
@@ -89,7 +90,21 @@ export async function fetchAndRenderNotifications() {
 
     const notificationList = document.getElementById("notification-list"); // Get the container for notifications
     const searchInput = document.getElementById("notification-search");  // Get the search input element
-    const filterDropdown = document.getElementById("notification-filter"); // Get the filter dropdown element
+    const filterDropdown = document.getElementById("notification-filter");
+
+    if (filterDropdown) {
+        // Ensure only one listener is attached
+        filterDropdown.addEventListener("change", (event) => {
+            console.log("Dropdown changed to:", event.target.value); // Debugging log
+            renderNotifications(); // Immediately call the render function
+        });
+
+    } else {
+        console.error("Filter dropdown not found!");
+    }
+
+
+
 
     try {
         // Reference to the "Notifications" collection in Firestore
@@ -146,13 +161,13 @@ export async function fetchAndRenderNotifications() {
                 return b.normalizedTimestamp - a.normalizedTimestamp;
             });
 
-            // If no notifications, show a message
+        // If no notifications, show a message
         if (!notifications.length) {
             notificationList.innerHTML = "<p>No notifications found.</p>";
             return;
         }
 
-       // Fetch and cache usernames for all sender IDs
+        // Fetch and cache usernames for all sender IDs
         const senderIds = [...new Set(notifications.map(n => n.senderId))]; // Unique sender IDs
 
         for (const senderId of senderIds) {
@@ -170,7 +185,11 @@ export async function fetchAndRenderNotifications() {
 
         // Attach search and filter listeners
         searchInput.addEventListener("input", renderNotifications); // Update on search input
-        filterDropdown.addEventListener("change", renderNotifications); // Update on filter change
+        filterDropdown.addEventListener("change", () => {
+            console.log("Dropdown changed to:", filterDropdown.value); // Debugging log
+            renderNotifications(); // Trigger a re-render immediately
+        });
+
 
         // Handle delete notification action
         notificationList.addEventListener("click", async event => {
@@ -197,18 +216,23 @@ export function renderNotifications() {
     const searchQuery = searchInput.value.toLowerCase(); // Get search query
     const filterOption = filterDropdown.value; // Get selected filter option
 
-      // Filter and sort notifications based on search and filter
+    // Filter notifications based on the search query
     let filteredNotifications = notifications.filter(notification => {
-        const senderUsername = usernames[notification.senderId]?.toLowerCase() || "unknown"; // Get sender username
-        const message = getMessage(notification, senderUsername).toLowerCase(); // Get notification message
-        return message.includes(searchQuery); // Match search query
+        const senderUsername = usernames[notification.senderId]?.toLowerCase() || "unknown";
+        const message = getMessage(notification, senderUsername).toLowerCase();
+        return message.includes(searchQuery);
     });
 
+    // Sort notifications dynamically based on the filter option
     if (filterOption === "latest") {
-        filteredNotifications.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // Sort by latest
+        filteredNotifications = filteredNotifications.sort((a, b) => new Date(b.normalizedTimestamp) - new Date(a.normalizedTimestamp));
     } else if (filterOption === "oldest") {
-        filteredNotifications.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)); // Sort by oldest
+        filteredNotifications = filteredNotifications.sort((a, b) => new Date(a.normalizedTimestamp) - new Date(b.normalizedTimestamp));
     }
+    console.log("Filter Option:", filterOption);
+    console.log("Filtered Notifications After Sorting:", filteredNotifications);
+
+
 
     // Update the DOM with filtered notifications
     notificationList.innerHTML = filteredNotifications

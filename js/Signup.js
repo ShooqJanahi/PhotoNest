@@ -68,6 +68,12 @@ signupForm.addEventListener("submit", async (event) => {
     const password = document.getElementById("password").value.trim();
     const repeatPassword = document.getElementById("repeat-password").value.trim();
 
+    // Validate username for spaces
+    if (!hasNoSpaces(username)) {
+        alert("Username cannot contain spaces. Please choose another username.");
+        return;
+    }
+    
     // Check if passwords match
     if (password !== repeatPassword) {
         alert("Passwords do not match.");
@@ -205,5 +211,15 @@ setTimeout(() => {
     }
 }, 2000); // 2 seconds
 
-
 });
+
+//================ Don't allow space ================
+
+// Function to check if the username contains spaces
+function hasNoSpaces(value) {
+    const noSpacesRegex = /^\S+$/; // Ensures no spaces are present
+    return noSpacesRegex.test(value);
+}
+
+
+

@@ -354,6 +354,7 @@ main .container .left .profile {
   margin-top: 1rem;
   background: var(--color-white);
   border-radius: var(--card-border-radius);
+  
 }
 
 .left #close-btn {
@@ -367,6 +368,7 @@ main .container .left .profile {
   cursor: pointer;
   transition: all 300ms ease;
   position: relative;
+  text-decoration: none; /* Removes underline */
 }
 
 .left .sidebar .menu-item:hover {
@@ -378,6 +380,7 @@ main .container .left .profile {
   color: var(--color-gray);
   margin-left: 2rem;
   position: relative;
+  
 }
 
 .left .sidebar i .notification-count {
@@ -395,6 +398,7 @@ main .container .left .profile {
 .left .sidebar h3 {
   margin-left: 1.5rem;
   font-size: 1rem;
+  
 }
 
 .left .sidebar .active {

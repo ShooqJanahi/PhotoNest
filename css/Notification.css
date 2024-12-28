@@ -21,7 +21,7 @@
     top: 50%; /* Centers the popup vertically */
     left: 50%; /* Centers the popup horizontally */
     transform: translate(-50%, -50%); /* Adjusts the popup's position to be exactly in the center */
-    background: #5A0C8A; /* Sets a purple background color for the popup */
+    background: #6a0dad; /* Sets a purple background color for the popup */
     color: white; /* Makes the text inside the popup white */
     width: 90%; /* Sets the popup width to 90% of the viewport */
     max-width: 500px; /* Limits the maximum width to 500px */

@@ -360,15 +360,22 @@ document.addEventListener("DOMContentLoaded", () => {
                         ? senderDoc.data().username || "Unknown"
                         : "Unknown";
 
+                    // Fetch the reporter's username from Firestore
+                    const reporterDoc = await getDoc(doc(db, "users", auth.currentUser?.uid));
+                    const reporterUsername = reporterDoc.exists()
+                        ? reporterDoc.data()?.username || "Unknown Reporter"
+                        : "Unknown Reporter";
+
                     // Add the reported message to the Reports collection
                     await addDoc(collection(db, "Reports"), {
                         category: "message",
                         messageId: msg.id, // Message ID
                         ReportedUsername: senderUsername, // Include the username of the sender
-                        reportedBy: auth.currentUser?.uid, // User reporting the message
+                        reportedById: auth.currentUser?.uid, // User reporting the message
                         reason: "User-reported issue", // Add specific reason if available
                         status: "Pending Review",
                         timestamp: new Date().toISOString(),
+                        reportedByUsername: reporterUsername, // Fetched username
                     });
 
                     alert("Message reported successfully. Thank you for your feedback.");

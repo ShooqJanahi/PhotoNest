@@ -1,5 +1,15 @@
 <!--Report.html-->
 
+<div id="splash-screen">
+    <div class="splash-content">
+        <img src="../assets/PhotoNest_Transparent.png" alt="PhotoNest Logo" class="splash-logo">
+        <h1>PhotoNest</h1>
+        <p>Where memories find their nest</p>
+        <div class="loader"></div>
+    </div>
+</div>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -70,25 +80,25 @@
             <!-- Search bar for filtering reports -->
             <div class="search-bar">
                 <input type="text" id="searchInput" placeholder="Search Reports"> <!-- Input field for search terms -->
-                <div class="dropdown-container"> <!-- Dropdown container for sort and filter options -->
+                <div class="dropdown-container" style="position: relative;">
                     <button id="sortFilterButton" class="dropdown-box">Sort/Filter ▼</button>
-                    <!-- Button to toggle dropdown -->
-                    <div id="sortFilterDropdown" class="dropdown-content"> <!-- Dropdown content -->
+                    <div id="sortFilterDropdown" class="dropdown-content active">
                         <div class="dropdown-section">
-                            <strong>Sort Options</strong>
-                            <button class="dropdown-item" data-value="timestamp-desc">Sort by Date (Newest)</button>
-                            <button class="dropdown-item" data-value="timestamp-asc">Sort by Date (Oldest)</button>
-                            <button class="dropdown-item" data-value="status">Sort by Status</button>
+                          <strong>Sort Options</strong>
+                          <button class="dropdown-item" data-value="timestamp-desc">Sort by Date (Newest)</button>
+                          <button class="dropdown-item" data-value="timestamp-asc">Sort by Date (Oldest)</button>
+                          <button class="dropdown-item" data-value="status">Sort by Status</button>
                         </div>
                         <div class="dropdown-section">
-                            <strong>Filter Options</strong>
-                            <button class="dropdown-item" data-value="filter-Pending Review">Filter: Pending
-                                Review</button>
-                            <button class="dropdown-item" data-value="filter-close">Filter: closed</button>
-
+                          <strong>Filter Options</strong>
+                          <button class="dropdown-item" data-value="filter-Pending Review">Filter by Pending Review</button>
+                          <button class="dropdown-item" data-value="filter-Closed">Filter by Closed</button>
                         </div>
-                    </div>
-                </div>
+                      </div>
+                      
+                      
+                  </div>
+                  
                 <button id="searchButton">Enter</button> <!-- Search button -->
             </div>
             <!-- Card to display report data -->

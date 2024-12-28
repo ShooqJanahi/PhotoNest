@@ -1,3 +1,4 @@
+
 /* Splash Screen Styles */
 #splash-screen {
     position: fixed;
@@ -312,17 +313,20 @@ body {
 .follow-menu-toggle {
     display: block; /* Forces the button to occupy full width */
     width: 150px; /* Adjust width to match dropdown */
-    background-color: #6c63ff; /* Matches theme color */
+    background-color: #6a0dad; /* Matches theme color */
     color: #fff;
     padding: 10px 20px;
     border: none;
-    border-radius: 5px;
+    border-radius: 25px;
     cursor: pointer;
     font-weight: 600;
     text-align: center; /* Centers text inside button */
     margin-bottom: 10px; /* Adds spacing between button and dropdown */
 }
 
+.follow-menu-toggle:hover {
+    background-color: #6B4DE6;
+}
 /* Follow Dropdown Menu */
 .follow-menu {
     display: flex;

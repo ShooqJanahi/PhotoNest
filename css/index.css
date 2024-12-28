@@ -513,7 +513,7 @@ header {
 }
 
 .resume__left menu button {
-    background: var(--color-gray-0);
+    background: #d9d3f5;
     border: transparent;
 }
 
@@ -546,9 +546,9 @@ header {
 }
 
 .resume__right li {
-    background: var(--color-gray-0);
+    background: var(--color-gray-100);
     padding: 1.5rem;
-    border: 0.4rem solid var(--color-gray-0);
+    border: 0.4rem solid var(--color-gray-100);
     transition: var(--transition);
     cursor: default;
 }
@@ -597,7 +597,7 @@ header {
 }
 
 .resume__right.about li {
-    background: var(--color-gray-0); /* Add white background */
+    background: var(--color-gray-100); /* Add white background */
     padding: 1.5rem; /* Add padding */
     border: 0.4rem solid var(--color-gray-0); /* Ensure border matches */
     transition: var(--transition);
@@ -612,7 +612,7 @@ header {
 }
 
 .resume__right.about li:hover {
-    background: var(--color-gray-100); /* Same hover effect as the rest */
+    background: var(--color-gray-0); /* Same hover effect as the rest */
    
 }
 
@@ -637,8 +637,9 @@ header {
 }
 
 .projects__categories button {
-    background: var(--color-gray-50);
+    background: #d7d1f0;
     border: 0;
+    border-radius: 25px;
 }
 
 button.mixitup-control-active {
@@ -720,7 +721,10 @@ button.mixitup-control-active {
 /*========================== TESTIMONIALS ==========================*/
 .swiper {
     width: var(--container-w-lg);
-}
+    display: flex;
+    flex-direction: column; /* Stack content and pagination */
+    align-items: center; /* Center content horizontally */
+  }
 
 .swiper-wrapper {
     margin-top: 4rem;
@@ -728,11 +732,15 @@ button.mixitup-control-active {
     padding-bottom: 4rem;
 }
 
+/* Testimonial Card Styles */
 .swiper-slide {
-    background: transparent;
-    border: 0.5rem solid var(--color-gray-0);
-    cursor: default;
+    background: var(--color-gray-100); /* Match the project card background */
     transition: var(--transition);
+    animation: animateProject 1.5s ease forwards; /* Apply same animation as project cards */
+    padding: 1.5rem; /* Add padding similar to project cards */
+    border: 0.4rem solid var(--color-gray-100); /* Match border style */
+    border-radius: 0.8rem; /* Optional: Add slight rounding */
+    cursor: default;
 }
 
 .swiper-slide:hover {
@@ -749,8 +757,12 @@ button.mixitup-control-active {
     display: flex;
     align-items: center;
     gap: 0.8rem;
-    background: var(--color-gray-0);
+    background: var(--color-gray-100);
     padding: 1.5rem
+}
+
+.swiper__client:hover{
+    background: var(--color-gray-0);
 }
 
 .swiper__client-avatar {
@@ -852,7 +864,7 @@ p.show {
 }
 
 .contact__option {
-    background: var(--color-gray-0);
+    background: #f3f0ff;
     color: var(--color-primary);
     padding: 1.2rem;
     border-radius: 50%;
@@ -878,15 +890,17 @@ p.show {
 .contact__form input, .contact__form textarea {
     padding: 1.2rem;
     resize: none;
-    background: var(--color-gray-0);
+    background: #f3f0ff;
     color: var(--color-gray-900);
+    border-radius: 25px;
 }
 
 .contact__form button {
     width: fit-content;
     border: 0;
     color: white;
-    background: var(--color-primary);
+    background: #6a0dad;
+    border-radius: 25px;
     padding: 0.8rem 2rem;
 }
 

@@ -30,42 +30,42 @@ document.querySelector('.fa-bell').addEventListener('click', () => {
 // Fetch Photo Information by Photo ID
 async function fetchPhotoData(photoId) {
     return new Promise(async (resolve, reject) => {
-    try {
-        // Reference the photo document in the database using the photo ID
-        const photoRef = doc(db, "Photos", photoId);
+        try {
+            // Reference the photo document in the database using the photo ID
+            const photoRef = doc(db, "Photos", photoId);
 
-        // Fetch the document data from Firestore
-        const photoDoc = await getDoc(photoRef);
+            // Fetch the document data from Firestore
+            const photoDoc = await getDoc(photoRef);
 
-        // Check if the document exists
-        if (photoDoc.exists()) {
+            // Check if the document exists
+            if (photoDoc.exists()) {
 
-            // Extract data from the photo document
-            const photoData = photoDoc.data();
+                // Extract data from the photo document
+                const photoData = photoDoc.data();
 
-            // Increment the view count for the photo
-            incrementViewCount(photoRef, photoData.viewCount);
+                // Increment the view count for the photo
+                incrementViewCount(photoRef, photoData.viewCount);
 
-            // Fetch details of the user who posted the photo
-            fetchUserDetails(photoData.userId);
+                // Fetch details of the user who posted the photo
+                fetchUserDetails(photoData.userId);
 
-            // Adding a redirection feature to the user's profile
-            addProfileRedirection(photoData.userId);
+                // Adding a redirection feature to the user's profile
+                addProfileRedirection(photoData.userId);
 
-            // Populate the UI with the fetched photo details
-            populatePhotoDetails(photoData);
-        } else {
-            //log if the photo doesn't exist
-            console.error("No such photo exists!");
-            //alert the user if the photo doesn't exist
-            alert("This photo doesn't exist!");
+                // Populate the UI with the fetched photo details
+                populatePhotoDetails(photoData);
+            } else {
+                //log if the photo doesn't exist
+                console.error("No such photo exists!");
+                //alert the user if the photo doesn't exist
+                alert("This photo doesn't exist!");
+            }
+        } catch (error) {
+            // Log any errors encountered during the fetch operation
+            console.error("Error fetching photo data:", error);
+            reject(error);
         }
-    } catch (error) {
-        // Log any errors encountered during the fetch operation
-        console.error("Error fetching photo data:", error);
-        reject(error);
-    }
-});
+    });
 }
 
 
@@ -177,46 +177,46 @@ function populateUserDetails(userData) {
 // Function to fetch and display comments for the photo
 async function fetchAndDisplayComments(photoId) {
     return new Promise(async (resolve, reject) => {
-    try {
-        // Reference the Comments collection in Firestore
-        const commentsRef = collection(db, "Comments");
+        try {
+            // Reference the Comments collection in Firestore
+            const commentsRef = collection(db, "Comments");
 
-        // Query to fetch comments for the given photoId, ordered by timestamp (most recent first)
-        const commentsQuery = query(
-            commentsRef,
-            where("photoId", "==", photoId), // Filter comments by photoId
-            orderBy("timestamp", "desc") // Sort by timestamp in descending order
-        );
+            // Query to fetch comments for the given photoId, ordered by timestamp (most recent first)
+            const commentsQuery = query(
+                commentsRef,
+                where("photoId", "==", photoId), // Filter comments by photoId
+                orderBy("timestamp", "desc") // Sort by timestamp in descending order
+            );
 
-        // Execute the query and get a snapshot of the matching documents
-        const querySnapshot = await getDocs(commentsQuery);
+            // Execute the query and get a snapshot of the matching documents
+            const querySnapshot = await getDocs(commentsQuery);
 
-        // Get the HTML container for displaying comments
-        const commentsContainer = document.getElementById("comments-container");
+            // Get the HTML container for displaying comments
+            const commentsContainer = document.getElementById("comments-container");
 
-        commentsContainer.innerHTML = ""; // Clear any existing comments in the container
+            commentsContainer.innerHTML = ""; // Clear any existing comments in the container
 
-        // Check if there are any comments
-        if (!querySnapshot.empty) {
-            // Loop through each document in the query snapshot
-            querySnapshot.forEach((doc) => {
-                const commentData = doc.data(); // Retrieve the comment data
-                commentData.commentId = doc.id; // Add the Firestore document ID to the commentData
-                const commentElement = createCommentElement(commentData); // Create a comment DOM element
-                commentsContainer.appendChild(commentElement); // Add the comment to the container
-            });
+            // Check if there are any comments
+            if (!querySnapshot.empty) {
+                // Loop through each document in the query snapshot
+                querySnapshot.forEach((doc) => {
+                    const commentData = doc.data(); // Retrieve the comment data
+                    commentData.commentId = doc.id; // Add the Firestore document ID to the commentData
+                    const commentElement = createCommentElement(commentData); // Create a comment DOM element
+                    commentsContainer.appendChild(commentElement); // Add the comment to the container
+                });
 
-        } else {
-            // Display a placeholder message if no comments are found
-            commentsContainer.innerHTML = "<p>No comments yet. Be the first to comment!</p>";
+            } else {
+                // Display a placeholder message if no comments are found
+                commentsContainer.innerHTML = "<p>No comments yet. Be the first to comment!</p>";
+            }
+            resolve();
+        } catch (error) {
+            // Log any errors encountered during the fetch process
+            console.error("Error fetching comments:", error);
+            reject(error);
         }
-        resolve();
-    } catch (error) {
-        // Log any errors encountered during the fetch process
-        console.error("Error fetching comments:", error);
-        reject(error);
-    }
-});
+    });
 }
 
 // Function to create a comment element
@@ -255,18 +255,18 @@ function createCommentElement(commentData) {
     commentDetails.classList.add("comment-details");
 
     // Timestamp element
-const timestamp = document.createElement("span");
-timestamp.classList.add("comment-time");
+    const timestamp = document.createElement("span");
+    timestamp.classList.add("comment-time");
 
-// Convert Firestore timestamp to JavaScript Date
-const commentTimestamp = commentData.timestamp
-    ? new Date(commentData.timestamp.seconds * 1000) 
-    : new Date(); // Default to current time if no timestamp
+    // Convert Firestore timestamp to JavaScript Date
+    const commentTimestamp = commentData.timestamp
+        ? new Date(commentData.timestamp.seconds * 1000)
+        : new Date(); // Default to current time if no timestamp
 
-// Format the date without seconds
-timestamp.textContent = commentTimestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + 
-    " | " + 
-    commentTimestamp.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+    // Format the date without seconds
+    timestamp.textContent = commentTimestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) +
+        " | " +
+        commentTimestamp.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
 
     // Append username and timestamp to the details container
     commentDetails.appendChild(username);
@@ -945,11 +945,8 @@ function createEditPhotoPopup(photoId, currentCaption, currentHashtags) {
                     alert("Photo updated successfully!");
                     document.getElementById("view-image-popup").remove(); // Close popup
 
-
                     fetchPhotoData(photoId); // Refresh photo details on the page
-                    resolve();
                 } else {
-                    // If the photo doesn't exist, log an error and notify the user
                     console.error("Photo does not exist.");
                     alert("Photo not found.");
                 }
@@ -1385,13 +1382,13 @@ async function addPhotoToAlbum(albumId, photoId) {
 
     try {
 
-         // Retrieve the logged-in user's data
-         const currentUser = JSON.parse(sessionStorage.getItem("user"));
-         if (!currentUser || !currentUser.uid) {
-             console.error("Error: User data not found in sessionStorage.");
-             alert("Please log in to add photos to albums.");
-             return;
-         }
+        // Retrieve the logged-in user's data
+        const currentUser = JSON.parse(sessionStorage.getItem("user"));
+        if (!currentUser || !currentUser.uid) {
+            console.error("Error: User data not found in sessionStorage.");
+            alert("Please log in to add photos to albums.");
+            return;
+        }
 
         const albumRef = doc(db, "Albums", albumId);
         const albumDoc = await getDoc(albumRef);
@@ -1525,6 +1522,8 @@ async function createReportPhotoPopup(photoId) {
                 return;
             }
 
+            const userDoc = await getDoc(doc(db, "users", userId));
+            const reportedByUsername = userDoc.exists() ? userDoc.data().username || "Unknown Reporter" : "Unknown Reporter";
 
             try {
                 // Add report document to "Reports" collection
@@ -1532,10 +1531,11 @@ async function createReportPhotoPopup(photoId) {
                     category: "Photo",
                     messageId: photoId,
                     reason: reason,
-                    reportedBy: userId,
-                    reportedAt: serverTimestamp(),
-                    ownerId: photoOwnerId,
-                    ownerUsername: photoOwnerUsername,
+                    reportedById: userId,
+                    reportedByUsername: reportedByUsername, // Fetched username
+                    timestamp: new Date().toISOString(),
+                    ReportedId: photoOwnerId,
+                    ReportedUsername: photoOwnerUsername,
                     status: "Pending Review",
                 });
 
@@ -1712,11 +1712,11 @@ async function reportComment(commentId) {
                     messageId: commentId, // The ID of the reported comment
                     photoid: photoId,
                     reason: reason,  // Reason provided by the user
-                    reportedBy: currentUser.uid, // ID of the user reporting the comment
+                    reportedById: currentUser.uid, // ID of the user reporting the comment
                     reportedByUsername: currentUser.username || "Unknown User", // Username of the user reporting
-                    reportedAt: serverTimestamp(), // Timestamp of when the report was submitted
-                    commentOwnerId: commentOwnerId, // ID of the user who created the comment
-                    ReboredUsername: commentOwnerUsername, // Username of the user who created the comment
+                    timestamp: new Date().toISOString(), // Timestamp of when the report was submitted
+                    ReportedId: commentOwnerId, // ID of the user who created the comment
+                    ReportedUsername: commentOwnerUsername, // Username of the user who created the comment
                     status: "Pending Review", // Initial status of the report
                 });
 
@@ -1907,7 +1907,7 @@ document.getElementById("share-button").addEventListener("click", () => {
 document.addEventListener("DOMContentLoaded", async () => {
 
 
-    
+
     try {
 
         //Logout button

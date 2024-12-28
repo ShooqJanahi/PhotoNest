@@ -23,6 +23,18 @@ onSnapshot(followingRef, (doc) => {
 });
 
 
+if (loggedInUserId && viewedUserId) {
+    const followingRef = doc(db, `users/${loggedInUserId}/following`, viewedUserId);
+    onSnapshot(followingRef, (doc) => {
+        if (doc.exists()) {
+            console.log('Follow data updated:', doc.data());
+        } else {
+            console.log('Follow data does not exist yet.');
+        }
+    });
+} else {
+    console.error("User IDs are not defined. Cannot listen for follow data.");
+}
 
 
 
@@ -472,14 +484,27 @@ function openReportUserPopup(reportedUserId, reportedUsername) {
             return;
         }
 
-        try {
-            // Prepare data for Firestore
+        // Ensure `auth.currentUser` is used to get the currently logged-in user
+    const currentUser = auth.currentUser; 
+    if (!currentUser) {
+        console.error("No authenticated user found.");
+        alert("You need to be logged in to submit a report.");
+        return;
+    }
+
+    try {
+        // Get the reporter's username
+        const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+        const reportedByUsername = userDoc.exists() ? userDoc.data().username || "Unknown User" : "Unknown User";
+           
+        // Prepare data for Firestore
             const reportData = {
                 category: "user", // Default category
-                reportedUserId: reportedUserId, // ID of the viewed user
-                reportedUsername: reportedUsername, // Username of the viewed user
+                ReportedId: reportedUserId, // ID of the viewed user
+                ReportedUsername: reportedUsername, // Username of the viewed user
                 reason: reason, // User-entered reason for reporting
-                reportedBy: auth.currentUser.uid, // ID of the logged-in user
+                reportedById: currentUser.uid, // ID of the logged-in user
+                reportedByUsername: reportedByUsername, // Username of the reporter
                 status: "Pending Review", // Default status
                 timestamp: new Date().toISOString(), // Timestamp of the report
             };

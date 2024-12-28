@@ -18,7 +18,7 @@ const suggestionsContainer = document.getElementById("search-suggestions");
 
 // On page load, set up the dashboard
 document.addEventListener('DOMContentLoaded', async function () {
-   
+
     const splashScreen = document.getElementById('splash-screen');
 
     // Ensure the page's resources (images, scripts, styles) are fully loaded
@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             splashScreen.innerHTML = `<p>Failed to load. Please refresh the page.</p>`;
         }
     });
-   
+
 
     await checkUserAuthentication(); // Ensure the user is authenticated
     updateNotificationCounts(); // Fetch and update counts
@@ -364,9 +364,13 @@ async function setupPage() {
         sortDropdown.addEventListener('change', () => {
             const searchInput = document.getElementById('search').value.trim().toLowerCase();
             const sortOption = sortDropdown.value;
+            console.log('Sort Option Selected:', sortOption); // Debugging log
             filterAndSortPosts(searchInput, sortOption); // Filter and sort posts
         });
+    } else {
+        console.error("Sort dropdown element not found."); // Log if dropdown is missing
     }
+
     const homeMenuItem = document.querySelector('.menu-item.home');
     const exploreMenuItem = document.querySelector('.menu-item.explore');
 
@@ -481,7 +485,11 @@ function filterAndSortPosts(searchTerm, sortOption) {
         console.error("Feeds container not found.");
         return;
     }
-    const allPosts = Array.from(feedsContainer.children); // Get all post elements
+    const allPosts = Array.from(feedsContainer.children);
+    if (allPosts.length === 0) {
+        console.warn("No posts available to sort.");
+        return;
+    }
 
     // Filter posts based on the search term (if provided)
     const filteredPosts = allPosts.filter((post) => {
@@ -506,18 +514,19 @@ function filterAndSortPosts(searchTerm, sortOption) {
         const bDate = bDateElem ? new Date(bDateElem.getAttribute('data-date')) : new Date();
 
         if (sortOption === 'latest') {
+            console.log(`Sorting by latest: Comparing ${bDate} vs ${aDate}`);
             return bDate - aDate; // Descending by date
         } else if (sortOption === 'oldest') {
+            console.log(`Sorting by oldest: Comparing ${aDate} vs ${bDate}`);
             return aDate - bDate; // Ascending by date
         } else if (sortOption === 'popular') {
-            // Get likes
-            const aLikesElem = a.querySelector('.liked-by');
-            const bLikesElem = b.querySelector('.liked-by');
-            const aLikes = aLikesElem ? parseInt(aLikesElem.getAttribute('data-likes')) || 0 : 0;
-            const bLikes = bLikesElem ? parseInt(bLikesElem.getAttribute('data-likes')) || 0 : 0;
+            const aLikes = parseInt(a.querySelector('.liked-by')?.getAttribute('data-likes') || 0);
+            const bLikes = parseInt(b.querySelector('.liked-by')?.getAttribute('data-likes') || 0);
+            console.log(`Sorting by popularity: Comparing ${bLikes} vs ${aLikes}`); // Debug
             return bLikes - aLikes; // Descending by likes
         }
     });
+
     // Clear and re-render the feeds with filtered and sorted posts
     feedsContainer.innerHTML = '';
     sortedPosts.forEach((post) => feedsContainer.appendChild(post));
@@ -619,6 +628,7 @@ async function fetchPhotos(isHome) {
                                 </div>
                                 <div class="info">
                                     <h3>${userData.username || 'Unknown User'}</h3>
+                                    <small data-date="${photo.uploadDate || new Date().toISOString()}">
                                     <small>${photo.city || 'Unknown Location'}, ${relativeTime}</small>
                                 </div>
                             </div>
@@ -639,9 +649,10 @@ async function fetchPhotos(isHome) {
                                 <span><i class="uil uil-bookmark-full"></i></span>
                             </div>
                         </div>
-                        <div class="liked-by">
+                        <div class="liked-by" data-likes="${photo.likesCount || 0}">
                             <p>${photo.likesCount || 0} likes</p>
                         </div>
+
                         <div class="caption">
                             <p><b>${userData.username || 'Unknown User'}</b> ${photo.caption}</p>
                         </div>
@@ -650,6 +661,7 @@ async function fetchPhotos(isHome) {
                 `;
                 photosContainer.innerHTML += photoHTML;
             });
+
         } else {
             // For the explore section, fetch posts from users the current user is NOT following
             const allUsersQuery = query(collection(db, 'users')); // Get all users
@@ -1085,7 +1097,7 @@ async function drawPostPopularityChart(filter = 'last2weeks') {
     chartContainer.innerHTML = '<p>Loading chart...</p>'; // Loading message
     try {
         const photosRef = collection(db, 'Photos');
-        const photosSnapshot = await getDocs(photosRef);
+        
 
         const currentUserId = auth.currentUser?.uid;
 
@@ -1094,9 +1106,14 @@ async function drawPostPopularityChart(filter = 'last2weeks') {
             return;
         }
 
-        // Fetch user's posts
-        const photosQuery = query(photosRef, where('userId', '==', currentUserId), orderBy('uploadDate', 'desc'));
+        // Fetch only photos uploaded by the logged-in user
+        const photosQuery = query(
+            photosRef,
+            where('userId', '==', currentUserId), // Filter by logged-in user's ID
+            orderBy('uploadDate', 'desc') // Sort by upload date
+        );
 
+        const photosSnapshot = await getDocs(photosQuery);
 
         chartData = new google.visualization.DataTable();
         chartData.addColumn('string', 'Post'); // Post title

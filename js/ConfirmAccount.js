@@ -37,6 +37,7 @@ if (confirmForm) {
             const userData = userDoc.data();
             const userEmail = userData.email;
             const userStatus = userData.status;
+            const userRole = userData.role;
             const userDocRef = doc(db, "users", userDoc.id);
 
             console.log('User data fetched:', userData); // Debugging log
@@ -60,6 +61,22 @@ if (confirmForm) {
             });
 
             console.log('User status updated to active'); // Debugging log
+
+            // Initialize Session Storage
+            sessionStorage.setItem("userId", userCredential.user.uid);
+            sessionStorage.setItem("username", username); // Store username
+            sessionStorage.setItem("role", userRole.toLowerCase()); // Store user role
+            sessionStorage.setItem(
+                "user",
+                JSON.stringify({
+                    ...userData,
+                    uid: userCredential.user.uid,
+                    loginTime: currentTimestamp,
+                })
+            );
+
+            console.log("Session storage initialized with user data:", sessionStorage.getItem("user"));
+
 
             // Log Activity
             await logActivity(userCredential.user.uid, "accountConfirmed", `${username} confirmed their account.`);
