@@ -7,7 +7,8 @@ import { logout } from './login.js';  // Import logout function from login.js
 let selectedOption = "timestamp-desc"; // Default selected option for sorting
 
 document.addEventListener('DOMContentLoaded', async () => {
-
+  clearReportTable(); // Ensure the table is empty before fetching data
+  fetchReports(); // Fetch the initial batch of reports
   // Wait for 2 seconds and then hide the splash screen
   setTimeout(() => {
     const splashScreen = document.getElementById('splash-screen');
@@ -123,13 +124,13 @@ const searchInput = document.getElementById("searchInput");
 
 // Pagination variables
 let lastVisible = null;
-const pageSize = 5;
+const pageSize = 10;
 
 // Global variables for sort and filter options
 let sortOption = "timestamp-desc";
 let filterOption = null;
 // Function to fetch reports from Firestore
-async function fetchReports(searchTerm = "", sortKey = "", filterKey = "", filterValue = "") {
+async function fetchReports(searchTerm = "", sortKey = "timestamp-desc", filterKey = "", filterValue = "") {
   try {
 
     reportTableBody.innerHTML = ""; // Clear existing data on fresh fetch
@@ -180,14 +181,18 @@ async function fetchReports(searchTerm = "", sortKey = "", filterKey = "", filte
 
     // Render the reports
     filteredReports.forEach((report) => displayReport(report));
+// Hide "Load More" button if fewer results are returned than the page size
+loadMoreButton.style.display = querySnapshot.size < pageSize ? "none" : "block";
 
-    // Hide "Load More" button if fewer results
-    loadMoreButton.style.display = querySnapshot.size < pageSize ? "none" : "block";
-  } catch (error) {
+     console.log(`Fetched ${querySnapshot.size} reports. Last visible document updated.`);
+    } catch (error) {
     console.error("Error fetching reports:", error);
   }
 }
-
+// Function to clear the report table on page reload
+function clearReportTable() {
+  reportTableBody.innerHTML = ""; // Clear the table body
+}
 
 // Function to fetch a username by user ID from the "users" collection
 async function getUsername(userId) {
@@ -246,9 +251,11 @@ function displayReport(report) {
 
 
 
-// Load initial reports and set up "Load More" button
-loadMoreButton.addEventListener("click", fetchReports); // Load more reports when button is clicked
-fetchReports(); // Fetch the initial set of reports
+// Attach event listener to the "Load More" button
+loadMoreButton.addEventListener("click", () => {
+  const searchTerm = searchInput.value.trim().toLowerCase(); // Get the search term
+  fetchReports(searchTerm, sortOption, filterKey, filterValue); // Fetch the next batch
+});
 
 
 
@@ -529,14 +536,6 @@ async function searchReports(searchTerm) {
   }
 }
 
-
-
-
-
-
-
-// Load More Button
-loadMoreButton.addEventListener("click", () => fetchReports(selectedOption, "timestamp-desc"));
 
 
 

@@ -918,54 +918,28 @@ async function performSearch(searchText) {
 
         console.log("Albums fetched:", suggestions); // Debugging
 
-        // Query Albums Collection for Location (City and Country)
-        const locationRef = collection(db, "Albums");
+         // Query Albums Collection for Locations
+         const locationsRef = collection(db, "Albums");
+         const locationsQuery = query(
+             locationsRef,
+             where("category", "==", "Location"), // Filter by category "Location"
+             where("name", ">=", lowerCaseText), // Match `name` field
+             where("name", "<=", lowerCaseText + "\uf8ff") // Case-insensitive query
+         );
+ 
+         const locationsSnapshot = await getDocs(locationsQuery);
+ 
+         // Parse location results
+         locationsSnapshot.forEach((doc) => {
+             const data = doc.data();
+             suggestions.push({
+                 type: "location",
+                 displayText: `${data.name}`, // Display the location name
+                 id: doc.id, // Firestore document ID
+             });
+         });
 
-        // Query for city matches
-        const cityQuery = query(
-            locationRef,
-            where("category", "==", "location"),
-            where("city", ">=", lowerCaseText),
-            where("city", "<=", lowerCaseText + "\uf8ff"),
-
-        );
-
-        // Query for country matches
-        const countryQuery = query(
-            locationRef,
-            where("category", "==", "location"),
-            where("country", ">=", lowerCaseText),
-            where("country", "<=", lowerCaseText + "\uf8ff"),
-
-        );
-
-        const [citySnapshot, countrySnapshot] = await Promise.all([
-            getDocs(cityQuery),
-            getDocs(countryQuery),
-        ]);
-
-        // Parse City Matches
-        citySnapshot.forEach((doc) => {
-            const data = doc.data();
-            suggestions.push({
-                type: "location",
-                displayText: `${data.city}, ${data.country}`,
-                id: doc.id, // Capture the Firestore document ID
-            });
-        });
-
-        // Parse Country Matches - Avoid Duplicates
-        countrySnapshot.forEach((doc) => {
-            const data = doc.data();
-            const alreadyExists = suggestions.some((item) => item.id === doc.id);
-            if (!alreadyExists) {
-                suggestions.push({
-                    type: "location",
-                    displayText: `${data.city}, ${data.country}`,
-                    id: doc.id,
-                });
-            }
-        });
+        
 
         // Query Users Collection for Username Matches
         const usersRef = collection(db, "users");

@@ -1,6 +1,6 @@
 // Import Firestore database from firebaseConfig.js
 import { db } from './firebaseConfig.js';
-import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, Timestamp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js'; // Import required Firestore methods
+import { writeBatch, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, Timestamp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js'; // Import required Firestore methods
 import { logout } from './login.js';
 
 
@@ -206,37 +206,51 @@ export async function deleteUser(userId) {
         // Delete related documents in all collections
         console.log(`Deleting user-related data for userId: ${userId}`);
 
-        // Delete from ActivityLogs
-        await deleteCollectionDocuments('ActivityLogs', userId);
+        // Use a batch for faster performance
+        const batch = writeBatch(db);
 
-        // Delete from Albums
-        await deleteCollectionDocuments('Albums', userId);
+        // Delete related documents in all collections
+        const collectionsToDelete = [
+            'ActivityLogs',
+            'Albums',
+            'Comments',
+            'Follows',
+            'Likes',
+            'Photos',
+            'Messages',
+            'Notifications',
+            'Reports',
+        ];
 
-        // Delete from Comments
-        await deleteCollectionDocuments('Comments', userId);
+        for (const collectionName of collectionsToDelete) {
+            console.log(`Deleting documents from ${collectionName}...`);
+            const collectionRef = collection(db, collectionName);
+            const querySnapshot = await getDocs(collectionRef);
 
-        // Delete from Follows
-        await deleteCollectionDocuments('Follows', userId);
+            querySnapshot.forEach((docSnapshot) => {
+                const docData = docSnapshot.data();
 
-        // Delete from Likes
-        await deleteCollectionDocuments('Likes', userId);
+                // Check if the document belongs to the user
+                if (docData.userId === userId) {
+                    batch.delete(doc(db, collectionName, docSnapshot.id)); // Add deletion to the batch
+                }
+            });
+        }
 
-        // Delete from Photos
-        await deleteCollectionDocuments('Photos', userId);
+       // Delete the user document from the 'users' collection
+        console.log(`Deleting user document for userId: ${userId}`);
+        const userDocRef = doc(db, 'users', userId);
+        batch.delete(userDocRef);
 
-        // Delete from other collections (extend as needed)
-        await deleteCollectionDocuments('Messages', userId);
-        await deleteCollectionDocuments('Notifications', userId);
-        await deleteCollectionDocuments('Reports', userId);
+        // Commit all deletions in a single batch
+        await batch.commit();
+        console.log(`All documents related to user ${userId} deleted successfully.`);
 
-        // Delete the user document from the 'users' collection
-        await deleteDoc(doc(db, 'users', userId));
-        console.log(`User ${userId} deleted from Firestore.`);
-
-       // Refresh the user list in the UI
-        displayUsers();
+        // Reload the page to reflect changes
+        alert('User deleted successfully.');
+        window.location.reload();
     } catch (error) {
-        console.error('Error deleting user:', error);
+        cEonsole.error('Error deleting user:', error);
         alert('Error deleting user: ' + error.message);
     }
 }

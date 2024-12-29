@@ -1238,7 +1238,7 @@ async function createMoveToAlbumPopup() {
                     <div class="album-option">
                         <div>
                             <strong>${album.name}</strong>
-                            <p>${album.description || "No description available."}</p>
+                           
                         </div>
                         ${photoActionButton}
                     </div>
@@ -1490,9 +1490,39 @@ async function createReportPhotoPopup(photoId) {
             return;
         }
         const photoData = photoDoc.data();
-        const photoOwnerId = photoData.userId;
+        
         const photoOwnerUsername = photoData.username || "Unknown";
+        const reportedUserId = photoData.userId; // ID of the photo owner
 
+      // Default values
+      let reportedUsername = "Unknown";
+      const currentUser = await getDoc(doc(db, "users", userId));
+      const reportedUser = await getDoc(doc(db, "users", reportedUserId));
+
+      if (currentUser.exists()) {
+        const currentUserData = currentUser.data();
+        console.log(`Reporter username: ${currentUserData.username || "Unknown Reporter"}`);
+    } else {
+        console.warn(`User not found: ${userId}`);
+    }
+
+    if (reportedUser.exists()) {
+        const reportedUserData = reportedUser.data();
+        reportedUsername = reportedUserData.username || "Unknown"; // Use fetched username
+    } else {
+        console.warn(`Reported user not found: ${reportedUserId}`);
+    }
+        // Fetch the reported user's username from the users collection
+        if (reportedUserId) {
+            const userRef = doc(db, "users", reportedUserId);
+            const userDoc = await getDoc(userRef);
+
+            if (userDoc.exists()) {
+                reportedUsername = userDoc.data().username || "Unknown"; // Use fetched username
+            } else {
+                console.warn(`User with ID ${reportedUserId} not found in the database.`);
+            }
+        }
         // Popup content
         const popupContent = `
             <form id="report-photo-form">
@@ -1528,14 +1558,14 @@ async function createReportPhotoPopup(photoId) {
             try {
                 // Add report document to "Reports" collection
                 await addDoc(collection(db, "Reports"), {
-                    category: "Photo",
-                    messageId: photoId,
+                    category: "photo",
+                    photoId: photoId,
                     reason: reason,
                     reportedById: userId,
-                    reportedByUsername: reportedByUsername, // Fetched username
+                    reportedByUsername: currentUser?.data()?.username || "Unknown Reporter", // Current user's username 
                     timestamp: new Date().toISOString(),
-                    ReportedId: photoOwnerId,
-                    ReportedUsername: photoOwnerUsername,
+                    ReportedId: reportedUserId,
+                    ReportedUsername: reportedUsername,
                     status: "Pending Review",
                 });
 
@@ -1708,7 +1738,7 @@ async function reportComment(commentId) {
 
                 // Add a new report document to Firestore with the report details
                 await addDoc(collection(db, "Reports"), {
-                    category: "Comment", // The type of content being reported
+                    category: "comment", // The type of content being reported
                     messageId: commentId, // The ID of the reported comment
                     photoid: photoId,
                     reason: reason,  // Reason provided by the user

@@ -403,17 +403,8 @@ let displayedPhotos = [];
 // Fetch and display photos based on search and sort criteria
 async function fetchPhotos() {
     try {
-        // Fetch all photos from Firestore
-        const photosRef = collection(db, "VaultPhoto");
-        const photosSnapshot = await getDocs(photosRef);
-
-        displayedPhotos = photosSnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        }));
-
-        // Render the initial photos with sorting applied
-        renderFilteredAndSortedPhotos();
+       // Reuse the logic from loadVaultPhotosForUser
+       await loadVaultPhotosForUser();
     } catch (error) {
         console.error("Error fetching photos:", error);
         galleryContainer.innerHTML = `<p>Error loading photos. Please try again later.</p>`;
