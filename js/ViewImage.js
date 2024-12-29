@@ -10,18 +10,17 @@ import { logout } from './login.js';
 //============= Notification popup section ==============================
 
 // Attach an event listener to the bell icon
-document.querySelector('.fa-bell').addEventListener('click', () => {
-    let popup = document.getElementById('notification-popup');
-    let overlay = document.getElementById('popup-overlay');
+const bellIcon = document.querySelector('.fa-bell');
+const notificationPopup = document.getElementById('notification-popup');
+const popupOverlay = document.getElementById('popup-overlay');
 
-    // Create the popup if it doesn't exist
-    if (!popup || !overlay) {
+bellIcon.addEventListener('click', () => {
+    if (!notificationPopup || !popupOverlay) {
         createNotificationPopup();
     }
-
-    // Open the popup
     openPopup();
 });
+
 
 //============= END of Notification popup section ==============================
 
@@ -478,20 +477,18 @@ async function incrementViewCount(photoRef, currentViewCount) {
 //=============== Likes ================
 
 async function initializeLikeButton(photoId) {
-    const currentUser = JSON.parse(sessionStorage.getItem("user")); // Retrieve logged-in user details
+    const currentUser = JSON.parse(sessionStorage.getItem("user"));
 
     if (!currentUser || !currentUser.uid) {
         console.error("Error: User ID not found in sessionStorage.");
         alert("Please log in to like photos.");
-        return; // Exit if user is not logged in
+        return;
     }
 
-    // Reference the like icon and likes count elements in the DOM
     const likeIcon = document.getElementById("like-icon");
     const likesCountElement = document.getElementById("likes-count");
-    const photoRef = doc(db, "Photos", photoId); // Reference to the photo document
+    const photoRef = doc(db, "Photos", photoId);
 
-    // Query to check if the current user has already liked the photo
     const userLikeRef = collection(db, "Likes");
     const userLikeQuery = query(
         userLikeRef,
@@ -499,87 +496,78 @@ async function initializeLikeButton(photoId) {
         where("userId", "==", currentUser.uid)
     );
 
-    let userLikeSnapshot = await getDocs(userLikeQuery); // Fetch user's like state
-    let hasLiked = !userLikeSnapshot.empty; /// Determine if the user has liked the photo
+    let userLikeSnapshot = await getDocs(userLikeQuery);
+    let hasLiked = !userLikeSnapshot.empty;
 
-    // Update the like button color based on like state
-    likeIcon.style.color = hasLiked ? "red" : "gray"; // Red if liked, gray if not
+    likeIcon.style.color = hasLiked ? "red" : "gray";
 
-    // Fetch the current likes count and display it
     const photoDoc = await getDoc(photoRef);
     if (photoDoc.exists()) {
         const photoData = photoDoc.data();
         likesCountElement.textContent = `${photoData.likesCount || 0} Likes`;
     }
 
-    // Attach click event to toggle the like
-    likeIcon.onclick = async () => {
-        try {
-            if (hasLiked) {
-                // Unlike the photo
-                if (!userLikeSnapshot.empty) {
-                    await removeLike(photoId, currentUser, photoRef, userLikeSnapshot.docs[0]);
-                    console.log("Photo unliked.");
-                }
-            } else {
-                // Like the photo
-                await addLike(photoId, currentUser, photoRef);
-                console.log("Photo liked.");
-            }
+    // Remove any existing event listeners
+    likeIcon.replaceWith(likeIcon.cloneNode(true)); // Clone the likeIcon element to remove old listeners
+    const newLikeIcon = document.getElementById("like-icon");
 
-            // Refresh the like state dynamically
-            userLikeSnapshot = await getDocs(userLikeQuery); // Re-fetch like state
-            hasLiked = !userLikeSnapshot.empty; // Update the hasLiked state
-            await updateLikeUI(photoId, currentUser, likeIcon, likesCountElement); // Refresh the UI
-        } catch (error) {
-            console.error("Error toggling like:", error);
+    // Attach a new event listener
+    newLikeIcon.addEventListener("click", async () => {
+        if (hasLiked) {
+            if (!userLikeSnapshot.empty) {
+                await removeLike(photoId, currentUser, photoRef, userLikeSnapshot.docs[0]);
+                console.log("Photo unliked.");
+            }
+        } else {
+            await addLike(photoId, currentUser, photoRef);
+            console.log("Photo liked.");
         }
-    };
+
+        userLikeSnapshot = await getDocs(userLikeQuery);
+        hasLiked = !userLikeSnapshot.empty;
+        await updateLikeUI(photoId, currentUser, newLikeIcon, likesCountElement);
+    });
 }
+
 
 
 async function addLike(photoId, currentUser, photoRef) {
     try {
-        // Fetch photo data for the owner ID
+        const likesRef = doc(db, "Likes", `${currentUser.uid}_${photoId}`); // Unique document ID for each user-photo pair
         const photoDoc = await getDoc(photoRef);
+
         if (!photoDoc.exists()) {
             console.error("Photo not found!");
             alert("Photo not found!");
             return;
         }
-        const photoData = photoDoc.data(); // Get photo data from Firestore
 
-        // Add a new like to the Likes collection
-        const likesRef = collection(db, "Likes");
-        await addDoc(likesRef, {
+        const photoData = photoDoc.data();
+
+        await setDoc(likesRef, {
             photoId: photoId,
             userId: currentUser.uid,
-            timestamp: new Date().toISOString(), // Store the like timestamp
+            timestamp: serverTimestamp(),
         });
 
-        // Increment the like count in the Photos collection
         await updateDoc(photoRef, {
             likesCount: increment(1),
         });
 
-        // Send a notification to the photo owner
         await sendNotification(
-            photoData.userId,           // Receiver: Photo owner
-            currentUser.uid,            // Sender: Current user
-            "Like",                     // Category: Like
-            photoId,                    // Photo ID
-
+            photoData.userId,
+            currentUser.uid,
+            "Like",
+            photoId
         );
 
-
-        // Log the activity
         await logActivity(currentUser.uid, photoId, "liked_photo");
-
         console.log("Photo liked successfully.");
     } catch (error) {
         console.error("Error liking photo:", error);
     }
 }
+
 
 async function removeLike(photoId, currentUser, photoRef, likeDoc) {
     try {
