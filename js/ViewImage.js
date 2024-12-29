@@ -512,21 +512,27 @@ async function initializeLikeButton(photoId) {
     const newLikeIcon = document.getElementById("like-icon");
 
     // Attach a new event listener
-    newLikeIcon.addEventListener("click", async () => {
+   // Use inside initializeLikeButton
+   newLikeIcon.addEventListener("click", async () => {
+    try {
         if (hasLiked) {
-            if (!userLikeSnapshot.empty) {
-                await removeLike(photoId, currentUser, photoRef, userLikeSnapshot.docs[0]);
-                console.log("Photo unliked.");
-            }
+            await removeLike(photoId, currentUser, photoRef, userLikeSnapshot.docs[0]);
         } else {
             await addLike(photoId, currentUser, photoRef);
-            console.log("Photo liked.");
         }
 
-        userLikeSnapshot = await getDocs(userLikeQuery);
-        hasLiked = !userLikeSnapshot.empty;
-        await updateLikeUI(photoId, currentUser, newLikeIcon, likesCountElement);
-    });
+        // Fetch the updated likes count from Firestore
+        const photoDoc = await getDoc(photoRef);
+        const updatedLikesCount = photoDoc.exists() ? (photoDoc.data().likesCount || 0) : 0;
+
+        // Update UI
+        hasLiked = !hasLiked;
+        updateLikesUI(hasLiked, updatedLikesCount);
+    } catch (error) {
+        console.error("Error updating like status:", error);
+        alert("Failed to update like status. Please try again.");
+    }
+});
 }
 
 
@@ -1112,24 +1118,16 @@ async function reduceHashtagCount(hashtag) {
 //This function ensures that all references to the photo in other collections (except ActivityLogs) are removed
 
 async function deletePhotoReferences(photoId) {
-    const collectionsToClean = ["Comments", "Likes"]; // Collections to clean up references
-
+    const collectionsToClean = ["Comments", "Likes"];
     try {
         for (const collectionName of collectionsToClean) {
-            // Query to find documents that reference the photoId
-            const collectionRef = collection(db, collectionName);
-            const querySnapshot = await getDocs(query(collectionRef, where("photoId", "==", photoId)));
-
-            // Delete all documents referencing the photoId
-            for (const docSnapshot of querySnapshot.docs) {
-                await deleteDoc(docSnapshot.ref);
-                console.log(`Deleted reference in ${collectionName}:`, docSnapshot.id);
-            }
+            await deleteDocumentsInBatch(collectionName, "photoId", photoId);
         }
     } catch (error) {
-        console.error(`Error deleting references in collections: ${collectionsToClean}`, error);
+        console.error(`Error deleting references for photo ${photoId}:`, error);
     }
 }
+
 
 
 //This function will copy the photo's document from the Photos collection to the VaultPhoto collection and then delete it from the Photos collection.
@@ -1478,28 +1476,28 @@ async function createReportPhotoPopup(photoId) {
             return;
         }
         const photoData = photoDoc.data();
-        
+
         const photoOwnerUsername = photoData.username || "Unknown";
         const reportedUserId = photoData.userId; // ID of the photo owner
 
-      // Default values
-      let reportedUsername = "Unknown";
-      const currentUser = await getDoc(doc(db, "users", userId));
-      const reportedUser = await getDoc(doc(db, "users", reportedUserId));
+        // Default values
+        let reportedUsername = "Unknown";
+        const currentUser = await getDoc(doc(db, "users", userId));
+        const reportedUser = await getDoc(doc(db, "users", reportedUserId));
 
-      if (currentUser.exists()) {
-        const currentUserData = currentUser.data();
-        console.log(`Reporter username: ${currentUserData.username || "Unknown Reporter"}`);
-    } else {
-        console.warn(`User not found: ${userId}`);
-    }
+        if (currentUser.exists()) {
+            const currentUserData = currentUser.data();
+            console.log(`Reporter username: ${currentUserData.username || "Unknown Reporter"}`);
+        } else {
+            console.warn(`User not found: ${userId}`);
+        }
 
-    if (reportedUser.exists()) {
-        const reportedUserData = reportedUser.data();
-        reportedUsername = reportedUserData.username || "Unknown"; // Use fetched username
-    } else {
-        console.warn(`Reported user not found: ${reportedUserId}`);
-    }
+        if (reportedUser.exists()) {
+            const reportedUserData = reportedUser.data();
+            reportedUsername = reportedUserData.username || "Unknown"; // Use fetched username
+        } else {
+            console.warn(`Reported user not found: ${reportedUserId}`);
+        }
         // Fetch the reported user's username from the users collection
         if (reportedUserId) {
             const userRef = doc(db, "users", reportedUserId);
@@ -1801,19 +1799,14 @@ async function createSharePopup(photoId) {
     createViewImagePopup(popupContent, "Share Photo");
 
     // Add event listener to search input
-    document.getElementById("user-search").addEventListener("input", async (e) => {
+    document.getElementById("user-search").addEventListener("input", debounce(async (e) => {
         const queryText = e.target.value.trim().toLowerCase();
         const userResults = document.getElementById("user-results");
         userResults.innerHTML = ""; // Clear previous results
 
         if (queryText) {
             const usersRef = collection(db, "users");
-            const usersQuery = query(
-                usersRef,
-                where("role", "==", "user"), // Filter by "user" role
-                where("username", ">=", queryText),
-                where("username", "<=", queryText + "\uf8ff")
-            );
+            const users = await memoizedFirestoreQuery("users", [["username", ">=", queryText], ["username", "<=", queryText + "\uf8ff"]]);
             const userSnapshots = await getDocs(usersQuery);
 
             if (!userSnapshots.empty) {
@@ -1849,8 +1842,8 @@ async function createSharePopup(photoId) {
                     listItem.addEventListener("click", () => {
                         // Set the selected user details
                         document.getElementById("user-search").value = user.username;
-                        userResults.innerHTML = ""; // Clear results
-                        userResults.setAttribute("data-selected-user-id", userId); // Correctly set the selected ID
+                userResults.innerHTML = "";
+                userResults.setAttribute("data-selected-user-id", userId);
                     });
 
                     userResults.appendChild(listItem);
@@ -1859,7 +1852,7 @@ async function createSharePopup(photoId) {
                 userResults.innerHTML = `<li style="padding: 5px;">No users found</li>`;
             }
         }
-    });
+    }, 300)); // 300ms debounce
 
     // Add event listener to send button
     document.getElementById("send-share").addEventListener("click", async () => {
@@ -2380,4 +2373,61 @@ async function initializePage() {
 document.addEventListener("DOMContentLoaded", () => {
     initializePage();
 });
+
+
+//============= performance ===============
+function debounce(func, delay) {
+    let timeout;
+    return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func(...args), delay);
+    };
+}
+
+//  Batch Deletions for Firestore
+async function deleteDocumentsInBatch(collectionName, field, value) {
+    try {
+        const collectionRef = collection(db, collectionName);
+        const querySnapshot = await getDocs(query(collectionRef, where(field, "==", value)));
+
+        if (!querySnapshot.empty) {
+            const batch = writeBatch(db);
+            querySnapshot.forEach(doc => batch.delete(doc.ref));
+            await batch.commit();
+            console.log(`Deleted all documents in ${collectionName} where ${field} == ${value}`);
+        }
+    } catch (error) {
+        console.error(`Error deleting documents in ${collectionName}:`, error);
+    }
+}
+
+//Lazy DOM Updates
+function updateLikesUI(hasLiked, likesCount) {
+    const likeIcon = document.getElementById("like-icon");
+    const likesCountElement = document.getElementById("likes-count");
+
+    if (likeIcon) likeIcon.style.color = hasLiked ? "red" : "gray";
+    if (likesCountElement) likesCountElement.textContent = `${likesCount} Likes`;
+}
+
+//Memoizing Firestore Queries
+const cachedQueries = new Map();
+
+async function memoizedFirestoreQuery(collectionName, conditions = []) {
+    const cacheKey = `${collectionName}_${JSON.stringify(conditions)}`;
+    if (cachedQueries.has(cacheKey)) {
+        return cachedQueries.get(cacheKey);
+    }
+
+    const collectionRef = collection(db, collectionName);
+    let firestoreQuery = query(collectionRef);
+    conditions.forEach(([field, op, value]) => {
+        firestoreQuery = query(firestoreQuery, where(field, op, value));
+    });
+
+    const querySnapshot = await getDocs(firestoreQuery);
+    cachedQueries.set(cacheKey, querySnapshot);
+    return querySnapshot;
+}
+
 
