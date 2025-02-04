@@ -15,9 +15,10 @@ const storage = getStorage();
 // Function to initialize profile image upload
 function initializeProfileImageUpload(userData) {
     const uploadButton = document.querySelector('.upload-btn');
-    const profileImage = document.getElementById('Changeprofile-image'); // Match ID
+    const profileImage = document.getElementById('Changeprofile-image'); 
+    profileImage.loading = 'lazy'; // Defer loading
     profileImage.src = userData.profilePic || '../assets/Default_profile_icon.jpg';
-
+    
     const previewProfileImage = document.createElement('img'); // Create an element to preview the new image
 
     // Style the preview image
@@ -26,10 +27,15 @@ function initializeProfileImageUpload(userData) {
     previewProfileImage.style.marginTop = '10px';
     previewProfileImage.style.display = 'none'; // Hidden by default
 
-    // Append the preview image next to the upload button
-    uploadButton.parentElement.appendChild(previewProfileImage);
+    // Append the preview image next to the upload button (only once)
+    if (!uploadButton.parentElement.querySelector('.preview-profile-img')) {
+        previewProfileImage.classList.add('preview-profile-img');
+        uploadButton.parentElement.appendChild(previewProfileImage);
+    }
 
     let selectedImageFile = null; // Variable to store the selected file
+
+    
 
     uploadButton.addEventListener('click', () => {
         const fileInput = document.createElement('input');
@@ -200,19 +206,29 @@ document.addEventListener('DOMContentLoaded', async function () {
              console.error("Edit Profile card not found.");
          }
      }
-     // Wait for 2 seconds and then hide the splash screen
-setTimeout(() => {
-    const splashScreen = document.getElementById('splash-screen');
-    if (splashScreen) {
-        splashScreen.style.transition = 'opacity 0.5s ease'; // Smooth fade-out
-        splashScreen.style.opacity = '0'; // Fade-out effect
-        
-        // Remove the splash screen from the DOM after the fade-out
-        setTimeout(() => {
-            splashScreen.style.display = 'none';
-        }, 500); // Matches the transition duration
+  const splashScreen = document.getElementById('splash-screen');
+
+    try {
+        const loadingTasks = [
+            checkUserAuthentication(),
+            loadBlockedUsers(),
+            initializeSidebar(),
+        ];
+
+        // Wait for all tasks to finish
+        await Promise.all(loadingTasks);
+
+        if (splashScreen) {
+            splashScreen.style.opacity = '0'; // Smooth fade-out
+            setTimeout(() => {
+                splashScreen.style.display = 'none';
+            }, 500);
+        }
+
+        document.body.style.visibility = 'visible'; // Show content
+    } catch (error) {
+        console.error('Error initializing page:', error.message);
     }
-}, 2000); // 2 seconds
 
 
 
@@ -472,57 +488,41 @@ async function loadBlockedUsers() {
     blockedUsersContainer.innerHTML = '';
 
     try {
-        console.log(`Fetching blocked users for user: ${currentUserId}`);
-
-        // Reference to the blockedUsers subcollection
         const blockedUsersRef = collection(db, `users/${currentUserId}/blockedUsers`);
         const blockedSnapshot = await getDocs(blockedUsersRef);
 
         if (blockedSnapshot.empty) {
-            console.log('No blocked users found.');
             blockedUsersContainer.innerHTML = '<p>No blocked users found.</p>';
             return;
         }
 
-        // Fetch user details for each blocked user
-        const blockedUserPromises = blockedSnapshot.docs.map(async (blockedDoc) => {
-            const blockedUserId = blockedDoc.id;
+        // Collect all blocked user IDs and fetch details in batch
+        const userIds = blockedSnapshot.docs.map((doc) => doc.id);
+        const userPromises = userIds.map((id) => getDoc(doc(db, "users", id)));
+        const userDocs = await Promise.all(userPromises);
 
-            console.log(`Fetching user data for blocked user ID: ${blockedUserId}`);
-            const userDocRef = doc(db, `users/${blockedUserId}`);
-            const userDoc = await getDoc(userDocRef);
-
+        const blockedUsersHTML = userDocs.map((userDoc, index) => {
             if (userDoc.exists()) {
                 const userData = userDoc.data();
-                console.log(`User data for ${blockedUserId}:`, userData);
-
-                // Build the HTML for the blocked user
                 return `
                     <div class="blocked-user">
                         <img src="${userData.profilePic || '../assets/Default_profile_icon.jpg'}" alt="User Profile" class="user-profile-img">
                         <div class="user-details">
                             <h3 class="username">${userData.username || 'Unknown'}</h3>
-                            <button class="unblock-btn" data-user-id="${blockedUserId}">Unblock</button>
+                            <button class="unblock-btn" data-user-id="${userIds[index]}">Unblock</button>
                         </div>
                     </div>
                 `;
-            } else {
-                console.warn(`User document not found for blocked user ID: ${blockedUserId}`);
-                return '';
             }
+            return '';
         });
 
-        // Wait for all user data to be fetched
-        const blockedUsersHTML = await Promise.all(blockedUserPromises);
-
-        // Add the generated HTML to the container
         blockedUsersContainer.innerHTML = blockedUsersHTML.join('');
 
         // Add event listeners for the "Unblock" buttons
         document.querySelectorAll('.unblock-btn').forEach((button) => {
             button.addEventListener('click', async (event) => {
                 const blockedUserId = event.target.getAttribute('data-user-id');
-                console.log(`Unblocking user ID: ${blockedUserId}`);
                 await unblockUser(blockedUserId);
             });
         });
@@ -742,35 +742,34 @@ async function fetchCounts() {
     }
 
     try {
-        // Fetch unread notifications count
-        const notificationsRef = collection(db, "Notifications");
-        const notificationsQuery = query(
-            notificationsRef,
-            where("receiverId", "==", userId),
-            where("status", "==", "unopen")
-        );
-        const notificationsSnapshot = await getDocs(notificationsQuery);
-        const unreadNotificationsCount = notificationsSnapshot.size;
-
-        // Fetch unread messages count
-        const messagesRef = collection(db, "Messages");
-        const messagesQuery = query(
-            messagesRef,
-            where("receiverId", "==", userId),
-            where("status", "==", "Unread")
-        );
-        const messagesSnapshot = await getDocs(messagesQuery);
-        const unreadMessagesCount = messagesSnapshot.size;
+        // Parallelize queries using Promise.all
+        const [notificationsSnapshot, messagesSnapshot] = await Promise.all([
+            getDocs(
+                query(
+                    collection(db, "Notifications"),
+                    where("receiverId", "==", userId),
+                    where("status", "==", "unopen")
+                )
+            ),
+            getDocs(
+                query(
+                    collection(db, "Messages"),
+                    where("receiverId", "==", userId),
+                    where("status", "==", "Unread")
+                )
+            ),
+        ]);
 
         return {
-            notifications: unreadNotificationsCount,
-            messages: unreadMessagesCount,
+            notifications: notificationsSnapshot.size,
+            messages: messagesSnapshot.size,
         };
     } catch (error) {
         console.error("Error fetching notification or message counts:", error);
         return { notifications: 0, messages: 0 };
     }
 }
+
 
 
 /**
@@ -874,16 +873,14 @@ async function markMessagesAsRead() {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 //============================ END of Fetch Notification and Message Counts ===========================
 
+//==================== performance ==================
+ // Utility: Debounce function
+function debounce(func, delay) {
+    let timer;
+    return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => func(...args), delay);
+    };
+}

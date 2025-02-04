@@ -26,42 +26,42 @@ cancelCreateMessageButton.addEventListener("click", () => {
 });
 
 // Handle input for recipient's username to implement autocomplete functionality
-receiverUsernameInput.addEventListener("input", async () => {
-    const searchQuery = receiverUsernameInput.value.trim().toLowerCase(); // Get the text the user has typed, in lowercase for case-insensitive search
-    if (!searchQuery) {
-        autocompleteList.innerHTML = ""; // If input is empty, clear the autocomplete suggestions
-        return;
-    }
-    const usersRef = collection(db, "users"); // Reference the "users" collection in Firestore
-    const q = query(usersRef, where("role", "==", "user")); // Only fetch users with role 'user'
-    const querySnapshot = await getDocs(q); // Fetch users from Firestore
+receiverUsernameInput.addEventListener(
+    "input",
+    debounce(async () => {
+        const searchQuery = receiverUsernameInput.value.trim().toLowerCase();
+        if (!searchQuery) {
+            autocompleteList.innerHTML = "";
+            return;
+        }
+        const usersRef = collection(db, "users");
+        const q = query(usersRef, where("role", "==", "user"));
+        const querySnapshot = await getDocs(q);
 
-    // Filter users whose usernames match the input text
-    const matchingUsers = querySnapshot.docs
-        .map((doc) => ({ id: doc.id, ...doc.data() }))
-        .filter((user) => user.username?.toLowerCase().includes(searchQuery));
+        const matchingUsers = querySnapshot.docs
+            .map((doc) => ({ id: doc.id, ...doc.data() }))
+            .filter((user) => user.username?.toLowerCase().includes(searchQuery));
 
-    // Render the list of matching usernames as suggestions
-    autocompleteList.innerHTML = matchingUsers
-        .map(
-            (user) =>
-                `<li data-user-id="${user.id}">
+        autocompleteList.innerHTML = matchingUsers
+            .map(
+                (user) => `
+                <li data-user-id="${user.id}">
                     <img src="${user.profilePic || "../assets/Default_profile_icon.jpg"}" alt="${user.username}">
                     <span>${user.username}</span>
-                </li>`
-        )
-        .join("");
+                </li>
+            `
+            )
+            .join("");
 
-    // Handle selection of username from autocomplete
-    autocompleteList.querySelectorAll("li").forEach((item) => {
-        item.addEventListener("click", () => {
-            receiverUsernameInput.value = item.querySelector("span").textContent; // Set the input field to the selected username
-            receiverUsernameInput.dataset.userId = item.dataset.userId; // Save the userId in a custom data attribute 
-            autocompleteList.innerHTML = ""; // Clear the autocomplete list after selection
+        autocompleteList.querySelectorAll("li").forEach((item) => {
+            item.addEventListener("click", () => {
+                receiverUsernameInput.value = item.querySelector("span").textContent;
+                receiverUsernameInput.dataset.userId = item.dataset.userId;
+                autocompleteList.innerHTML = "";
+            });
         });
-    });
-});
-
+    }, 300) // Debounce delay (300ms)
+);
 // Handle form submission to send the message
 createMessageForm.addEventListener("submit", async (event) => {
     event.preventDefault(); // Prevent the default form submission behavior (page reload)
@@ -191,50 +191,42 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Resolve usernames for senderId and receiverId
     async function resolveUsernames(messages) {
-        const userCache = new Map(); // Cache to avoid duplicate lookups
-
-        for (const message of messages) {
-            // Fetch sender's username and profile picture
-            if (message.senderId && !userCache.has(message.senderId)) {
-                const senderDoc = await getDoc(doc(db, "users", message.senderId));
-                if (senderDoc.exists()) {
-                    const senderData = senderDoc.data();
-                    userCache.set(message.senderId, {
-                        username: senderData.username || "Unknown",
-                        profilePic: senderData.profilePic || "../assets/Default_profile_icon.jpg",
-                    });
-                } else {
-                    userCache.set(message.senderId, {
-                        username: "Unknown",
-                        profilePic: "../assets/Default_profile_icon.jpg",
-                    });
-                }
+        const userCache = new Map();
+        const userIds = Array.from(
+            new Set(
+                messages.flatMap((msg) => [msg.senderId, msg.receiverId])
+            )
+        );
+    
+        // Batch fetch all user data
+        const userDocs = await Promise.all(
+            userIds.map((id) => getDoc(doc(db, "users", id)))
+        );
+    
+        userDocs.forEach((docSnap, index) => {
+            const userId = userIds[index];
+            if (docSnap.exists()) {
+                const userData = docSnap.data();
+                userCache.set(userId, {
+                    username: userData.username || "Unknown",
+                    profilePic: userData.profilePic || "../assets/Default_profile_icon.jpg",
+                });
+            } else {
+                userCache.set(userId, {
+                    username: "Unknown",
+                    profilePic: "../assets/Default_profile_icon.jpg",
+                });
             }
-
-            // Fetch receiver's username and profile picture
-            if (message.receiverId && !userCache.has(message.receiverId)) {
-                const receiverDoc = await getDoc(doc(db, "users", message.receiverId));
-                if (receiverDoc.exists()) {
-                    const receiverData = receiverDoc.data();
-                    userCache.set(message.receiverId, {
-                        username: receiverData.username || "Unknown",
-                        profilePic: receiverData.profilePic || "../assets/Default_profile_icon.jpg",
-                    });
-                } else {
-                    userCache.set(message.receiverId, {
-                        username: "Unknown",
-                        profilePic: "../assets/Default_profile_icon.jpg",
-                    });
-                }
-            }
-
-            // Attach resolved usernames and profile pictures to the message object
-            message.senderUsername = userCache.get(message.senderId).username;
-            message.senderProfilePic = userCache.get(message.senderId).profilePic;
-            message.receiverUsername = userCache.get(message.receiverId).username;
-            message.receiverProfilePic = userCache.get(message.receiverId).profilePic;
-        }
+        });
+    
+        messages.forEach((message) => {
+            message.senderUsername = userCache.get(message.senderId)?.username;
+            message.senderProfilePic = userCache.get(message.senderId)?.profilePic;
+            message.receiverUsername = userCache.get(message.receiverId)?.username;
+            message.receiverProfilePic = userCache.get(message.receiverId)?.profilePic;
+        });
     }
+    
 
 
     // Render messages in the selected tab (Inbox or Sent)
@@ -671,4 +663,16 @@ async function fetchAllPageData() {
         console.error("Error fetching data:", error);
     }
 }
+
+//===================== performance ======================
+// Debounce function
+function debounce(func, delay) {
+    let timeout;
+    return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func(...args), delay);
+    };
+}
+
+
 

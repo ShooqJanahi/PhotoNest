@@ -1807,7 +1807,13 @@ async function createSharePopup(photoId) {
         if (queryText) {
             const usersRef = collection(db, "users");
             const users = await memoizedFirestoreQuery("users", [["username", ">=", queryText], ["username", "<=", queryText + "\uf8ff"]]);
+            const usersQuery = query(
+                usersRef,
+                where("username", ">=", queryText),
+                where("username", "<=", queryText + "\uf8ff")
+            );
             const userSnapshots = await getDocs(usersQuery);
+            
 
             if (!userSnapshots.empty) {
                 userSnapshots.forEach((doc) => {
