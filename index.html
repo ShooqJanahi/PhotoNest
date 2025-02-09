@@ -1,31 +1,3 @@
-<div id="splash-screen">
-    <div class="splash-content">
-        <img src="../assets/PhotoNest_Transparent.png" alt="PhotoNest Logo" class="splash-logo">
-        <h1>PhotoNest</h1>
-        <p>Where memories find their nest</p>
-        <div class="loader"></div>
-    </div>
-</div>
-
-<script>
-    // Wait for 2 seconds and then hide the splash screen
-setTimeout(() => {
-    const splashScreen = document.getElementById('splash-screen');
-    if (splashScreen) {
-        splashScreen.style.transition = 'opacity 0.5s ease'; // Smooth fade-out
-        splashScreen.style.opacity = '0'; // Fade-out effect
-        
-        // Remove the splash screen from the DOM after the fade-out
-        setTimeout(() => {
-            splashScreen.style.display = 'none';
-        }, 500); // Matches the transition duration
-    }
-}, 2000); // 2 seconds
-
-
-
-</script>
-
 
 
 <!DOCTYPE html>
@@ -50,6 +22,16 @@ setTimeout(() => {
     <link rel="icon" href="/assets/PhotoNest_Transparent.png" type="image/png">
 </head>
 <body>
+
+    <div id="splash-screen">
+        <div class="splash-content">
+            <img src="./assets/PhotoNest_Transparent.png" alt="PhotoNest Logo" class="splash-logo">
+            <h1>PhotoNest</h1>
+            <p>Where memories find their nest</p>
+            <div class="loader"></div>
+        </div>
+    </div>
+
     <!--========================== TOP NAV BAR  =============================-->
     <nav>
         <div class="container nav__container">
@@ -296,7 +278,7 @@ setTimeout(() => {
             </article>
             <article class="project mix backend" data-order="6">
                 <div class="project__image">
-                    <img src="/assets/travel1.jpg" alt="Project Six">
+                    <img src="./assets/travel1.jpg" alt="Project Six">
                 </div>
                 <h5>Postcards from Memory Lane</h5>
                 <p>This charming image features a hand holding a collection of postcards against a bustling city backdrop, each card depicting iconic scenes from beautiful locations. It captures the nostalgic essence of travel and the joy of revisiting memories from journeys past.</p>
@@ -332,7 +314,7 @@ setTimeout(() => {
                     </figcaption>
                     <div class="swiper__client">
                         <div class="swiper__client-avatar">
-                            <img src="/assets/Marim.png" alt="client One">
+                            <img src="./assets/Marim.png" alt="client One">
                         </div>
                         <div class="swiper__client-details">
                             <h5>Mariam</h5>
@@ -346,7 +328,7 @@ setTimeout(() => {
                     </figcaption>
                     <div class="swiper__client">
                         <div class="swiper__client-avatar">
-                            <img src="/assets/John.png" alt="client Two">
+                            <img src="./assets/John.png" alt="client Two">
                         </div>
                         <div class="swiper__client-details">
                             <h5>John Dumelo</h5>
@@ -360,7 +342,7 @@ setTimeout(() => {
                     </figcaption>
                     <div class="swiper__client">
                         <div class="swiper__client-avatar">
-                            <img src="/assets/Manar.png" alt="client Seven">
+                            <img src="./assets/Manar.png" alt="client Seven">
                         </div>
                         <div class="swiper__client-details">
                             <h5>Manar Mohammed</h5>
@@ -374,7 +356,7 @@ setTimeout(() => {
                     </figcaption>
                     <div class="swiper__client">
                         <div class="swiper__client-avatar">
-                            <img src="/assets/Eva.png" alt="client Seven">
+                            <img src="./assets/Eva.png" alt="client Seven">
                         </div>
                         <div class="swiper__client-details">
                             <h5>Eva Apio</h5>
@@ -388,7 +370,7 @@ setTimeout(() => {
                     </figcaption>
                     <div class="swiper__client">
                         <div class="swiper__client-avatar">
-                            <img src="/assets/Noora.png" alt="client Seven">
+                            <img src="./assets/Noora.png" alt="client Seven">
                         </div>
                         <div class="swiper__client-details">
                             <h5>Noora Ali</h5>
@@ -520,13 +502,34 @@ setTimeout(() => {
 
 
     
-    <script src="/mix/dist/mixitup.min.js"></script>
+
+<script>
+    // Wait for 2 seconds and then hide the splash screen
+setTimeout(() => {
+    const splashScreen = document.getElementById('splash-screen');
+    if (splashScreen) {
+        splashScreen.style.transition = 'opacity 0.5s ease'; // Smooth fade-out
+        splashScreen.style.opacity = '0'; // Fade-out effect
+        
+        // Remove the splash screen from the DOM after the fade-out
+        setTimeout(() => {
+            splashScreen.style.display = 'none';
+        }, 500); // Matches the transition duration
+    }
+}, 2000); // 2 seconds
+
+
+
+</script>
+
+
+    <script src="./mix/dist/mixitup.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
     <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
     <script>
         AOS.init({duration: 2000, offset: 80});
     </script>
-    <script src="../js/index.js"></script>
+    <script src="./js/index.js"></script>
     
 </body>
 </html>
